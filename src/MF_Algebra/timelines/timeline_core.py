@@ -1,6 +1,7 @@
 from ..expressions import *
 from ..actions import *
 from MF_Tools.dual_compatibility import TransformMatchingShapes, UP, smooth
+# from MF_Tools.rescaling import *
 
 
 class Timeline:
@@ -10,6 +11,8 @@ class Timeline:
     def __init__(
         self,
         auto_color = {},
+        auto_scale = 1,
+        auto_fit = [None, None, None],
         auto_propagate = True,
         show_past_steps = False,
         past_steps_opacity = 0.4,
@@ -21,6 +24,8 @@ class Timeline:
         self.steps = [] # Elements of this list are of the form [expression, action]
         self.current_exp_index = 0
         self.auto_color = auto_color
+        self.auto_scale = auto_scale
+        self.auto_fit = auto_fit
         self.auto_propagate = auto_propagate
         self.show_past_steps = show_past_steps
         if self.show_past_steps:
@@ -40,6 +45,10 @@ class Timeline:
     def set_expression(self, index: int, expression: Expression):
         if self.auto_color:
             expression.set_color_by_subex(self.auto_color)
+        if any(self.auto_fit):
+            expression.mob.scale_to_fit(*self.auto_fit)
+        elif self.auto_scale != 1:
+            expression.mob.scale(self.auto_scale)
         if index == len(self.steps):
             self.add_expression_to_end(expression)
         self.steps[index][0] = expression
@@ -110,12 +119,13 @@ class Timeline:
     def play_range(self, scene, start_index, end_index, wait_between=1, **kwargs):
         for i in range(start_index, end_index):
             self.play_animation(scene, index=i, **kwargs)
-            self.wait(wait_between)
+            scene.wait(wait_between)
     
-    def play_all(self, scene):
+    def play_all(self, scene, wait_between=1):
         self.current_exp_index = 0
         while self.current_exp_index < len(self.steps)-1:
             self.play_next(scene=scene)
+            scene.wait(wait_between)
     
     def shift_past_steps(self, scene, expA, expB):
         mobA_radius = expA.mob.get_critical_point(self.past_steps_direction) - expA.mob.get_center()

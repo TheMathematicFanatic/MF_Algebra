@@ -228,3 +228,44 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 	return VGroup(Nodes, Edges)
 
 
+"""
+import MF_Algebra as MF
+import sympy as sp
+def expression_to_sympy(expr):
+	expr = Smarten(expr)
+	if isinstance(expr, MF.expressions.numbers.Number):
+		if isinstance(expr, MF.expressions.numbers.Integer):
+			return sp.Integer(expr.n)
+		elif isinstance(expr, MF.expressions.numbers.Real):
+			return sp.Float(expr.n)
+		elif isinstance(expr, MF.expressions.numbers.Rational):
+			return sp.Rational(expr.n, expr.d)
+		else:
+			raise NotImplementedError(f"Unsupported type {type(expr)}")
+	elif isinstance(expr, MF.expressions.variables.Variable):
+		return sp.Symbol(expr.symbol)
+	elif isinstance(expr, MF.expressions.operations.Operation):
+		if isinstance(expr, MF.expressions.operations.Add):
+			return sp.Add(*map(expression_to_sympy, expr.children))
+		elif isinstance(expr, MF.expressions.operations.Sub):
+			return sp.Add(expression_to_sympy(expr.children[0]), -expression_to_sympy(expr.children[1]))
+		elif isinstance(expr, MF.expressions.operations.Mul):
+			return sp.Mul(*map(expression_to_sympy, expr.children))
+		elif isinstance(expr, MF.expressions.operations.Div):
+			return sp.Mul(expression_to_sympy(expr.children[0]), sp.Pow(expression_to_sympy(expr.children[1]), -1))
+		elif isinstance(expr, MF.expressions.operations.Pow):
+			return sp.Pow(expression_to_sympy(expr.children[0]), expression_to_sympy(expr.children[1]))
+		elif isinstance(expr, MF.expressions.operations.Negative):
+			return sp.Mul(-1, expression_to_sympy(expr.children[0]))
+		else:
+			raise NotImplementedError(f"Unsupported type {type(expr)}")
+	elif isinstance(expr, MF.expressions.sequences.Sequence):
+		raise NotImplementedError("Sequences not yet supported")
+	elif isinstance(expr, MF.expressions.functions.Function):
+		raise NotImplementedError("Functions not yet supported")
+	elif isinstance(expr, MF.expressions.relations.Relation):
+		raise NotImplementedError("Relations not yet supported")
+	else:
+		raise NotImplementedError(f"Unsupported type {type(expr)}")
+
+"""

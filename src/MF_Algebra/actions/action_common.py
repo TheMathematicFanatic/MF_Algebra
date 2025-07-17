@@ -169,6 +169,8 @@ class evaluate_(Action):
 
     @preaddressfunc
     def get_output_expression(self, input_expression=None):
+        if isinstance(input_expression, Relation):
+            raise ValueError("Not implemented yet")
         return input_expression.evaluate()
     
     @preaddressmap
@@ -247,3 +249,9 @@ c = Variable('c')
 
 square_binomial_ = AlgebraicAction((a+b)**2, a**2 + 2*a*b + b**2)
 
+AlgebraMoves = [
+    AlgebraicAction(a+b & c, a & c-b, var_kwarg_dict={b:{"path_arc":PI}}, extra_addressmaps=[['0+', '1-', {'path_arc': PI}]]),
+    AlgebraicAction(a-b & c, a & c+b),
+    AlgebraicAction(a*b & c, b & c/a, var_kwarg_dict={a:{"path_arc":PI*2/3}}, extra_addressmaps=[[Write, '1/', {'delay':0.25}]]),
+    AlgebraicAction(a/b & c, a & c*b, var_kwarg_dict={b:{"path_arc":PI*2/3}}, extra_addressmaps=[['0/', FadeOut, {'delay':0}], [FadeIn, '11()', {'delay':1, 'run_time':0.5}]]),
+]

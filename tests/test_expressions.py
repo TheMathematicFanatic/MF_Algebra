@@ -41,9 +41,8 @@ def F():
 
 
 def test_Variable():
-    assert x == x
     assert x.is_identical_to(x)
-    assert x != y
+    assert not x.is_identical_to(y)
     assert str(x) == 'x'
 
 def test_Integer():

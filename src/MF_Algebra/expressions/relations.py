@@ -11,7 +11,7 @@ class Relation(Combiner):
 
 class Equation(Relation):
 	def __init__(self, *children, **kwargs):
-		self.eval_op = lambda X,Y: X.exactly_equals(Y)
+		self.eval_op = lambda X,Y: X.is_identical_to(Y)
 		super().__init__("=", 1, *children, **kwargs)
 
 class LessThan(Relation):

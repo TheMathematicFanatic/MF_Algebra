@@ -215,3 +215,79 @@ class EvaluateTimelineTest2(Scene):
         self.add(E.mob)
         self.embed()
         E.play_all(self)
+
+
+class AlgebraTest(Scene):
+    def construct(self):
+        T = Evaluate(auto_color={x:RED, y:BLUE}, auto_scale=2.5, show_past_steps=True)
+        (y & 2*x+4) >> T
+        T >> swap_children_()
+        T >> AlgebraMoves[0]
+        T >> substitute_({y:100})
+        #T >> evaluate_('1')
+        T >> AlgebraMoves[2]
+        #T >> evaluate_('1')
+
+        self.play(Write(T.mob))
+        self.wait()
+        T.play_all(self)
+        self.embed()
+
+
+class AlgebraTest2(Scene):
+    def construct(self):
+        T = Timeline(auto_color={x:RED, y:BLUE}, auto_scale=2.5, show_past_steps=False, auto_propagate=False)
+        (y & SmQ(1,2)*x+7) >> T
+        T >> swap_children_()
+        T >> substitute_({x:y, y:x})
+        T >> AlgebraMoves[0]
+        T >> AddressMapAction(
+            ['001', '10', {'path_arc':PI, 'delay':0}],
+            ['000', FadeOut, {'run_time':0.5}],
+            ['00/', FadeOut, {'run_time':0.5}],
+            [FadeIn, '11()', {'delay':0.5}]
+        ) >> (y & 2*(x-7))
+        T >> AddressMapAction(
+            ['10', '100', {'path_arc':-PI}],
+            ['10', '11', {'path_arc':-PI*0.75}],
+            ['111', '11'],
+            ['11()', FadeOut, {'run_time':0.5}]
+        ) >> (y & 2*x-14)
+        # T >> substitute_({x:13})
+        # T.propagate()
+        # #T.get_expression(-1).get_subex('101').give_parentheses()
+        # T >> evaluate_('10') >> evaluate_('1')
+        T.propagate()
+        
+        self.play(Write(T.mob))
+        self.wait()
+        T.play_all(self, wait_between=0)
+        self.embed()
+
+
+class AlgebraTest3(Scene):
+    def construct(self):
+        T = Timeline(auto_color={x:RED, y:BLUE}, auto_scale=2.5, show_past_steps=False, auto_propagate=True)
+        (y & (x+2)/(3*x+5)) >> T
+        T >> swap_children_()
+        T >> substitute_({x:y, y:x})
+        T >> AlgebraMoves[3]
+        # T.propagate()
+        
+        self.play(Write(T.mob))
+        self.wait()
+        T.play_all(self, wait_between=0)
+        self.embed()
+
+
+class AlgebraTest4(Scene):
+    def construct(self):
+        T = Evaluate(auto_color={a:RED, b:GREEN, c:PURPLE}, auto_scale=2.5, show_past_steps=True)
+        (a**2 + b**2) >> T
+        T >> div_(c**2)
+        T >> substitute_({a:3, b:1, c:2}, mode='swirl', lag=0.3)
+        T >> substitute_into_(x**2 + 1/(x+7))
+
+        self.play(Write(T.mob))
+        T.play_all(self, wait_between=0)
+        self.embed()
