@@ -141,6 +141,9 @@ class Action:
 			actions.append(action)
 		return ParallelAction(*actions)
 
+	def __leq__(self, expr):
+		assert isinstance(exp, Expression), "Can only apply expression >= action"
+		return self.get_output_expression(action)
 
 
 def preaddressfunc(func):

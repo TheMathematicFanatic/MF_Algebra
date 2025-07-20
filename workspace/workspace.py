@@ -37,13 +37,11 @@ class TimelineTest(Scene):
         self.embed()
 
 
-
 class Theorem(Scene):
     def construct(self):
         A = Tex("x^2-4")
         B = Tex("(x-2)(x+2)")
         self.embed()
-
 
 
 class CombineAnimations(Scene):
@@ -143,7 +141,6 @@ class TimelineTest3(Scene):
         self.embed()
         
 
-
 class TimelineTest4(Scene):
     def construct(self):
         T = AutoTimeline(auto_color={a:RED, b:GREEN, c:BLUE})
@@ -153,7 +150,6 @@ class TimelineTest4(Scene):
         T.propagate()
         self.add(A.mob)
         self.embed()
-
 
 
 class FunctionSubstituteTest(Scene):
@@ -187,7 +183,6 @@ class ShowStepsTimelineTest(Scene):
         T.play_all(self)
         self.play(self.camera.frame.animate.rotate(PI/3, RIGHT), run_time=3)
         self.wait()
-
 
 
 class AlgebraicActionTest(Scene):
@@ -282,7 +277,7 @@ class AlgebraTest3(Scene):
 
 class AlgebraTest4(Scene):
     def construct(self):
-        T = Evaluate(auto_color={a:RED, b:GREEN, c:PURPLE}, auto_scale=2.5, show_past_steps=True)
+        T = Evaluate(auto_color={a:RED, b:GREEN, c:PURPLE}, auto_scale=2.5, show_past_steps=False)
         (a**2 + b**2) >> T
         T >> div_(c**2)
         T >> substitute_({a:3, b:1, c:2}, mode='swirl', lag=0.3)
@@ -291,3 +286,75 @@ class AlgebraTest4(Scene):
         self.play(Write(T.mob))
         T.play_all(self, wait_between=0)
         self.embed()
+
+
+class AlgebraTest5(Scene):
+    def construct(self):
+        act = alg_add_R
+        exp = 4*x**3 + 12 & 9
+
+        A = Timeline(auto_scale=2)
+        exp.copy() >> A
+        A >> act()
+        A.get_vgroup().to_corner(UL)
+
+        B = Timeline(auto_scale=2)
+        act().get_output_expression(exp.copy()) >> B
+        B >> act().reverse()
+        B.get_vgroup().to_corner(UR)
+
+        C = Timeline(auto_scale=2)
+        swap_children_().get_output_expression(exp.copy()) >> C
+        C >> act().flip()
+        C.get_vgroup().to_edge(LEFT)
+
+        D = Timeline(auto_scale=2)
+        swap_children_().get_output_expression(act().get_output_expression(exp.copy())) >> D
+        D >> act().flip().reverse()
+        D.get_vgroup().to_edge(RIGHT)
+
+
+    
+        self.add(A.mob, B.mob, C.mob, D.mob)
+
+        A.play_all(self)
+        B.play_all(self)
+        C.play_all(self)
+        D.play_all(self)
+    
+
+class AlgebraTest6(Scene):
+    def construct(self):
+        act = alg_add_L
+        sub_dict = {a:3/x, b:10*y*z, c:163}
+
+        A = Timeline(auto_fit=[5,None,None])
+        A_act = act()
+        A_act.template1.substitute(sub_dict) >> A >> A_act
+        A.get_vgroup().to_corner(UL)
+
+        B = Timeline(auto_fit=[5,None,None])
+        B_act = act().reverse()
+        B_act.template1.substitute(sub_dict) >> B >> B_act
+        B.get_vgroup().to_corner(UR)
+
+        C = Timeline(auto_fit=[5,None,None])
+        C_act = act().flip()
+        C_act.template1.substitute(sub_dict) >> C >> C_act
+        C.get_vgroup().to_edge(LEFT)
+
+        D = Timeline(auto_fit=[5,None,None])
+        D_act = act().reverse().flip()
+        D_act.template1.substitute(sub_dict) >> D >> D_act
+        D.get_vgroup().to_edge(RIGHT)
+
+        
+        self.add(A.mob, B.mob, C.mob, D.mob)
+        for T in [A,B,C,D]:
+            T.play_all(self)
+        self.wait()
+        
+        
+
+
+

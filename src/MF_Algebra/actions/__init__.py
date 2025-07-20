@@ -3,3 +3,4 @@ from .animations import *
 from .action_variants import *
 from .combinations import *
 from .action_common import *
+from .algebra import *
