@@ -25,6 +25,9 @@ class AutoTimeline(Timeline):
         # Implement in subclasses. Return None if finished.
         return None
 
+    def resume(self):
+        self.add_action_to_end(self.decide_next_action(self.current_exp_index))
+
 
 
 

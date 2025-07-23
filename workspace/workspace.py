@@ -310,7 +310,7 @@ class AlgebraTest5(Scene):
 
         D = Timeline(auto_scale=2)
         swap_children_().get_output_expression(act().get_output_expression(exp.copy())) >> D
-        D >> act().flip().reverse()
+        D >> act().reverse_flip()
         D.get_vgroup().to_edge(RIGHT)
 
 
@@ -325,36 +325,115 @@ class AlgebraTest5(Scene):
 
 class AlgebraTest6(Scene):
     def construct(self):
-        act = alg_add_L
-        sub_dict = {a:3/x, b:10*y*z, c:163}
+        act = alg_mul_L
+        sub_dict = {a:3/(x**2+14*x-5), b:10*y*z, c:163}
 
         A = Timeline(auto_fit=[5,None,None])
         A_act = act()
-        A_act.template1.substitute(sub_dict) >> A >> A_act
+        A_act.template1.copy().substitute(sub_dict) >> A >> A_act
         A.get_vgroup().to_corner(UL)
 
         B = Timeline(auto_fit=[5,None,None])
         B_act = act().reverse()
-        B_act.template1.substitute(sub_dict) >> B >> B_act
+        B_act.template1.copy().substitute(sub_dict) >> B >> B_act
         B.get_vgroup().to_corner(UR)
 
         C = Timeline(auto_fit=[5,None,None])
         C_act = act().flip()
-        C_act.template1.substitute(sub_dict) >> C >> C_act
+        C_act.template1.copy().substitute(sub_dict) >> C >> C_act
         C.get_vgroup().to_edge(LEFT)
 
         D = Timeline(auto_fit=[5,None,None])
-        D_act = act().reverse().flip()
-        D_act.template1.substitute(sub_dict) >> D >> D_act
+        D_act = act().reverse_flip()
+        D_act.template1.copy().substitute(sub_dict) >> D >> D_act
         D.get_vgroup().to_edge(RIGHT)
 
         
         self.add(A.mob, B.mob, C.mob, D.mob)
         for T in [A,B,C,D]:
             T.play_all(self)
-        self.wait()
-        
+        self.embed()
         
 
+class AlgebraTest7(Scene):
+    def construct(self):
+        A = 4*x+5 & 21
+        T = Evaluate(auto_scale=2.5)
+        A >> T
+        T >> alg_add_R()
+        T >> alg_mul_L()
 
+        self.play(Write(T.mob))
+        T.play_all(self)
+        self.embed()
+
+
+class AlgebraTest8(Scene):
+    def construct(self):
+        A = 14-4*x & 25
+        S = Solve(solve_for=x, auto_scale=2.5, auto_color={x:GREEN_E}, show_past_steps=True)
+        A >> S
+        S.play_all(self, wait_between=0)
+
+
+class AlgebraTest9(Scene):
+    def construct(self):
+        A = a*x+b*y & c*z
+        S = Solve(
+            solve_for=y,
+            auto_fit=[8,8,None],
+            auto_color={x:RED, y:BLUE, z:GREEN}
+        )
+        A >> S
+        S.play_all(self)
+        self.embed()
+
+
+class InteractiveAlgebra(Scene):
+    def construct(self):
+        A = a*x + b*y & c*z
+        S = Solve(
+            solve_for=y,
+            auto_fit=[8,8,None],
+            auto_color={x:RED, y:BLUE, z:GREEN}
+        )
+        A >> S
+        S.play_all(self)
+        S.solve_for = c
+        S.resume()
+        S.play_all(self)
+        self.embed()
+
+import random
+class DeepEquation(Scene):
+    def construct(self):
+        random.seed()
+        var = x
+        depth = 5
+        vars = [x,y,z]
+        number_options = [1,5,8]
+        S = Solve(
+            solve_for = var,
+            auto_fit = [8, 6, None],
+            auto_color = {x:RED, y:BLUE, z:GREEN}
+        )
+        A = x
+        vars.remove(var)
+        for i in range(depth):
+            if i == depth-1:
+                OpClass = Equation
+            else:
+                OpClass = random.choice([Add, Sub, Mul, Div])
+            side = random.choice(['left'])
+            leaf_options = number_options + vars
+            item = random.choice(leaf_options)
+            if side == 'left':
+                A = OpClass(item, A)
+            elif side == 'right':
+                A = OpClass(A, item)
+        
+        A >> S
+        S.play_all(self)
+        self.embed()
+        S >> substitute_({v:random.choice(number_options) for v in vars})
 

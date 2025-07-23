@@ -54,7 +54,12 @@ f = SmFunc("f", 1)
 g = SmFunc("g", 1)
 h = SmFunc("h", 1)
 
+sqrt = SmFunc("\\sqrt", 2, rule=lambda x: x**0.5, parentheses_mode="weak")
 
+def rad(index):
+    return SmFunc(f"\\sqrt[{index}]", 2+len(str(index)),
+        rule=lambda x: x**(1/index),
+        parentheses_mode="weak")
 
 def log(base):
     return SmFunc(f"\\log_{base}", 3+len(str(base)),

@@ -121,8 +121,12 @@ class Timeline:
             self.play_animation(scene, index=i, **kwargs)
             scene.wait(wait_between)
     
-    def play_all(self, scene, wait_between=1):
-        self.current_exp_index = 0
+    def play_all(self, scene, wait_between=1, reset_exp_index=False):
+        if reset_exp_index:
+            self.current_exp_index = 0
+        if self.mob not in scene.mobjects:
+            scene.play(Write(self.mob))
+            scene.wait(wait_between)
         while self.current_exp_index < len(self.steps)-1:
             self.play_next(scene=scene)
             scene.wait(wait_between)
