@@ -129,21 +129,28 @@ class Action:
 	def copy(self):
 		return deepcopy(self)
 	
-	@property
 	def both(self, number_of_sides=2):
 		# Intended to turn an action on an expression into an action done to both sides of an equation.
 		# Can be passed a number to apply to more than 2 sides for, say, a triple equation or inequality.
-		from .combinations import ParallelAction
-		actions = []
-		for i in range(number_of_sides):
-			action = self.copy()
-			action.preaddress = action.preaddress + str(i)
-			actions.append(action)
-		return ParallelAction(*actions)
+		return self.pread(*[str(i) for i in range(number_of_sides)])
+	
+	def pread(self, *addresses):
+		if len(addresses) == 0:
+			return self
+		elif len(addresses) == 1:
+			self.preaddress = addresses[0] + self.preaddress
+			return self
+		else:
+			actions = []
+			for ad in addresses:
+				action = self.copy().pread(ad)
+				actions.append(action)
+			from .combinations import ParallelAction
+			return ParallelAction(*actions)
 
 	def __leq__(self, expr):
-		assert isinstance(exp, Expression), "Can only apply expression >= action"
-		return self.get_output_expression(action)
+		assert isinstance(expr, Expression), "Can only apply expression >= action"
+		return self.get_output_expression(expr)
 
 
 def preaddressfunc(func):
