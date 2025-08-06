@@ -378,3 +378,7 @@ class Combiner(Expression):
 		self.left_spacing = left_spacing
 		self.right_spacing = right_spacing
 
+	def get_op_glyphs(self):
+		pass
+
+

@@ -399,10 +399,10 @@ class InteractiveAlgebra(Scene):
         )
         A >> S
         S.play_all(self)
-        S.solve_for = c
-        S.resume()
+        S.set_solve_for(c)
         S.play_all(self)
         self.embed()
+
 
 import random
 class DeepEquation(Scene):
@@ -436,4 +436,11 @@ class DeepEquation(Scene):
         S.play_all(self)
         self.embed()
         S >> substitute_({v:random.choice(number_options) for v in vars})
+
+
+class SolveTriangle(Scene):
+    def construct(self):
+        (alpha + (SmZ(30) + 60) & 180) >> (S := Solve(solve_for=alpha, auto_scale=2.5, auto_color={alpha:RED_A}))
+        S.play_all(self, wait_between=0.5)
+        self.embed()
 

@@ -83,3 +83,7 @@ class Solve(AutoTimeline):
 
         return None
 
+    def set_solve_for(self, var):
+        self.solve_for = var
+        self.resume()
+

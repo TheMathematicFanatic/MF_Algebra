@@ -144,7 +144,7 @@ def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per
 	def generate_children(current_depth, number_of_children):
 		return [generate_child(current_depth) for _ in range(number_of_children)]
 	if node == Add or node == Mul:
-		children = generate_children(max_depth, random.choice(list(range(2,max_children_per_node))))
+		children = generate_children(max_depth, random.choice(list(range(2,max_children_per_node+1))))
 	elif node == Negative:
 		children = generate_children(max_depth, 1)
 	else:
