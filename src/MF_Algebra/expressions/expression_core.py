@@ -9,7 +9,8 @@ algebra_config = {
 		"multiplication_mode": "juxtapose",
 		"division_mode": "fraction",
 		"decimal_precision": 4,
-		"always_color": {}
+		"always_color": {},
+		"fast_paren_length": False
 	}
 
 class Expression:
@@ -279,6 +280,8 @@ class Expression:
 	def paren_length(self):
 		# Returns the number of glyphs taken up by the expression's potential parentheses.
 		# Usually 1 but can be larger for larger parentheses.
+		if algebra_config['fast_paren_length'] == True:
+			return 1
 		yes_paren = self.copy().give_parentheses(True)
 		no_paren = self.copy().give_parentheses(False)
 		num_paren_glyphs = len(yes_paren) - len(no_paren)
@@ -358,6 +361,20 @@ class Expression:
 	def __repr__(self):
 		return type(self).__name__ + "(" + str(self) + ")"
 
+	def get_all_subexpressions_of_type(self, expression_type):
+		result = set()
+		for child in self.children:
+			if isinstance(child, expression_type):
+				result |= set(child)
+			else:
+				result |= child.get_all_subexpressions_of_type(expression_type)
+		return result
+	
+	def get_all_variables(self):
+		from .variables import Variable
+		return self.get_all_subexpressions_of_type(Variable)
+
+
 
 class Combiner(Expression):
 	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
@@ -378,7 +395,29 @@ class Combiner(Expression):
 		self.left_spacing = left_spacing
 		self.right_spacing = right_spacing
 
-	def get_op_glyphs(self):
-		pass
-
-
+	def get_op_glyphs(self, *args, **kwargs):
+		return super().get_op_glyphs(*args, **kwargs)
+	
+	def get_glyphs_at_address(self, address):
+		start = 0
+		for n,a in enumerate(address):
+			parent = self.get_subex(address[:n])
+			if parent.parentheses:
+				start += parent.paren_length()
+			for i in range(int(a)):
+				sibling = parent.children[i]
+				start += len(sibling)
+				start += parent.symbol_glyph_length
+		end = start + len(self.get_subex(address))
+		return list(range(start, end))
+	
+	def get_glyphs_at_addigit(self, addigit):
+		start = 0
+		if self.parentheses:
+			start += self.paren_length()
+		for i in range(int(addigit)):
+			sibling = self.children[i]
+			start += len(sibling)
+			start += self.symbol_glyph_length
+		end = start + len(self.children[int(addigit)])
+		return list(range(start, end))

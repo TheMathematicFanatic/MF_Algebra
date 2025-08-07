@@ -444,3 +444,13 @@ class SolveTriangle(Scene):
         S.play_all(self, wait_between=0.5)
         self.embed()
 
+
+class TestFunction(Scene):
+    def construct(self):
+        from MF_Algebra.extra.trigonometry import sin
+        F = 3*sin(x/2)
+        self.add(F.mob)
+        self.embed()
+
+
+
