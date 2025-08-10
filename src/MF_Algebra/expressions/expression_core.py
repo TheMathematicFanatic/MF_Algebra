@@ -384,20 +384,20 @@ class Combiner(Expression):
 		self.left_spacing = ""
 		self.right_spacing = ""
 		super().__init__(**kwargs)
-	
+
 	@tex
 	def __str__(self, *args, **kwargs):
 		joiner = self.left_spacing + self.symbol + self.right_spacing
 		result = joiner.join(["{" + str(child) + "}" for child in self.children])
 		return result
-	
+
 	def set_spacing(self, left_spacing, right_spacing):
 		self.left_spacing = left_spacing
 		self.right_spacing = right_spacing
 
 	def get_op_glyphs(self, *args, **kwargs):
 		return super().get_op_glyphs(*args, **kwargs)
-	
+
 	def get_glyphs_at_address(self, address):
 		start = 0
 		for n,a in enumerate(address):
@@ -412,12 +412,12 @@ class Combiner(Expression):
 		return list(range(start, end))
 	
 	def get_glyphs_at_addigit(self, addigit):
+		child_index = int(addigit)
 		start = 0
 		if self.parentheses:
 			start += self.paren_length()
-		for i in range(int(addigit)):
-			sibling = self.children[i]
+		for sibling in self.children[:child_index]:
 			start += len(sibling)
 			start += self.symbol_glyph_length
-		end = start + len(self.children[int(addigit)])
+		end = start + len(self.children[child_index])
 		return list(range(start, end))
