@@ -23,8 +23,7 @@ class Function(Expression):
 		# Further children are parameters like subscripts, indices, or bounds.
 		self.children = []
 		super().__init__(**kwargs)
-	
-	@tex
+
 	def __str__(self):
 		symbol_string = self.get_symbol_string()
 		argument_string = str(self.children[0]) if len(self.children) > 0 else ""
@@ -82,7 +81,7 @@ class Function(Expression):
 			return substituted_expression.compute()
 
 
-
+from .sequences import Sequence
 class _OldFunction(Expression):
 	def __init__(self, symbol, symbol_glyph_length, rule=None, algebra_rule=None, parentheses_mode="always", **kwargs):
 		self.symbol = symbol #string
@@ -94,7 +93,6 @@ class _OldFunction(Expression):
 		self.spacing = ""
 		super().__init__(**kwargs)
 
-	@tex
 	def __str__(self):
 		return self.symbol + self.spacing + (str(self.children[0]) if len(self.children) > 0 else "")
 

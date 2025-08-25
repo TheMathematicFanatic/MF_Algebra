@@ -24,15 +24,6 @@ def Smarten(input):
 		raise NotImplementedError(f"Unsupported type {type(input)}")
 
 
-def tex(func):
-	def wrapper(expr, *args, **kwargs):
-		pretex = func(expr, *args, **kwargs)
-		if expr.parentheses:
-			pretex = r"\left(" + pretex + r"\right)"
-		return pretex
-	return wrapper
-
-
 def add_spaces_around_brackets(input_string): #GPT
 	result = []
 	i = 0

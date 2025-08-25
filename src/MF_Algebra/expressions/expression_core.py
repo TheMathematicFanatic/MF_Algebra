@@ -1,6 +1,6 @@
 # expressions.py
 from MF_Tools.dual_compatibility import dc_Tex as Tex, MANIM_TYPE, VGroup
-from ..utils import Smarten, tex, add_spaces_around_brackets
+from ..utils import Smarten, add_spaces_around_brackets
 from copy import deepcopy
 
 
@@ -19,6 +19,9 @@ class Expression:
 		if algebra_config["auto_parentheses"]:
 			self.auto_parentheses()
 		self._mob = None
+
+	def __init_subclass__(cls):
+		cls.__str__ = include_parentheses_around_string(cls.__str__)
 
 	@property
 	def mob(self):
@@ -375,6 +378,14 @@ class Expression:
 		return self.get_all_subexpressions_of_type(Variable)
 
 
+def include_parentheses_around_string(str_func):
+	def wrapper(expr, *args, **kwargs):
+		pretex = str_func(expr, *args, **kwargs)
+		if expr.parentheses:
+			pretex = "\\left(" + pretex + "\\right)"
+		return pretex
+	return wrapper
+
 
 class Combiner(Expression):
 	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
@@ -385,7 +396,6 @@ class Combiner(Expression):
 		self.right_spacing = ""
 		super().__init__(**kwargs)
 
-	@tex
 	def __str__(self, *args, **kwargs):
 		joiner = self.left_spacing + self.symbol + self.right_spacing
 		result = joiner.join(["{" + str(child) + "}" for child in self.children])

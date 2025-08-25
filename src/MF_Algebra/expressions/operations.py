@@ -112,7 +112,6 @@ class Negative(Expression):
 		self.children = [Smarten(child)]
 		super().__init__(**kwargs)
 
-	@tex
 	def __str__(self):
 		return "-" + str(self.children[0])
 
