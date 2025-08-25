@@ -70,13 +70,18 @@ class Action:
 		self.introducer = introducer
 		self.remover = remover
 		self.preaddress = preaddress
+	
+	def __init_subclass__(cls):
+		cls.get_output_expression = preaddressfunc(cls.get_output_expression)
+		cls.get_addressmap = preaddressmap(cls.get_addressmap)
+		cls.get_addressmap = autoparenmap(cls.get_addressmap)
 
 	def get_output_expression(self, input_expression):
-  		# define in subclasses and decorate with @preaddressfunc
+  		# define in subclasses
 		raise NotImplementedError
 
 	def get_addressmap(self, input_expression, **kwargs):
-		# define in subclasses and decorate with @preaddressmap
+		# define in subclasses
 		raise NotImplementedError
 
 	def get_animation(self, **kwargs):
