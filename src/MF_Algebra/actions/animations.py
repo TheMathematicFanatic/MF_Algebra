@@ -4,8 +4,9 @@ from MF_Tools.transforms import TransformByGlyphMap
 
 class TransformByAddressMap(TransformByGlyphMap):
     def __init__(self, expA, expB, *addressmap, **kwargs):
-        glyphmap = self.addressmap_to_glyphmap(expA, expB, addressmap)
-        super().__init__(expA.mob, expB.mob, *glyphmap, **kwargs)
+        self.addressmap = addressmap
+        self.glyphmap = self.addressmap_to_glyphmap(expA, expB, addressmap)
+        super().__init__(expA.mob, expB.mob, *self.glyphmap, **kwargs)
     
     def addressmap_to_glyphmap(self, expA, expB, addressmap):
         glyphmap = [

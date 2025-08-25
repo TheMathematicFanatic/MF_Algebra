@@ -33,8 +33,8 @@ class Timeline:
             self.past_steps_opacity = past_steps_opacity
             self.past_steps_direction = past_steps_direction
             self.past_steps_buff = past_steps_buff
-            self.shift_run_time = past_steps_shift_run_time
-            self.shift_rate_func = past_steps_shift_rate_func
+            self.past_steps_shift_run_time = past_steps_shift_run_time
+            self.past_steps_shift_rate_func = past_steps_shift_rate_func
 
     def get_expression(self, index: int) -> Expression:
         try:
@@ -100,16 +100,23 @@ class Timeline:
             except NotImplementedError:
                 pass
     
-    def play_animation(self, scene, index, **kwargs):
+
+    def get_animation(self, index, **kwargs):
         action = self.get_action(index)
+        expA = self.get_expression(index)
+        expB = self.get_expression(index+1)
+        if action:
+            Animation = action.get_animation()(expA, expB, **kwargs)
+        else:
+            Animation = TransformMatchingShapes(expA.mob, expB.mob, **kwargs)
+        return Animation
+
+    def play_animation(self, scene, index, **kwargs):
         expA = self.get_expression(index)
         expB = self.get_expression(index+1)
         if self.show_past_steps:
             self.shift_past_steps(scene, expA, expB)
-        if action:
-            animation = action.get_animation()(expA, expB, **kwargs)
-        else:
-            animation = TransformMatchingShapes(expA.mob, expB.mob, **kwargs)
+        animation = self.get_animation(index, **kwargs)
         scene.play(animation)
         self.current_exp_index = index+1
     
@@ -141,8 +148,8 @@ class Timeline:
         scene.add(self.past_steps_vgroup)
         scene.play(
             self.past_steps_vgroup.animate.shift(shift_distance * self.past_steps_direction),
-            run_time = self.shift_run_time,
-            rate_func = self.shift_rate_func
+            run_time = self.past_steps_shift_run_time,
+            rate_func = self.past_steps_shift_rate_func
         )
     
     def __rshift__(self, other):
