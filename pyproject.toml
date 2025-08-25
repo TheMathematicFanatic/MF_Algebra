@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "MF-Algebra"
-version = "0.5.0"
+version = "0.5.1"
 description = "Manim plugin which aims to make it much easier to meaningfully transform algebra expressions."
 authors = ["John Connell <johnconnelltutor@gmail.com>"]
 license = "None"
@@ -13,7 +13,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.8"
-MF_Tools = ">=1.3.3"
+MF_Tools = ">=1.4.1"
 manim = { version = ">=0.17.0", optional = true }
 manimgl = { version = ">=1.7.0", optional = true }
 

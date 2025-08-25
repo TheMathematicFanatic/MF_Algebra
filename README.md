@@ -34,6 +34,18 @@ Every Expression contains an attribute called children, which is a list. Sometim
 
 
 
+## License Summary
+
+This project is **free for individuals and educators** who create publicly available educational content.  
+✅ Examples: YouTube videos, TikToks, livestreams, tutorials, classroom materials (even if ad-monetized but free to watch).  
+
+🚫 **Commercial use requires a paid license.**  
+Examples: websites or apps where users interact with the software (e.g. “solve any equation” sites), paid courses, subscription platforms, paywalled content, textbooks, or e-books.  
+
+🙏 If you’re a free user, please consider supporting development via [GitHub Sponsors](https://github.com/sponsors/YOUR_USERNAME) or [Buy Me A Coffee](buymeacoffee.com/themathematicfanatic).  
+💼 For commercial licensing inquiries, contact: [johnconnelltutor@gmail.com].
+
+See [LICENSE](./LICENSE.md) for the full terms.
 
 
 
