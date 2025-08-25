@@ -19,6 +19,7 @@ class swap_children_(Action):
         return type(input_expression)(input_expression.children[1], input_expression.children[0])
 
     @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression=None):
         if self.mode == "arc":
             return [
@@ -53,6 +54,7 @@ class apply_operation_(Action):
         return output_expression
 
     @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression):
         if self.side == "right":
             return [
@@ -112,6 +114,7 @@ class substitute_(Action):
         return input_expression.substitute(self.sub_dict)
 
     @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression=None):
         target_addresses = []
         for var in self.sub_dict:
@@ -146,6 +149,7 @@ class substitute_into_(Action):
         return self.outer_expression.substitute({self.substitution_variable: input_expression})
     
     @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression=None):
         addressmap = []
         sub_into_addresses = self.outer_expression.get_addresses_of_subex(self.substitution_variable)
@@ -174,6 +178,7 @@ class evaluate_(Action):
         return input_expression.evaluate()
     
     @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression=None):
         return [
             ["", ""] #extension by preaddress is done by decorator!
@@ -232,6 +237,7 @@ class distribute_(Action):
                 raise ValueError("Cannot auto-distribute, must be a multiplication or division.")
 
     @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression=None):
         return [
             ["", ""] #standin idk what the fuck im doing here

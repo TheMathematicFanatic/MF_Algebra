@@ -19,6 +19,7 @@ class AlgebraicAction(Action):
         return self.template2.substitute(var_dict)
     
     @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression=None):
         # Best overwritten in subclasses, but this gets the job done sometimes.
         # Actually, I think most subclasses will have a static addressmap, so I'll add this line at the start.

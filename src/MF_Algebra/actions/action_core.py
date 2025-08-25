@@ -1,5 +1,5 @@
 # actions.py
-from MF_Tools.dual_compatibility import Write, FadeOut
+from MF_Tools.dual_compatibility import Write, FadeIn, FadeOut
 from ..expressions.expression_core import *
 from ..utils import *
 from .animations import TransformByAddressMap
@@ -178,6 +178,34 @@ def preaddressmap(getmap):
 					if isinstance(ad, str):
 						entry[i] = preaddress + ad
 		return addressmap
+	return wrapper
+
+def autoparenmap(getmap, mode='stupid'):
+	if mode=='stupid':
+		def wrapper(action, expr, *args, **kwargs):
+			in_expr, out_expr = expr, action.get_output_expression(expr)
+			addressmap = list(getmap(action, expr, *args, **kwargs))
+			for in_add in in_expr.get_all_addresses():
+				if in_expr.get_subex(in_add).parentheses:
+					addressmap.append([in_add+'()', FadeOut, {'run_time':0.5}])
+				for entry in addressmap:
+					if entry[0] == in_add:
+						entry[0] = entry[0] + '_'
+			for out_add in out_expr.get_all_addresses():
+				if out_expr.get_subex(out_add).parentheses:
+					addressmap.append([FadeIn, out_add+'()', {'run_time':0.5, 'delay':0.5}])
+				for entry in addressmap:
+					if entry[1] == out_add:
+						entry[1] = entry[1] + '_'
+			return addressmap
+
+	if mode=='smart':
+		def wrapper(action, expr, *args, **kwargs):
+			expr = expr.copy()
+			addressmap = getmap(action, expr, *args, **kwargs)
+			active_from, active_to = [], []
+			for entry in addressmap:
+				pass
 	return wrapper
 
 

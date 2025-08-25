@@ -452,5 +452,21 @@ class TestFunction(Scene):
         self.add(F.mob)
         self.embed()
 
+    
+
+class AutoParenTest(Scene):
+    def construct(self):
+        # alg = alg_mul_L().flip().reverse()
+        # This is broken for some reason
+        alg = alg_mul_L().reverse().flip()
+        print(alg)
+        T = (
+            x**2 + y**2
+            >> div_(x-4)
+            >> equals_(x+4)
+            >> alg
+        )
+        self.add(T.mob)
+        self.embed()
 
 
