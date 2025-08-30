@@ -157,7 +157,7 @@ class Expression:
 	def get_glyphs(self, psuedoaddress):
 		# Returns the list of glyph indices corresponding to the subexpression at the given address.
 		# Can accept special characters at the end to trigger one of the special methods above.
-		special_chars = "()_+-*/^,"
+		special_chars = "()_+-*/^,=<>"
 		found_special_chars = [(i,c) for (i,c) in enumerate(psuedoaddress) if c in special_chars]
 		if len(found_special_chars) == 0:
 			return self.get_glyphs_at_address(psuedoaddress)
@@ -171,7 +171,7 @@ class Expression:
 					results += self.get_right_paren_glyphs(address)
 				elif c == "_":
 					results += self.get_exp_glyphs_without_parentheses(address)
-				elif c in "+-*/^,":
+				elif c in "+-*/^,=<>":
 					results += self.get_op_glyphs(address)
 			return sorted(set(results))
 

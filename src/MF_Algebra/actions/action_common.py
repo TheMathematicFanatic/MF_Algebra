@@ -21,7 +21,8 @@ class swap_children_(Action):
         if self.mode == "arc":
             return [
                 ["0", "1", {"path_arc": self.arc_size}],
-                ["1", "0", {"path_arc": self.arc_size}]
+                ["1", "0", {"path_arc": self.arc_size}],
+                ["+", "+", {"path_arc": self.arc_size}]
             ]
         elif self.mode == "straight":
             return [

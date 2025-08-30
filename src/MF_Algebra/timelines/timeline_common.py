@@ -87,3 +87,16 @@ class Solve(AutoTimeline):
         self.solve_for = var
         self.resume()
 
+
+class EvaluateAndSolve(CombinedRuleTimeline):
+    def __init__(self, *args, **kwargs):
+        super().__init__(Evaluate, Solve, *args, **kwargs)
+
+
+class SolveAndEvaluate(Solve, Evaluate):
+	def __init__(self, *args, **kwargs):
+		Solve.__init__(self, *args, **kwargs)
+		Evaluate.__init__(self, *args, **kwargs)
+    
+	def decide_next_action(self, index):
+		return super().decide_next_action(index)

@@ -470,3 +470,20 @@ class AutoParenTest(Scene):
         self.embed()
 
 
+class PlayingAround(Scene):
+    def construct(self):
+        E = a*x+b*y & c*z
+        T = Solve(
+            solve_for=x,
+            auto_color={x:RED, y:BLUE, z:GREEN},
+            auto_scale=3,
+            show_past_steps=True,
+        )
+        E >> T
+        T >> substitute_({a:3, b:4, c:5}, mode='swirl', lag=0.2)
+
+        T.set_solve_for(z)
+        T.solve_for = y
+        T >> substitute_({x:-3, z:1})
+        T.play_all(self)
+        self.embed()

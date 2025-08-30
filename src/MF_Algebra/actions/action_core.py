@@ -188,8 +188,8 @@ def preaddressmap(getmap):
 def autoparenmap(getmap, mode='stupid'):
 	if mode=='stupid':
 		def wrapper(action, expr, *args, **kwargs):
-			in_expr, out_expr = expr, action.get_output_expression(expr)
 			addressmap = list(getmap(action, expr, *args, **kwargs))
+			in_expr, out_expr = expr, action.get_output_expression(expr)
 			for in_add in in_expr.get_all_addresses():
 				if in_expr.get_subex(in_add).parentheses:
 					addressmap.append([in_add+'()', FadeOut, {'run_time':0.5}])
@@ -206,11 +206,8 @@ def autoparenmap(getmap, mode='stupid'):
 
 	if mode=='smart':
 		def wrapper(action, expr, *args, **kwargs):
-			expr = expr.copy()
-			addressmap = getmap(action, expr, *args, **kwargs)
-			active_from, active_to = [], []
-			for entry in addressmap:
-				pass
+			addressmap = list(getmap(action, expr, *args, **kwargs))
+			in_expr, out_expr = expr, action.get_output_expression(expr)
 	return wrapper
 
 
