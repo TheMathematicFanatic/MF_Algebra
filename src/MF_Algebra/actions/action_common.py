@@ -95,17 +95,32 @@ class equals_(apply_operation_):
 
 
 class substitute_(Action):
-    def __init__(self, sub_dict, preaddress='', mode="transform", arc_size=PI, fade_shift=DOWN*0.2, lag=0, **kwargs):
+    def __init__(self,
+        sub_dict,
+        preaddress = '',
+        mode = "transform",
+        arc_size = PI,
+        fade_shift = DOWN*0.2,
+        lag = 0,
+        maintain_color = False,
+        **kwargs
+    ):
         self.sub_dict = sub_dict
         self.preaddress = preaddress
         self.mode = mode
         self.arc_size = arc_size
         self.fade_shift = fade_shift
         self.lag = lag #usually looks like shit but can be cool sometimes
+        self.maintain_color = maintain_color
         super().__init__(preaddress=preaddress,**kwargs)
 
     def get_output_expression(self, input_expression=None):
-        return input_expression.substitute(self.sub_dict)
+        result = input_expression.substitute(self.sub_dict)
+        if self.maintain_color:
+            for from_subex, to_subex in self.sub_dict.items():
+                color = input_expression.get_color_of_subex(from_subex)
+                result.set_color_by_subex({to_subex: color})
+        return result
 
     def get_addressmap(self, input_expression=None):
         target_addresses = []

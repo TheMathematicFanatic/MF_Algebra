@@ -358,6 +358,12 @@ class Expression:
 					self[ad+"()"].set_color(self.color)
 		return self
 
+	def get_color_of_subex(self, subex): # This is awful lol
+		for ad in self.get_addresses_of_subex(subex):
+			subex = self.get_subex(ad)
+			if hasattr(subex, 'color'):
+				return subex.color		
+
 	def evaluate(self):
 		return Smarten(self.compute())
 
