@@ -141,7 +141,7 @@ class alg_mul_R(EquationManeuver):
         )
         self.addressmap = (
             ['01', '11', {'path_arc':PI}],
-            #['0*', FadeOut, {'run_time':0.5}],
+            ['0*', FadeOut, {'run_time':0.5}],
             [Write, '1/', {'run_time':0.5, 'delay':0.5}]
         )
     
@@ -149,7 +149,8 @@ class alg_mul_R(EquationManeuver):
         super().reverse()
         self.addressmap = (
             ['11', '01', {'path_arc':-PI}],
-            ['1/', FadeOut, {'run_time':0.5, 'delay':0}]
+            [Write, '0*', {'run_time':0.5, 'delay':0.5}],
+            ['1/', FadeOut, {'run_time':0.5}]
         )
         return self
 
@@ -163,7 +164,7 @@ class alg_mul_L(EquationManeuver):
         )
         self.addressmap = (
             ['00', '11', {'path_arc':PI}],
-            #['0*', FadeOut, {'run_time':0.5}],
+            ['0*', FadeOut, {'run_time':0.5}],
             [Write, '1/', {'run_time':0.5, 'delay':0.5}]
         )
 
@@ -171,7 +172,8 @@ class alg_mul_L(EquationManeuver):
         super().reverse()
         self.addressmap = (
             ['11', '00', {'path_arc':-PI}],
-            ['1/', FadeOut, {'run_time':0.5, 'delay':0}]
+			[Write, '0*', {'run_time':0.5, 'delay':0.5}],
+            ['1/', FadeOut, {'run_time':0.5}]
         )
         return self
 
