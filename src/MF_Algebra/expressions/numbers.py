@@ -14,6 +14,7 @@ class Number(Expression):
 
 class Integer(Number):
 	def __init__(self, n, **kwargs):
+		assert isinstance(n, int)
 		self.n = n
 		super().__init__(**kwargs)
 
@@ -71,6 +72,12 @@ class Real(Number):
 
 	def is_negative(self):
 		return self.x < 0
+	
+	def compute(self):
+		if self.x.is_integer():
+			return int(self.x)
+		else:
+			return self.x
 
 
 class Rational(Div):

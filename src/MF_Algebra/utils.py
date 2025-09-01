@@ -19,7 +19,10 @@ def Smarten(input):
 	elif isinstance(input, int):
 		return Integer(input)
 	elif isinstance(input, float):
-		return Real(input)
+		if input.is_integer():
+			return Integer(int(input))
+		else:
+			return Real(input)
 	else:
 		raise NotImplementedError(f"Unsupported type {type(input)}")
 
