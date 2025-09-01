@@ -1,6 +1,6 @@
 # expressions.py
 from MF_Tools.dual_compatibility import dc_Tex as Tex, MANIM_TYPE, VGroup
-from ..utils import Smarten, add_spaces_around_brackets
+from ..utils import Smarten, add_spaces_around_brackets, parenthesize
 from copy import deepcopy
 
 
@@ -20,9 +20,6 @@ class Expression:
 			self.auto_parentheses()
 		self._mob = None
 
-	def __init_subclass__(cls):
-		cls.__str__ = include_parentheses_around_string(cls.__str__)
-
 	@property
 	def mob(self):
 		if self._mob is None:
@@ -37,7 +34,7 @@ class Expression:
 	def copy(self):
 		return deepcopy(self)
 
-	def __getitem__(self, key):
+	def __getitem__(self, *key):
 		if isinstance(key, str): # address of subexpressions, should return the glyphs corresponding to that subexpression
 			if MANIM_TYPE == 'GL':
 				return VGroup(*[self.mob[g] for g in self.get_glyphs(key)])
@@ -86,102 +83,79 @@ class Expression:
 				addresses.append(ad)
 		return addresses
 
-	def get_glyphs_at_address(self, address):
-		from .operations import Negative
-		from .functions import Function
-		start = 0
-		for n,a in enumerate(address):
-			parent = self.get_subex(address[:n])
-			if parent.parentheses:
-				start += parent.paren_length()
-			if isinstance(parent, Combiner):
-				for i in range(int(a)):
-					sibling = parent.children[i]
-					start += len(sibling)
-					start += parent.symbol_glyph_length
-			elif isinstance(parent, Negative):
-				start += 1
-			elif isinstance(parent, Function):
-				start += parent.symbol_glyph_length
-			else:
-				raise ValueError(f"Invalid parent type: {type(parent)}. n={n}, a={a}.")
-		end = start + len(self.get_subex(address))
-		return list(range(start, end))
 
-	def get_left_paren_glyphs(self, address):
-		subex = self.get_subex(address)
-		if not subex.parentheses:
-			return []
-		subex_glyphs = self.get_glyphs_at_address(address)
-		start = subex_glyphs[0]
-		end = start + subex.paren_length()
-		return list(range(start, end))
+	'''
+	Glyph Related Matters
+	'''
 
-	def get_right_paren_glyphs(self, address):
-		subex = self.get_subex(address)
-		if not subex.parentheses:
-			return []
-		subex_glyphs = self.get_glyphs_at_address(address)
-		end = subex_glyphs[-1]
-		start = end - subex.paren_length()
-		return list(range(start+1, end+1))
-	
-	def get_exp_glyphs_without_parentheses(self, address):
-		subex = self.get_subex(address)
-		subex_glyphs = self.get_glyphs_at_address(address)
-		if not subex.parentheses:
-			return subex_glyphs
-		else:
-			paren_length = subex.paren_length()
-			return subex_glyphs[paren_length:-paren_length]
-	
-	def get_op_glyphs(self, address):
-		from .functions import Function
-		subex = self.get_subex(address)
-		if not isinstance(subex, (Combiner, Function)) or subex.symbol_glyph_length==0:
-			return []
-		subex_glyphs = self.get_glyphs_at_address(address)
-		results = []
-		turtle = subex_glyphs[0]
-		if subex.parentheses:
-			turtle += subex.paren_length()
-		if isinstance(subex, Function):
-			results += list(range(turtle, turtle + subex.symbol_glyph_length))
-		elif isinstance(subex, Combiner):
-			for child in subex.children[:-1]:
-				turtle += len(child)
-				results += list(range(turtle, turtle + subex.symbol_glyph_length))
-				turtle += subex.symbol_glyph_length
-		return results
-	
-	def get_glyphs(self, psuedoaddress):
-		# Returns the list of glyph indices corresponding to the subexpression at the given address.
-		# Can accept special characters at the end to trigger one of the special methods above.
-		special_chars = "()_+-*/^,=<>"
-		found_special_chars = [(i,c) for (i,c) in enumerate(psuedoaddress) if c in special_chars]
-		if len(found_special_chars) == 0:
-			return self.get_glyphs_at_address(psuedoaddress)
-		else:
-			address = psuedoaddress[:found_special_chars[0][0]]
-			results = []
-			for i,c in found_special_chars:
-				if c == "(":
-					results += self.get_left_paren_glyphs(address)
-				elif c == ")":
-					results += self.get_right_paren_glyphs(address)
-				elif c == "_":
-					results += self.get_exp_glyphs_without_parentheses(address)
-				elif c in "+-*/^,=<>":
-					results += self.get_op_glyphs(address)
-			return sorted(set(results))
+	special_character_to_glyph_method_dict = {
+		'(': 'get_left_paren_glyphs',
+		')': 'get_right_paren_glyphs',
+		'_': 'get_exp_glyphs_without_parentheses',
+	}
 
-	def __len__(self):
+	def number_of_glyphs(self):
+		# Optimize in subclasses so as not to need to render latex
 		if MANIM_TYPE == 'GL':
 			return len(self.mob)
 		elif MANIM_TYPE == 'CE':
 			return len(self.mob[0])
 		else:
 			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
+
+	def get_glyphs_at_address(self, address):
+		if address == "":
+			return list(range(self.number_of_glyphs()))
+		first_character = address[0]
+		remainder = address[1:]
+		result = []
+		if first_character in self.special_character_to_glyph_method_dict:
+			glyph_method = getattr(self, self.special_character_to_glyph_method_dict[first_character])
+			result += glyph_method()
+			if remainder:
+				result += self.get_glyphs_at_address(remainder)
+			return list(set(result))
+		elif first_character in '0123456789':
+			digit = int(first_character)
+			child_glyphs = self.get_glyphs_at_addigit(digit)
+			child = self.children[digit]
+			glyphs_within_child = child.get_glyphs_at_address(remainder)
+			shift_value = child_glyphs[0] - (self.paren_length() if self.parentheses else 0)
+			result = [glyph + shift_value for glyph in glyphs_within_child]
+			return list(set(result))
+		else:
+			raise ValueError(f"Invalid address: {address}")
+
+	def get_glyphs(self, *addresses):
+		result = []
+		for address in addresses:
+			result += self.get_glyphs_at_address(address)
+		return list(set(result))
+
+	def get_left_paren_glyphs(self):
+		if not self.parentheses:
+			return []
+		start = 0
+		end = self.paren_length()
+		return list(range(start, end))
+
+	def get_right_paren_glyphs(self):
+		if not self.parentheses:
+			return []
+		end = self.number_of_glyphs()
+		start = end - self.paren_length()
+		return list(range(start, end))
+	
+	def get_exp_glyphs_without_parentheses(self):
+		start = 0
+		end = self.number_of_glyphs()
+		if self.parentheses:
+			start += self.paren_length()
+			end -= self.paren_length()
+		return list(range(start, end))
+
+	def __len__(self):
+		return self.number_of_glyphs()
 
 	def __neg__(self):
 		from .operations import Negative
@@ -320,19 +294,14 @@ class Expression:
 		return type(self)(*new_children)
 
 	def substitute_at_address(self, subex, address):
-		from .functions import Function
-		from .operations import Negative
 		subex = Smarten(subex).copy() #?
 		if len(address) == 0:
 			return subex
-		new_child = self.children[int(address[0])].substitute_at_address(subex, address[1:])
-		new_children = self.children[:int(address[0])] + [new_child] + self.children[int(address[0])+1:]
-		if isinstance(self, (Combiner, Negative)):
-			return type(self)(*new_children)
-		elif isinstance(self, Function):
-			return Function(self.symbol, self.symbol_glyph_length, self.rule, self.algebra_rule, self.parentheses_mode)(*new_children)
-		else:
-			raise ValueError("Something went wrong here... and this whole method needs a rewrite / rethink lol")
+		index = int(address[0])
+		result = self.copy()
+		new_child = result.children[index].substitute_at_address(subex, address[1:])
+		result.children[index] = new_child
+		return result
 
 	def substitute_at_addresses(self, subex, addresses):
 		result = self.copy()
@@ -353,6 +322,7 @@ class Expression:
 	def set_color_by_subex(self, subex_color_dict):
 		for subex, color in subex_color_dict.items():
 			for ad in self.get_addresses_of_subex(subex):
+				self.get_subex(ad).color = color
 				self[ad].set_color(color)
 				if self.get_subex(ad).parentheses and not subex.parentheses:
 					self[ad+"()"].set_color(self.color)
@@ -374,7 +344,7 @@ class Expression:
 		result = set()
 		for child in self.children:
 			if isinstance(child, expression_type):
-				result |= set(child)
+				result |= {child}
 			else:
 				result |= child.get_all_subexpressions_of_type(expression_type)
 		return result
@@ -383,14 +353,6 @@ class Expression:
 		from .variables import Variable
 		return self.get_all_subexpressions_of_type(Variable)
 
-
-def include_parentheses_around_string(str_func):
-	def wrapper(expr, *args, **kwargs):
-		pretex = str_func(expr, *args, **kwargs)
-		if expr.parentheses:
-			pretex = "\\left(" + pretex + "\\right)"
-		return pretex
-	return wrapper
 
 
 class Combiner(Expression):
@@ -402,6 +364,7 @@ class Combiner(Expression):
 		self.right_spacing = ""
 		super().__init__(**kwargs)
 
+	@parenthesize
 	def __str__(self, *args, **kwargs):
 		joiner = self.left_spacing + self.symbol + self.right_spacing
 		result = joiner.join(["{" + str(child) + "}" for child in self.children])
@@ -411,29 +374,36 @@ class Combiner(Expression):
 		self.left_spacing = left_spacing
 		self.right_spacing = right_spacing
 
-	def get_op_glyphs(self, *args, **kwargs):
-		return super().get_op_glyphs(*args, **kwargs)
+	special_character_to_glyph_method_dict = {
+		**Expression.special_character_to_glyph_method_dict,
+		'+': 'get_op_glyphs',
+		'-': 'get_op_glyphs',
+		'*': 'get_op_glyphs',
+		'/': 'get_op_glyphs',
+		'^': 'get_op_glyphs',
+		'=': 'get_op_glyphs',
+		'<': 'get_op_glyphs',
+		'>': 'get_op_glyphs',
+		',': 'get_op_glyphs',
+	}
 
-	def get_glyphs_at_address(self, address):
-		start = 0
-		for n,a in enumerate(address):
-			parent = self.get_subex(address[:n])
-			if parent.parentheses:
-				start += parent.paren_length()
-			for i in range(int(a)):
-				sibling = parent.children[i]
-				start += len(sibling)
-				start += parent.symbol_glyph_length
-		end = start + len(self.get_subex(address))
-		return list(range(start, end))
-	
 	def get_glyphs_at_addigit(self, addigit):
 		child_index = int(addigit)
 		start = 0
 		if self.parentheses:
 			start += self.paren_length()
 		for sibling in self.children[:child_index]:
-			start += len(sibling)
+			start += sibling.number_of_glyphs()
 			start += self.symbol_glyph_length
-		end = start + len(self.children[child_index])
+		child = self.children[child_index]
+		end = start + child.number_of_glyphs()
 		return list(range(start, end))
+
+	def get_op_glyphs(self):
+		results = []
+		turtle = 0
+		for child in self.children[:-1]:
+			turtle += child.number_of_glyphs()
+			results += list(range(turtle, turtle + self.symbol_glyph_length))
+			turtle += self.symbol_glyph_length
+		return results

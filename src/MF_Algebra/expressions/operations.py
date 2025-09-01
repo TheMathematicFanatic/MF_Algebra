@@ -27,7 +27,7 @@ class Add(Operation):
 class Sub(Operation):
 	def __init__(self, *children, **kwargs):
 		self.eval_op = lambda x,y: x-y
-		super().__init__("-", 1,*children, **kwargs)
+		super().__init__("-", 1, *children, **kwargs)
 
 	def auto_parentheses(self):
 		self.children[0].auto_parentheses()
@@ -112,6 +112,7 @@ class Negative(Expression):
 		self.children = [Smarten(child)]
 		super().__init__(**kwargs)
 
+	@parenthesize
 	def __str__(self):
 		return "-" + str(self.children[0])
 
@@ -125,3 +126,10 @@ class Negative(Expression):
 
 	def compute(self):
 		return -self.children[0].compute()
+	
+	special_character_to_glyph_method_dict = {
+		**Expression.special_character_to_glyph_method_dict,
+		'-': 'get_negative_glyph',
+	}
+	def get_negative_glyph(self):
+		return [0]

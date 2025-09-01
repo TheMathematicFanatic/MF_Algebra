@@ -7,6 +7,7 @@ class Variable(Expression):
 		self.children = []
 		super().__init__(**kwargs)
 
+	@parenthesize
 	def __str__(self):
 		return self.symbol
 

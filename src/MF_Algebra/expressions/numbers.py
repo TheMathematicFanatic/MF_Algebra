@@ -18,6 +18,7 @@ class Integer(Number):
 		self.n = n
 		super().__init__(**kwargs)
 
+	@parenthesize
 	def __str__(self):
 		return str(self.n)
 
@@ -55,6 +56,7 @@ class Real(Number):
 		self.symbol = symbol
 		super().__init__(**kwargs)
 
+	@parenthesize
 	def __str__(self, decimal_places=4, use_decimal=False):
 		if self.symbol and not use_decimal:
 			return self.symbol
