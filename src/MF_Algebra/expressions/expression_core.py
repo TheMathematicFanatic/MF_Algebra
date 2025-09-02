@@ -6,7 +6,7 @@ from copy import deepcopy
 
 algebra_config = {
 		"auto_parentheses": True,
-		"multiplication_mode": "juxtapose",
+		"multiplication_mode": "auto",
 		"division_mode": "fraction",
 		"decimal_precision": 4,
 		"always_color": {},

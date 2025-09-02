@@ -40,9 +40,15 @@ class Sub(Operation):
 		return self.children[0].is_negative()
 
 class Mul(Operation):
-	def __init__(self, *children, mode=None, **kwargs):
+	def __init__(self, *children, mode="auto", **kwargs):
+		from .numbers import Number
 		self.eval_op = lambda x,y: x*y
 		self.mode = algebra_config["multiplication_mode"] if mode is None else mode
+		if self.mode == "auto":
+			if all(isinstance(child, Number) for child in list(map(Smarten,children))):
+				self.mode = "dot"
+			else:
+				self.mode = "juxtapose"
 		if self.mode == "dot":
 			super().__init__("\\cdot", 1, *children, **kwargs)
 		elif self.mode == "x":
