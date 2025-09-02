@@ -6,12 +6,15 @@ class ParallelAction(Action):
         self.actions = actions
         super().__init__(**kwargs)
     
+    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         expr = input_expression
         for action in self.actions:
             expr = action.get_output_expression(expr)
         return expr
-    
+
+    @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression=None):
         return sum([action.get_addressmap(input_expression) for action in self.actions], [])
     

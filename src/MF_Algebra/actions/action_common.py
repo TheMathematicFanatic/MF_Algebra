@@ -13,10 +13,13 @@ class swap_children_(Action):
         self.arc_size = arc_size
         super().__init__(preaddress=preaddress,**kwargs)
 
+    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         assert len(input_expression.children) == 2, f"Cannot swap children of {input_expression}, must have two children."
         return type(input_expression)(input_expression.children[1], input_expression.children[0])
 
+    @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression=None):
         if self.mode == "arc":
             return [
@@ -41,6 +44,7 @@ class apply_operation_(Action):
         self.introducer = introducer
         super().__init__(preaddress=preaddress,**kwargs)
 
+    @preaddressfunc
     def get_output_expression(self, input_expression):
         if self.side == "right":
             output_expression = self.OpClass(input_expression, self.other) # Putting a .copy() on the input expression fixes the problem. Try to understand this and then probably fold this into the decorator
@@ -50,6 +54,8 @@ class apply_operation_(Action):
             raise ValueError(f"Invalid side: {self.side}. Must be left or right.")
         return output_expression
 
+    @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression):
         if self.side == "right":
             return [
@@ -114,6 +120,7 @@ class substitute_(Action):
         self.maintain_color = maintain_color
         super().__init__(preaddress=preaddress,**kwargs)
 
+    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         result = input_expression.substitute(self.sub_dict)
         if self.maintain_color:
@@ -122,6 +129,8 @@ class substitute_(Action):
                 result.set_color_by_subex({to_subex: color})
         return result
 
+    @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression=None):
         target_addresses = []
         for var in self.sub_dict:
@@ -151,9 +160,12 @@ class substitute_into_(Action):
         self.substitution_variable = substitution_variable
         super().__init__(**kwargs)
 
+    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         return self.outer_expression.substitute({self.substitution_variable: input_expression})
 
+    @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression=None):
         addressmap = []
         sub_into_addresses = self.outer_expression.get_addresses_of_subex(self.substitution_variable)
@@ -175,11 +187,14 @@ class evaluate_(Action):
         #     leaf_address = np.random.choice(leaves)
         #     self.preaddress = leaf_address
 
+    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         if isinstance(input_expression, Relation):
             raise ValueError("Not implemented yet")
         return input_expression.evaluate()
 
+    @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression=None):
         return [
             ["", ""] #extension by preaddress is done by decorator!
@@ -192,6 +207,7 @@ class distribute_(Action):
         self.mode = mode #"auto", "left", "right"
         super().__init__(preaddress=preaddress,**kwargs)
 
+    @preaddressfunc
     def get_output_expression(self, input_expression=None):
         if self.mode == "auto":
             self.determine_direction(input_expression)
@@ -236,6 +252,8 @@ class distribute_(Action):
             else:
                 raise ValueError("Cannot auto-distribute, must be a multiplication or division.")
 
+    @preaddressmap
+    @autoparenmap
     def get_addressmap(self, input_expression=None):
         return [
             ["", ""] #standin idk what the fuck im doing here
