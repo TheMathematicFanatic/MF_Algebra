@@ -184,5 +184,6 @@ class Timeline:
     def mob(self):
         return self.steps[self.current_exp_index][0].mob
     
-
+    def copy(self):
+        return deepcopy(self)
 

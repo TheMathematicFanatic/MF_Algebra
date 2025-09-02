@@ -15,7 +15,7 @@ def Smarten(input):
 	from .timelines.timeline_core import Timeline
 	from .expressions.numbers import Integer, Real
 	if isinstance(input, (Expression, Action, Timeline)):
-		return input
+		return input.copy()
 	elif isinstance(input, int):
 		return Integer(input)
 	elif isinstance(input, float):
@@ -47,13 +47,6 @@ def add_spaces_around_brackets(input_string): #GPT
 	spaced_string = ''.join(result).split()
 	return ' '.join(spaced_string)
 
-def parenthesize(str_func):
-	def wrapper(expr, *args, **kwargs):
-		pretex = str_func(expr, *args, **kwargs)
-		if expr.parentheses:
-			pretex = "\\left(" + pretex + "\\right)"
-		return pretex
-	return wrapper
 
 
 def debug_smarttex(scene, smarttex, show_indices=True, show_addresses=True, show_submobjects=True):
