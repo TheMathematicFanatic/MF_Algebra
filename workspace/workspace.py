@@ -487,3 +487,15 @@ class PlayingAround(Scene):
         T >> substitute_({x:-3, z:1})
         T.play_all(self)
         self.embed()
+
+
+from MF_Algebra.extra.trigonometry import *
+class TrigTest(Scene):
+    def construct(self):
+        A = (sin(x) + cos(pi/2-x)) / tan(x)
+        T = Evaluate(auto_color={x:GREEN, pi:PURPLE}, auto_fit=[12, 6, None])
+        A >> T
+
+        T >> substitute_({x:pi/4})
+        self.embed()
+

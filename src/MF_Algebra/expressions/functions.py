@@ -96,6 +96,7 @@ class Function(Expression):
 			args = self.children[0].children
 		else:
 			args = [self.children[0]]
+		args = [arg.compute() for arg in args]
 		if self.python_rule is not None:
 			return self.python_rule(*args)
 		elif self.algebra_rule is not None:

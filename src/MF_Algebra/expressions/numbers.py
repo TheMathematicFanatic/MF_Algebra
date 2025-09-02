@@ -19,8 +19,8 @@ class Number(Expression):
 class Integer(Number):
 	def __init__(self, n, **kwargs):
 		assert isinstance(n, int)
-		self.value = n
 		super().__init__(**kwargs)
+		self.value = n
 
 	@parenthesize
 	def __str__(self):
@@ -55,10 +55,11 @@ class Integer(Number):
 
 
 class Real(Number):
-	def __init__(self, x, symbol=None, **kwargs):
+	def __init__(self, x, symbol=None, symbol_glyph_length=1, **kwargs):
+		super().__init__(**kwargs)
 		self.value = x
 		self.symbol = symbol
-		super().__init__(**kwargs)
+		self.symbol_glyph_length = symbol_glyph_length
 
 	@parenthesize
 	def __str__(self, decimal_places=4, use_decimal=False):
@@ -69,6 +70,16 @@ class Real(Number):
 			return str(rounded)
 		else:
 			return f"{self.value:.{decimal_places}f}" + r"\ldots"
+	
+	def number_of_glyphs(self):
+		if self.symbol:
+			return self.symbol_glyph_length
+		else:
+			string = str(self)
+			if string.endswith(r"\ldots"):
+				return len(string) - 3
+			else:
+				return len(string)
 
 	def __float__(self):
 		return float(self.value)
