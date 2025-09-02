@@ -1,6 +1,6 @@
 # expressions.py
 from MF_Tools.dual_compatibility import dc_Tex as Tex, MANIM_TYPE, VGroup
-from ..utils import Smarten, add_spaces_around_brackets, parenthesize
+from ..utils import Smarten, add_spaces_around_brackets
 from copy import deepcopy
 
 
@@ -10,7 +10,7 @@ algebra_config = {
 		"division_mode": "fraction",
 		"decimal_precision": 4,
 		"always_color": {},
-		"fast_paren_length": False
+		"fast_paren_length": True
 	}
 
 class Expression:
@@ -34,7 +34,7 @@ class Expression:
 	def copy(self):
 		return deepcopy(self)
 
-	def __getitem__(self, *key):
+	def __getitem__(self, key):
 		if isinstance(key, str): # address of subexpressions, should return the glyphs corresponding to that subexpression
 			if MANIM_TYPE == 'GL':
 				return VGroup(*[self.mob[g] for g in self.get_glyphs(key)])
@@ -104,25 +104,29 @@ class Expression:
 			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
 
 	def get_glyphs_at_address(self, address):
-		if address == "":
+		if len(address) == 0:
 			return list(range(self.number_of_glyphs()))
-		first_character = address[0]
+
+		addigit = address[0]
 		remainder = address[1:]
 		result = []
-		if first_character in self.special_character_to_glyph_method_dict:
-			glyph_method = getattr(self, self.special_character_to_glyph_method_dict[first_character])
+
+		if addigit in self.special_character_to_glyph_method_dict:
+			glyph_method = getattr(self, self.special_character_to_glyph_method_dict[addigit])
 			result += glyph_method()
 			if remainder:
 				result += self.get_glyphs_at_address(remainder)
 			return list(set(result))
-		elif first_character in '0123456789':
-			digit = int(first_character)
+
+		elif addigit in '0123456789':
+			digit = int(addigit)
 			child_glyphs = self.get_glyphs_at_addigit(digit)
 			child = self.children[digit]
 			glyphs_within_child = child.get_glyphs_at_address(remainder)
-			shift_value = child_glyphs[0] - (self.paren_length() if self.parentheses else 0)
+			shift_value = child_glyphs[0]
 			result = [glyph + shift_value for glyph in glyphs_within_child]
 			return list(set(result))
+		
 		else:
 			raise ValueError(f"Invalid address: {address}")
 
@@ -209,6 +213,14 @@ class Expression:
 		return Equation(self, other)
 	
 	def __rand__(self, other):
+		from .relations import Equation
+		return Equation(other, self)
+
+	def __or__(self, other):
+		from .relations import Equation
+		return Equation(self, other)
+	
+	def __or__(self, other):
 		from .relations import Equation
 		return Equation(other, self)
 
@@ -323,9 +335,9 @@ class Expression:
 		for subex, color in subex_color_dict.items():
 			for ad in self.get_addresses_of_subex(subex):
 				self.get_subex(ad).color = color
-				self[ad].set_color(color)
 				if self.get_subex(ad).parentheses and not subex.parentheses:
-					self[ad+"()"].set_color(self.color)
+					ad += '_'
+				self[ad].set_color(color)
 		return self
 
 	def get_color_of_subex(self, subex): # This is awful lol
@@ -353,6 +365,14 @@ class Expression:
 		from .variables import Variable
 		return self.get_all_subexpressions_of_type(Variable)
 
+
+def parenthesize(str_func):
+	def wrapper(expr, *args, **kwargs):
+		pretex = str_func(expr, *args, **kwargs)
+		if expr.parentheses:
+			pretex = "\\left(" + pretex + "\\right)"
+		return pretex
+	return wrapper
 
 
 class Combiner(Expression):
@@ -390,8 +410,7 @@ class Combiner(Expression):
 	def get_glyphs_at_addigit(self, addigit):
 		child_index = int(addigit)
 		start = 0
-		if self.parentheses:
-			start += self.paren_length()
+		start += self.parentheses * self.paren_length()
 		for sibling in self.children[:child_index]:
 			start += sibling.number_of_glyphs()
 			start += self.symbol_glyph_length
@@ -401,9 +420,17 @@ class Combiner(Expression):
 
 	def get_op_glyphs(self):
 		results = []
-		turtle = 0
+		turtle = self.parentheses * self.paren_length()
 		for child in self.children[:-1]:
 			turtle += child.number_of_glyphs()
 			results += list(range(turtle, turtle + self.symbol_glyph_length))
 			turtle += self.symbol_glyph_length
 		return results
+
+	def number_of_glyphs(self):
+		result = sum(child.number_of_glyphs() for child in self.children)
+		result += self.symbol_glyph_length * (len(self.children) - 1)
+		result += self.parentheses * self.paren_length() * 2
+		return result
+
+

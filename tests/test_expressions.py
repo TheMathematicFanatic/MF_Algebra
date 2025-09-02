@@ -65,7 +65,7 @@ def test_Real():
     assert pi.symbol == "\\pi"
     assert pi.__str__(decimal_places=5, use_decimal=True) == "3.14159\\ldots"
     assert pi.__float__() == 3.141592653589793
-    assert pi.x == float(pi)
+    assert pi.value == float(pi)
     assert not pi.is_negative()
     gold2 = Real(-0.6180339887498949)
     assert gold2.is_negative()

@@ -6,44 +6,48 @@ import numpy as np
 class Number(Expression):
 	def __init__(self, **kwargs):
 		self.children = []
+		self.value = None
 		super().__init__(**kwargs)
 
 	def compute(self):
 		return float(self)
+	
+	def number_of_glyphs(self):
+		return len(str(self.value))
 
 
 class Integer(Number):
 	def __init__(self, n, **kwargs):
 		assert isinstance(n, int)
-		self.n = n
+		self.value = n
 		super().__init__(**kwargs)
 
 	@parenthesize
 	def __str__(self):
-		return str(self.n)
+		return str(self.value)
 
 	def __float__(self):
-		return float(self.n)
+		return float(self.value)
 	
 	def compute(self):
-		return self.n
+		return self.value
 
 	def is_identical_to(self, other):
-		return type(self) == type(other) and self.n == other.n
+		return type(self) == type(other) and self.value == other.value
 
 	def is_negative(self):
-		return self.n < 0
+		return self.value < 0
 
 	@staticmethod
 	def GCF(*smartnums):
 		smartnums = list(map(Smarten, smartnums))
-		nums = list(map(lambda N: N.n, smartnums))
+		nums = list(map(lambda N: N.value, smartnums))
 		return Smarten(int(np.gcd.reduce(nums)))
 
 	@staticmethod
 	def LCM(*smartnums):
 		smartnums = list(map(Smarten, smartnums))
-		nums = list(map(lambda N: N.n, smartnums))
+		nums = list(map(lambda N: N.value, smartnums))
 		return Smarten(int(np.lcm.reduce(nums)))
 
 	def prime_factorization(self):
@@ -52,7 +56,7 @@ class Integer(Number):
 
 class Real(Number):
 	def __init__(self, x, symbol=None, **kwargs):
-		self.x = x
+		self.value = x
 		self.symbol = symbol
 		super().__init__(**kwargs)
 
@@ -60,26 +64,26 @@ class Real(Number):
 	def __str__(self, decimal_places=4, use_decimal=False):
 		if self.symbol and not use_decimal:
 			return self.symbol
-		rounded = round(self.x, decimal_places)
-		if rounded == self.x:
+		rounded = round(self.value, decimal_places)
+		if rounded == self.value:
 			return str(rounded)
 		else:
-			return f"{self.x:.{decimal_places}f}" + r"\ldots"
+			return f"{self.value:.{decimal_places}f}" + r"\ldots"
 
 	def __float__(self):
-		return float(self.x)
+		return float(self.value)
 
 	def is_identical_to(self, other):
-		return type(self) == type(other) and self.x == other.x
+		return type(self) == type(other) and self.value == other.value
 
 	def is_negative(self):
-		return self.x < 0
+		return self.value < 0
 	
 	def compute(self):
-		if self.x.is_integer():
-			return int(self.x)
+		if self.value.is_integer():
+			return int(self.value)
 		else:
-			return self.x
+			return self.value
 
 
 class Rational(Div):

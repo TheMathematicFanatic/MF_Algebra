@@ -45,6 +45,7 @@ class Function(Expression):
 		child_index = int(addigit)
 		if child_index == 0:
 			start = self.symbol_glyph_length
+			start += self.parentheses * self.paren_length()
 			end = start + self.children[0].number_of_glyphs()
 			return list(range(start, end))
 		else:
@@ -52,6 +53,12 @@ class Function(Expression):
 	
 	def get_func_glyphs(self):
 		return list(range(0, self.symbol_glyph_length))
+	
+	def number_of_glyphs(self):
+		result = self.symbol_glyph_length
+		result += self.children[0].number_of_glyphs()
+		result += self.parentheses * self.paren_length() * 2
+		return result
 
 	def __call__(self, *inputs):
 		new_func = self.copy()
