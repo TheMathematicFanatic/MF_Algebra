@@ -497,5 +497,8 @@ class TrigTest(Scene):
         A >> T
 
         T >> substitute_({x:pi/4})
+        self.add(T.mob)
+        T.play_next(self)
         self.embed()
 
+#TrigTest().construct()
