@@ -181,13 +181,16 @@ class alg_mul_L(EquationManeuver):
         return self
 
 
-# class alg_pow_R(EquationManeuver):
-#     def __init__(self, **kwargs):
-#         super().__init__(
-#             a**b & c,
-#             a & rad(b)(c),
-#             **kwargs
-#         )
+class alg_pow_R(EquationManeuver):
+    def __init__(self, **kwargs):
+        super().__init__(
+            a**2 & c,
+            a & sqrt(c),
+            **kwargs
+        )
+        self.addressmap = (
+            ['01', '1f', {'path_arc':-PI/3}],
+		)
 
 
 

@@ -4,7 +4,8 @@ from MF_Tools.dual_compatibility import (
 	GREEN, BLUE, ORANGE,
 	Indicate,
 	VGroup, VDict,
-	Line
+	Line,
+	Scene
 )
 import numpy as np
 
@@ -46,6 +47,36 @@ def add_spaces_around_brackets(input_string): #GPT
 	# Join the list into a single string and remove any extra spaces
 	spaced_string = ''.join(result).split()
 	return ' '.join(spaced_string)
+
+
+def debug_glyph(scene, glyph_mobject):
+	from MF_Tools.dual_compatibility import Dot, GlowDot, turn_animation_into_updater, MoveAlongPath, BLUE_A
+	glyph_mobject.data_dots = VGroup([
+		Dot(d[0], radius=0.01*max(glyph_mobject.get_width(), glyph_mobject.get_height()))
+		for d in glyph_mobject.data
+	])
+	glyph_mobject.data_dots[::2].set_opacity(0.25)
+	glyph_mobject.data_dots[1::2].set_opacity(0.1)
+	glyph_mobject.writing_dot = GlowDot(color=BLUE, radius=0.06*max(glyph_mobject.get_width(), glyph_mobject.get_height()))
+	writing_dot_anim = MoveAlongPath(glyph_mobject.writing_dot, glyph_mobject, run_time=5)
+	glyph_mobject.set_opacity(0.1)
+	num_dots = len(glyph_mobject.data_dots)
+	glyph_mobject.dot_count = Text('Data points: ' + str(num_dots)).next_to(glyph_mobject, DOWN, buff=glyph_mobject.get_height()/4)
+	#glyph_mobject.dot_count.scale_to_fit(len_x=glyph_mobject.get_width())
+	glyph_mobject.dot_count.scale(0.3)
+	scene.add(glyph_mobject.data_dots, glyph_mobject.writing_dot, glyph_mobject.dot_count)
+	turn_animation_into_updater(writing_dot_anim, cycle=True)
+Scene.debug_glyph = debug_glyph
+
+def debug_glyphs(scene, *mobjects):
+	for M in mobjects:
+		for g in M:
+			debug_glyph(scene, g)
+Scene.debug_glyphs = debug_glyphs
+
+
+
+
 
 
 

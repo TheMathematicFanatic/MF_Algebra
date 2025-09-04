@@ -472,7 +472,7 @@ class AutoParenTest(Scene):
 
 class PlayingAround(Scene):
     def construct(self):
-        E = a*x+b*y & c*z
+        E = a*x**2+b*y & c*z
         T = Solve(
             solve_for=x,
             auto_color={x:RED, y:BLUE, z:GREEN},
@@ -501,4 +501,14 @@ class TrigTest(Scene):
         T.play_next(self)
         self.embed()
 
-#TrigTest().construct()
+
+class GlyphTesting(Scene):
+    def construct(self):
+        A = Integer(3)**3
+        B = x**x
+        C = sqrt(sqrt(sqrt(sqrt(sqrt(a/b)))))
+        D = x**x**x**x**x**x**x
+        self.add(VGroup(D.mob).arrange(RIGHT).scale(6))
+        self.debug_glyphs(D.mob)
+        self.wait(5)
+       #self.embed()
