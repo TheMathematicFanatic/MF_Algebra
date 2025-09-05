@@ -1,6 +1,6 @@
 from ..expressions import *
 from ..actions import *
-from MF_Tools.dual_compatibility import TransformMatchingShapes, UP, smooth
+from MF_Tools.dual_compatibility import TransformMatchingTex, UP, smooth
 # from MF_Tools.rescaling import *
 
 
@@ -108,7 +108,7 @@ class Timeline:
         if action:
             Animation = action.get_animation()(expA, expB, **kwargs)
         else:
-            Animation = TransformMatchingShapes(expA.mob, expB.mob, **kwargs)
+            Animation = TransformMatchingTex(expA.mob, expB.mob, **kwargs)
         return Animation
 
     def play_animation(self, scene, index, **kwargs):

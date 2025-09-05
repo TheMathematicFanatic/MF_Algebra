@@ -512,3 +512,22 @@ class GlyphTesting(Scene):
         self.debug_glyphs(D.mob)
         self.wait(5)
        #self.embed()
+
+
+class Coloring(Scene):
+    def construct(self):
+        T = Solve(auto_scale=3, auto_color={x:RED, y:BLUE, r:YELLOW, theta:GREEN})
+        eqs = [
+            x & r*cos(theta),
+            y & r*sin(theta),
+            tan(theta) & y/x,
+            r**2 & x**2 + y**2,
+        ]
+        T.auto_fill = False
+        for eq in eqs:
+            T.add_expression_to_end(eq)
+        T.auto_fill = True
+        T.resume()
+        self.embed()
+
+
