@@ -10,9 +10,9 @@ class Number(Expression):
 
 	def compute(self):
 		return float(self)
-	
-	def number_of_glyphs(self):
-		return len(str(self.value))
+
+	def __float__(self):
+		return float(self.value)
 
 
 class Integer(Number):
@@ -24,9 +24,6 @@ class Integer(Number):
 	@Expression.parenthesize
 	def __str__(self):
 		return str(self.value)
-
-	def __float__(self):
-		return float(self.value)
 	
 	def compute(self):
 		return self.value
@@ -92,8 +89,6 @@ class Real(Number):
 		else:
 			return self.value
 
-	def __float__(self):
-		return float(self.value)
 
 
 class Rational(Div):

@@ -22,7 +22,8 @@ class Function(Expression):
 		self.algebra_rule = algebra_rule
 		self.parentheses_mode = parentheses_mode
 		self.spacing = spacing
-		self._number_of_glyphs = self.get_symbol_string()
+		if symbol and symbol_glyph_length:
+			self._number_of_glyphs = symbol_glyph_length
 
 
 
@@ -111,16 +112,40 @@ class Function(Expression):
 
 
 class Rad(Function):
-    def __init__(self, index, **kwargs):
-        index = Smarten(index)
-        super().__init__(
-            symbol = f'\\sqrt[{index}]',
-            symbol_glyph_length = 2+len(str(index)),
-            python_rule = lambda x: x**(1/index),
-            parentheses_mode = 'never',
-            **kwargs
+	def __init__(self, index, allow_nickname = True, **kwargs):
+		if index==2 and allow_nickname:
+			symbol = '\\sqrt'
+		else:
+			symbol = f'\\sqrt[{index}]',
+		super().__init__(
+			symbol = symbol,
+			#symbol_glyph_length = 2+len(str(index)),
+			python_rule = lambda x: x**(1/index),
+			parentheses_mode = 'never',
+			**kwargs
         )
 
-    def get_glyphs_at_addigit(self, addigit):
-        return list(range(0, self.symbol_glyph_length))
+	def get_glyphs_at_addigit(self, addigit):
+		return list(range(0, self.symbol_glyph_length))
 	
+
+class Log(Function):
+	def __init__(self, base, allow_nickname = True, **kwargs):
+		symbol = f'\\log_{str(base)}'
+		if isinstance(base, Expression):
+			base = float(base)
+		if allow_nickname:
+			if base == np.e:
+				symbol = '\\ln'
+			elif base == 10:
+				symbol = '\\log'
+		super().__init__(
+			symbol = symbol,
+			# symbol_glyph_length ?
+			python_rule = lambda x: np.log(x) / np.log(base)
+		)
+		
+
+		
+			
+		
