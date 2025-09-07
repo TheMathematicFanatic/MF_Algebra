@@ -57,6 +57,33 @@ class Expression:
 		return result
 
 
+	### Addresses ###
+
+	def get_all_addresses(self):
+		# Returns the addresses of all subexpressions
+		addresses = [""]
+		for n in range(len(self.children)):
+			for child_address in self.children[n].get_all_addresses():
+				addresses.append(str(n)+child_address)
+		return addresses
+	
+	def get_all_nonleaf_addresses(self):
+		return sorted(list({a[:-1] for a in self.get_all_addresses() if a != ""}))
+	
+	def get_all_leaf_addresses(self):
+		return sorted(list(set(self.get_all_addresses()) - set(self.get_all_nonleaf_addresses())))
+
+	def get_all_addresses_with_condition(self, condition):
+		result = set()
+		for address in self.get_all_addresses():
+			if condition(self.get_subex(address)):
+				result |= {address}
+		return result
+	
+	def get_all_addresses_of_type(self, expression_type):
+		return self.get_all_addresses_with_condition(lambda address: isinstance(self.get_subex(address), expression_type))
+
+
 	### Subexpressions ###
 
 	def get_subex(self, address_string):
