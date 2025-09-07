@@ -20,6 +20,9 @@ class Expression:
 			self.auto_parentheses()
 		self._mob = None
 
+
+	### Mobject ###
+
 	@property
 	def mob(self):
 		if self._mob is None:
@@ -30,39 +33,42 @@ class Expression:
 		string = add_spaces_around_brackets(str(self))
 		self._mob = Tex(string, **kwargs)
 		self.set_color_by_subex(algebra_config["always_color"])
-	
-	def copy(self):
-		return deepcopy(self)
 
-	def __getitem__(self, key):
-		if isinstance(key, str): # address of subexpressions, should return the glyphs corresponding to that subexpression
-			if MANIM_TYPE == 'GL':
-				return VGroup(*[self.mob[g] for g in self.get_glyphs(key)])
-			elif MANIM_TYPE == 'CE':
-				return VGroup(*[self.mob[0][g] for g in self.get_glyphs(key)])
+	def __getitem__(self, *keys):
+		# Returns a VGroup of the glyphs at the given addresses
+		if MANIM_TYPE == 'GL':
+			parent = self.mob
+		elif MANIM_TYPE == 'CE':
+			parent = self.mob[0]
+		else:
+			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
+		
+		result = VGroup()
+		for key in keys:
+			if isinstance(key, (int, slice)):
+				result.add(*parent[key])
+			elif isinstance(key, str):
+				result.add(*[parent[g] for g in self.get_glyphs_at_address(key)])
 			else:
-				raise Exception(f"Unknown manim type: {MANIM_TYPE}")
-		else: # preserve behavior of Tex indexing
-			return self.mob.__getitem__(key)
+				raise ValueError(f"Invalid key: {key}")
+		return result
 
-	def get_all_addresses(self):
-		# Returns the addresses of all subexpressions
-		addresses = [""]
-		for n in range(len(self.children)):
-			for child_address in self.children[n].get_all_addresses():
-				addresses.append(str(n)+child_address)
+
+
+
+
+
+		addresses = []
+		for ad in self.get_all_addresses():
+			if isinstance(self.get_subex(ad), type):
+				addresses.append(ad)
 		return addresses
-	
-	def get_all_nonleaf_addresses(self):
-		return sorted(list({a[:-1] for a in self.get_all_addresses() if a != ""}))
-	
-	def get_all_leaf_addresses(self):
-		return sorted(list(set(self.get_all_addresses()) - set(self.get_all_nonleaf_addresses())))
+
+
+	### Subexpressions ###
 
 	def get_subex(self, address_string):
 		# Returns the Expression object corresponding to the subexpression at the given address.
-		# Note that this is not a submobject of self! It is a different mobject probably not on screen,
-		# it was just created to help create self.
 		if address_string == "":
 			return self
 		elif int(address_string[0]) < len(self.children):
@@ -70,30 +76,35 @@ class Expression:
 		else:
 			raise IndexError(f"No subexpression of {self} at address {address_string} .")
 
-	def is_identical_to(self, other):
-		# Checks if they are equal as expressions. Implemented separately in leaves.
-		return type(self) == type(other) and len(self.children) == len(other.children) \
-			and all(self.children[i].is_identical_to(other.children[i]) for i in range(len(self.children)))
+	def get_all_subexpressions_with_condition(self, condition):
+		result = set()
+		for address in self.get_all_addresses():
+			if condition(subex := self.get_subex(address)):
+				result |= {subex}
+		return result
 
-	def get_addresses_of_subex(self, subex):
-		subex = Smarten(subex)
-		addresses = []
-		for ad in self.get_all_addresses():
-			if self.get_subex(ad).is_identical_to(subex):
-				addresses.append(ad)
-		return addresses
+	def get_all_subexpressions(self):
+		return self.get_all_subexpressions_with_condition(lambda subex: True)
+
+	def get_all_subexpressions_of_type(self, expression_type):
+		return self.get_all_subexpressions_with_condition(lambda subex: isinstance(subex, expression_type))
+	
+	def get_all_variables(self):
+		from .variables import Variable
+		return self.get_all_subexpressions_of_type(Variable)
 
 
-	'''
-	Glyph Related Matters
-	'''
+	### Glyphs ###
 
 	special_character_to_glyph_method_dict = {
+		# Class dictionary mapping special characters to methods
+		# When a character is seen in an address, the corresponding method is called
+		# Subclasses can add entries to this dictionary
 		'(': 'get_left_paren_glyphs',
 		')': 'get_right_paren_glyphs',
 		'_': 'get_exp_glyphs_without_parentheses',
 	}
-
+	
 	def number_of_glyphs(self):
 		# Optimize in subclasses so as not to need to render latex
 		if MANIM_TYPE == 'GL':
@@ -104,6 +115,7 @@ class Expression:
 			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
 
 	def get_glyphs_at_address(self, address):
+		# Returns the list of glyph indices at the given address
 		if len(address) == 0:
 			return list(range(self.number_of_glyphs()))
 
@@ -118,19 +130,19 @@ class Expression:
 				result += self.get_glyphs_at_address(remainder)
 			return list(set(result))
 
-		elif addigit in '0123456789':
-			digit = int(addigit)
-			child_glyphs = self.get_glyphs_at_addigit(digit)
-			child = self.children[digit]
-			glyphs_within_child = child.get_glyphs_at_address(remainder)
-			shift_value = child_glyphs[0]
-			result = [glyph + shift_value for glyph in glyphs_within_child]
-			return list(set(result))
-		
 		else:
-			raise ValueError(f"Invalid address: {address}")
+			try:
+				digit = int(addigit)
+				child_glyphs = self.get_glyphs_at_addigit(digit)
+				child = self.children[digit]
+				glyphs_within_child = child.get_glyphs_at_address(remainder)
+				shift_value = child_glyphs[0]
+				result = [glyph + shift_value for glyph in glyphs_within_child]
+				return list(set(result))
+			except:
+				raise ValueError(f"Invalid address: {address}")
 
-	def get_glyphs(self, *addresses):
+	def get_glyphs_at_addresses(self, *addresses):
 		result = []
 		for address in addresses:
 			result += self.get_glyphs_at_address(address)
@@ -161,6 +173,9 @@ class Expression:
 	def __len__(self):
 		return self.number_of_glyphs()
 
+
+	### Operations ###
+
 	def __neg__(self):
 		from .operations import Negative
 		return Negative(self)
@@ -169,44 +184,41 @@ class Expression:
 		from .operations import Add
 		return Add(self, other)
 
-	def __sub__(self, other):
-		from .operations import Sub
-		return Sub(self, other)
-
-	def __mul__(self, other):
-		from .operations import Mul
-		return Mul(self, other)
-
-	def __truediv__(self, other):
-		from .operations import Div
-		return Div(self, other)
-
-	def __pow__(self, other):
-		from .operations import Pow
-		return Pow(self, other)
-
 	def __radd__(self, other):
 		from .operations import Add
 		return Add(other, self)
+
+	def __sub__(self, other):
+		from .operations import Sub
+		return Sub(self, other)
 
 	def __rsub__(self, other):
 		from .operations import Sub
 		return Sub(other, self)
 
+	def __mul__(self, other):
+		from .operations import Mul
+		return Mul(self, other)
+
 	def __rmul__(self, other):
 		from .operations import Mul
 		return Mul(other, self)
+
+	def __truediv__(self, other):
+		from .operations import Div
+		return Div(self, other)
 
 	def __rtruediv__(self, other):
 		from .operations import Div
 		return Div(other, self)
 
+	def __pow__(self, other):
+		from .operations import Pow
+		return Pow(self, other)
+
 	def __rpow__(self, other):
 		from .operations import Pow
 		return Pow(other, self)
-
-	def __matmul__(self, expression_dict):
-		return self.substitute(expression_dict)
 
 	def __and__(self, other):
 		from .relations import Equation
@@ -220,7 +232,7 @@ class Expression:
 		from .relations import Equation
 		return Equation(self, other)
 	
-	def __or__(self, other):
+	def __ror__(self, other):
 		from .relations import Equation
 		return Equation(other, self)
 
@@ -242,8 +254,8 @@ class Expression:
 	def __rrshift__(self, other):
 		return Smarten(other).__rshift__(self)
 
-	def is_negative(self):
-		return False # catchall if not defined in subclasses
+
+	### Parentheses ###
 
 	def give_parentheses(self, parentheses=True):
 		self.parentheses = parentheses
@@ -276,34 +288,19 @@ class Expression:
 		num_paren_glyphs = len(yes_paren) - len(no_paren)
 		assert num_paren_glyphs > 0 and num_paren_glyphs % 2 == 0
 		return num_paren_glyphs // 2
+	
+	@classmethod
+	def parenthesize(str_func):
+		# To decorate most subclasses' __str__ methods
+		def wrapper(expr, *args, **kwargs):
+			pretex = str_func(expr, *args, **kwargs)
+			if expr.parentheses:
+				pretex = "\\left(" + pretex + "\\right)"
+			return pretex
+		return wrapper
 
-	#Man these guys do not work correctly yet
-	def nest(self, direction="right", recurse=True):
-		if len(self.children) <= 2:
-			return self
-		else:
-			if direction == "right":
-				return type(self)(self.children[0], type(self)(*self.children[1:]).nest(direction, recurse))
-			elif direction == "left":
-				return type(self)(type(self)(*self.children[:-1]).nest(direction, recurse), self.children[-1])
-			else:
-				raise ValueError(f"Invalid direction: {direction}. Must be right or left.")
 
-	def denest(self, denest_all = False, match_type = None):
-		if len(self.children) <= 1:
-			return self
-		if match_type is None:
-			match_type = type(self)
-		new_children = []
-		for child in self.children:
-			if type(child) == match_type:
-				for grandchild in child.children:
-					new_children.append(grandchild.denest(denest_all, match_type))
-			elif denest_all:
-				new_children.append(child.denest(True, match_type))
-			else:
-				new_children.append(child)
-		return type(self)(*new_children)
+	### Substitution ###
 
 	def substitute_at_address(self, subex, address):
 		subex = Smarten(subex).copy() #?
@@ -331,6 +328,42 @@ class Expression:
 			result = result.substitute_at_addresses(to_subex, result.get_addresses_of_subex(Variable(f"T_{i}")))
 		return result
 
+	def __matmul__(self, expression_dict):
+		return self.substitute(expression_dict)
+
+
+	### Nesting ###
+	# These do not work yet, regrettably
+	def nest(self, direction="right", recurse=True):
+		if len(self.children) <= 2:
+			return self
+		else:
+			if direction == "right":
+				return type(self)(self.children[0], type(self)(*self.children[1:]).nest(direction, recurse))
+			elif direction == "left":
+				return type(self)(type(self)(*self.children[:-1]).nest(direction, recurse), self.children[-1])
+			else:
+				raise ValueError(f"Invalid direction: {direction}. Must be right or left.")
+
+	def denest(self, denest_all = False, match_type = None):
+		if len(self.children) <= 1:
+			return self
+		if match_type is None:
+			match_type = type(self)
+		new_children = []
+		for child in self.children:
+			if type(child) == match_type:
+				for grandchild in child.children:
+					new_children.append(grandchild.denest(denest_all, match_type))
+			elif denest_all:
+				new_children.append(child.denest(True, match_type))
+			else:
+				new_children.append(child)
+		return type(self)(*new_children)
+
+
+	### Coloring ###
+
 	def set_color_by_subex(self, subex_color_dict):
 		for subex, color in subex_color_dict.items():
 			for ad in self.get_addresses_of_subex(subex):
@@ -346,33 +379,41 @@ class Expression:
 			if hasattr(subex, 'color'):
 				return subex.color		
 
-	def evaluate(self):
-		return Smarten(self.compute())
+
+
+	### Utilities ###
+	
+	def copy(self):
+		return deepcopy(self)
 
 	def __repr__(self):
 		return type(self).__name__ + "(" + str(self) + ")"
 
-	def get_all_subexpressions_of_type(self, expression_type):
-		result = set()
-		for child in self.children:
-			if isinstance(child, expression_type):
-				result |= {child}
-			else:
-				result |= child.get_all_subexpressions_of_type(expression_type)
-		return result
-	
-	def get_all_variables(self):
-		from .variables import Variable
-		return self.get_all_subexpressions_of_type(Variable)
+	def is_negative(self):
+		return False # catchall if not defined in subclasses
+
+	def is_identical_to(self, other):
+		# Checks if they are equal as expressions. Implemented separately in leaves.
+		return type(self) == type(other) and len(self.children) == len(other.children) \
+			and all(self.children[i].is_identical_to(other.children[i]) for i in range(len(self.children)))
+
+	def evaluate(self):
+		return Smarten(self.compute())
 
 
-def parenthesize(str_func):
-	def wrapper(expr, *args, **kwargs):
-		pretex = str_func(expr, *args, **kwargs)
-		if expr.parentheses:
-			pretex = "\\left(" + pretex + "\\right)"
-		return pretex
-	return wrapper
+
+
+
+
+class Address(str):
+	pass
+
+parenthesize = Expression.parenthesize_str_decorator
+
+
+
+
+
 
 
 class Combiner(Expression):
