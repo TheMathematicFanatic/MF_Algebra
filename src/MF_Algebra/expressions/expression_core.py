@@ -254,8 +254,12 @@ class Expression:
 	### Parentheses ###
 
 	def give_parentheses(self, parentheses=True):
-		self.parentheses = parentheses
-		self._mob = None # Don't init mob just yet, just mark it as needing to be reinitialized
+		change = parentheses - self.parentheses
+		if change:
+			self._mob = None # Don't init mob just yet, just mark it as needing to be reinitialized
+			if self._number_of_glyphs is not None: # Adjust cached number of glyphs according to change
+				self._number_of_glyphs += 2 * change * self.paren_length()
+			self.parentheses = parentheses
 		return self
 
 	def clear_all_parentheses(self):
@@ -407,6 +411,11 @@ class Combiner(Expression):
 		self.children = list(map(Smarten,children))
 		self.left_spacing = ""
 		self.right_spacing = ""
+		self._number_of_glyphs = sum([
+			sum(child.number_of_glyphs() for child in self.children),
+			self.symbol_glyph_length * (len(self.children) - 1),
+			self.parentheses * self.paren_length() * 2
+		])
 
 	@Expression.parenthesize
 	def __str__(self, *args, **kwargs):
@@ -450,11 +459,7 @@ class Combiner(Expression):
 			turtle += self.symbol_glyph_length
 		return results
 
-	def number_of_glyphs(self):
-		result = sum(child.number_of_glyphs() for child in self.children)
-		result += self.symbol_glyph_length * (len(self.children) - 1)
-		result += self.parentheses * self.paren_length() * 2
-		return result
+
 
 
 
