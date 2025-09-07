@@ -103,7 +103,7 @@ class Pow(Operation):
 		super().__init__("^", 0, *children, **kwargs)
 
 	def auto_parentheses(self):
-		assert len(self.children) == 2 #idc how to auto paren power towers
+		assert len(self.children) == 2, f'Children: {self.children}' #idc how to auto paren power towers
 		if isinstance(self.children[0], Operation) or self.children[0].is_negative():
 			self.children[0].give_parentheses()
 		for child in self.children:

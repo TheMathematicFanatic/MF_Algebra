@@ -3,7 +3,7 @@ from .expression_core import *
 
 class Function(Expression):
 	def __init__(self,
-		symbol,
+		symbol = None,
 		symbol_glyph_length = None,
 		python_rule = None,
 		algebra_rule_variables = [],
@@ -12,6 +12,9 @@ class Function(Expression):
 		spacing = "",
 		**kwargs
 	):
+		# First child is argument(s) such as a Variable, Number, or Sequence.
+		# Further children are parameters like subscripts, indices, or bounds.
+		super().__init__(**kwargs)
 		self.symbol = symbol #string
 		self.symbol_glyph_length = symbol_glyph_length #int
 		self.python_rule = python_rule #callable
@@ -19,12 +22,11 @@ class Function(Expression):
 		self.algebra_rule = algebra_rule
 		self.parentheses_mode = parentheses_mode
 		self.spacing = spacing
-		# First child is argument(s) such as a Variable, Number, or Sequence.
-		# Further children are parameters like subscripts, indices, or bounds.
-		self.children = []
-		super().__init__(**kwargs)
+		self._number_of_glyphs = self.get_symbol_string()
 
-	@parenthesize
+
+
+	@Expression.parenthesize
 	def __str__(self):
 		symbol_string = self.get_symbol_string()
 		argument_string = str(self.children[0]) if len(self.children) > 0 else ""
@@ -36,8 +38,8 @@ class Function(Expression):
 
 	special_character_to_glyph_method_dict = {
 		**Expression.special_character_to_glyph_method_dict,
-		'F': 'get_func_glyphs',
-		'f': 'get_func_glyphs',
+		'F': 'get_func_glyphs_with_extras',
+		'f': 'get_func_glyphs_without_extras',
 	}
 
 	def get_glyphs_at_addigit(self, addigit):
@@ -46,19 +48,17 @@ class Function(Expression):
 		if child_index == 0:
 			start = self.symbol_glyph_length
 			start += self.parentheses * self.paren_length()
-			end = start + self.children[0].number_of_glyphs()
+			end = start + self.children[0].number_of_glyphs
 			return list(range(start, end))
 		else:
 			raise NotImplementedError(f"This function has no children at index {addigit}")
 	
-	def get_func_glyphs(self):
+	def get_func_glyphs_with_extras(self):
 		return list(range(0, self.symbol_glyph_length))
 	
-	def number_of_glyphs(self):
-		result = self.symbol_glyph_length
-		result += self.children[0].number_of_glyphs()
-		result += self.parentheses * self.paren_length() * 2
-		return result
+	def get_func_glyphs_without_extras(self):
+		return list(range(0, self.symbol_glyph_length))
+	
 
 	def __call__(self, *inputs):
 		new_func = self.copy()
@@ -69,6 +69,7 @@ class Function(Expression):
 			new_func.children.append(Sequence(*list(map(Smarten, inputs))))
 		new_func.auto_parentheses()
 		new_func._mob = None
+		new_func._number_of_glyphs = self.get_symbol_string() + self.children[0].number_of_glyphs(),
 		return new_func
 	
 	def auto_parentheses(self):
@@ -107,3 +108,19 @@ class Function(Expression):
 			else:
 				raise ValueError(f"Algebra rule {self.algebra_rule} requires {len(self.algebra_rule_variables)} arguments, but {len(args)} were given.")
 			return substituted_expression.compute()
+
+
+class Rad(Function):
+    def __init__(self, index, **kwargs):
+        index = Smarten(index)
+        super().__init__(
+            symbol = f'\\sqrt[{index}]',
+            symbol_glyph_length = 2+len(str(index)),
+            python_rule = lambda x: x**(1/index),
+            parentheses_mode = 'never',
+            **kwargs
+        )
+
+    def get_glyphs_at_addigit(self, addigit):
+        return list(range(0, self.symbol_glyph_length))
+	
