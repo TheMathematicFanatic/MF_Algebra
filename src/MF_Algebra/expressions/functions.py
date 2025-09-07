@@ -10,11 +10,12 @@ class Function(Expression):
 		algebra_rule = None,
 		parentheses_mode="always",
 		spacing = "",
-		**kwargs
-	):
+		children=[],
 		# First child is argument(s) such as a Variable, Number, or Sequence.
 		# Further children are parameters like subscripts, indices, or bounds.
-		super().__init__(**kwargs)
+		**kwargs
+	):
+		super().__init__(children=children, **kwargs)
 		self.symbol = symbol #string
 		self.symbol_glyph_length = symbol_glyph_length #int
 		self.python_rule = python_rule #callable
@@ -49,7 +50,7 @@ class Function(Expression):
 		if child_index == 0:
 			start = self.symbol_glyph_length
 			start += self.parentheses * self.paren_length()
-			end = start + self.children[0].number_of_glyphs
+			end = start + self.children[0].number_of_glyphs()
 			return list(range(start, end))
 		else:
 			raise NotImplementedError(f"This function has no children at index {addigit}")
@@ -70,7 +71,7 @@ class Function(Expression):
 			new_func.children.append(Sequence(*list(map(Smarten, inputs))))
 		new_func.auto_parentheses()
 		new_func._mob = None
-		new_func._number_of_glyphs = self.get_symbol_string() + self.children[0].number_of_glyphs(),
+		new_func._number_of_glyphs += new_func.children[0].number_of_glyphs()
 		return new_func
 	
 	def auto_parentheses(self):

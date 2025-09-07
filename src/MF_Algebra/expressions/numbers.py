@@ -20,6 +20,7 @@ class Integer(Number):
 		assert isinstance(n, int)
 		super().__init__(**kwargs)
 		self.value = n
+		self._number_of_glyphs = len(str(n))
 
 	@Expression.parenthesize
 	def __str__(self):

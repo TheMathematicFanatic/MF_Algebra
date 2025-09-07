@@ -15,9 +15,9 @@ algebra_config = {
 	}
 
 class Expression:
-	def __init__(self, **kwargs):
-		self.children = []
-		self.parentheses = False
+	def __init__(self, children=[], parentheses=False, **kwargs):
+		self.children = list(map(Smarten,children))
+		self.parentheses = parentheses
 		if algebra_config["auto_parentheses"]:
 			self.auto_parentheses()
 		self._mob = None
@@ -82,6 +82,9 @@ class Expression:
 	
 	def get_all_addresses_of_type(self, expression_type):
 		return self.get_all_addresses_with_condition(lambda address: isinstance(self.get_subex(address), expression_type))
+
+	def get_addresses_of_subex(self, subex):
+		return self.get_all_addresses_with_condition(lambda address: self.get_subex(address).is_identical_to(subex))
 
 
 	### Subexpressions ###
@@ -432,11 +435,10 @@ class Expression:
 
 
 class Combiner(Expression):
-	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
-		super().__init__(**kwargs)
+	def __init__(self, symbol, symbol_glyph_length, children, **kwargs):
+		super().__init__(children=children, **kwargs)
 		self.symbol = symbol
 		self.symbol_glyph_length = symbol_glyph_length
-		self.children = list(map(Smarten,children))
 		self.left_spacing = ""
 		self.right_spacing = ""
 		self._number_of_glyphs = sum([

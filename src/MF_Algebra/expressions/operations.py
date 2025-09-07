@@ -3,7 +3,7 @@ from .expression_core import *
 
 class Operation(Combiner):
 	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
-		super().__init__(symbol, symbol_glyph_length, *children, **kwargs)
+		super().__init__(symbol, symbol_glyph_length, children=children, **kwargs)
 
 	def compute(self):
 		result = self.children[0].compute()
