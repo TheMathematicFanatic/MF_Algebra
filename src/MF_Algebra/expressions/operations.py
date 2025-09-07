@@ -118,7 +118,7 @@ class Negative(Expression):
 		self.children = [Smarten(child)]
 		super().__init__(**kwargs)
 
-	@parenthesize
+	@Expression.parenthesize
 	def __str__(self):
 		return "-" + str(self.children[0])
 

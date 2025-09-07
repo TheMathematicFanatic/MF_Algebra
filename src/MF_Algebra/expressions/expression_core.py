@@ -14,11 +14,13 @@ algebra_config = {
 	}
 
 class Expression:
-	def __init__(self, parentheses=False, **kwargs):
-		self.parentheses = parentheses
+	def __init__(self, **kwargs):
+		self.children = []
+		self.parentheses = False
 		if algebra_config["auto_parentheses"]:
 			self.auto_parentheses()
 		self._mob = None
+		self._number_of_glyphs = None
 
 
 	### Mobject ###
@@ -52,17 +54,6 @@ class Expression:
 			else:
 				raise ValueError(f"Invalid key: {key}")
 		return result
-
-
-
-
-
-
-		addresses = []
-		for ad in self.get_all_addresses():
-			if isinstance(self.get_subex(ad), type):
-				addresses.append(ad)
-		return addresses
 
 
 	### Subexpressions ###
@@ -106,18 +97,23 @@ class Expression:
 	}
 	
 	def number_of_glyphs(self):
-		# Optimize in subclasses so as not to need to render latex
+		# Set this value in subclasses so as not to need to render latex
+		if self._number_of_glyphs is None:
+			self.init_number_of_glyphs_from_mob()
+		return self._number_of_glyphs
+	
+	def init_number_of_glyphs_from_mob(self):	
 		if MANIM_TYPE == 'GL':
-			return len(self.mob)
+			self._number_of_glyphs = len(self.mob)
 		elif MANIM_TYPE == 'CE':
-			return len(self.mob[0])
+			self._number_of_glyphs = len(self.mob[0])
 		else:
 			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
 
 	def get_glyphs_at_address(self, address):
 		# Returns the list of glyph indices at the given address
 		if len(address) == 0:
-			return list(range(self.number_of_glyphs()))
+			return list(range(self.number_of_glyphs))
 
 		addigit = address[0]
 		remainder = address[1:]
@@ -289,7 +285,7 @@ class Expression:
 		assert num_paren_glyphs > 0 and num_paren_glyphs % 2 == 0
 		return num_paren_glyphs // 2
 	
-	@classmethod
+	@staticmethod
 	def parenthesize(str_func):
 		# To decorate most subclasses' __str__ methods
 		def wrapper(expr, *args, **kwargs):
@@ -403,33 +399,19 @@ class Expression:
 
 
 
-
-
-class Address(str):
-	pass
-
-parenthesize = Expression.parenthesize_str_decorator
-
-
-
-
-
-
-
 class Combiner(Expression):
 	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
+		super().__init__(**kwargs)
 		self.symbol = symbol
 		self.symbol_glyph_length = symbol_glyph_length
 		self.children = list(map(Smarten,children))
 		self.left_spacing = ""
 		self.right_spacing = ""
-		super().__init__(**kwargs)
 
-	@parenthesize
+	@Expression.parenthesize
 	def __str__(self, *args, **kwargs):
 		joiner = self.left_spacing + self.symbol + self.right_spacing
-		result = joiner.join(["{" + str(child) + "}" for child in self.children])
-		return result
+		return joiner.join(["{" + str(child) + "}" for child in self.children])
 
 	def set_spacing(self, left_spacing, right_spacing):
 		self.left_spacing = left_spacing
@@ -475,3 +457,6 @@ class Combiner(Expression):
 		return result
 
 
+
+class Address(str):
+	pass

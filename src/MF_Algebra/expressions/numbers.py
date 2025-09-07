@@ -5,9 +5,8 @@ import numpy as np
 
 class Number(Expression):
 	def __init__(self, **kwargs):
-		self.children = []
-		self.value = None
 		super().__init__(**kwargs)
+		self.value = None
 
 	def compute(self):
 		return float(self)
@@ -22,7 +21,7 @@ class Integer(Number):
 		super().__init__(**kwargs)
 		self.value = n
 
-	@parenthesize
+	@Expression.parenthesize
 	def __str__(self):
 		return str(self.value)
 
@@ -55,13 +54,22 @@ class Integer(Number):
 
 
 class Real(Number):
-	def __init__(self, x, symbol=None, symbol_glyph_length=1, **kwargs):
+	def __init__(self, value, symbol=None, symbol_glyph_length=None, decimal_places=4, **kwargs):
 		super().__init__(**kwargs)
-		self.value = x
+		self.value = value
 		self.symbol = symbol
-		self.symbol_glyph_length = symbol_glyph_length
+		self.decimal_places = decimal_places
 
-	@parenthesize
+		if symbol and symbol_glyph_length:
+			self._number_of_glyphs = symbol_glyph_length
+		elif not symbol:
+			string = str(self)
+			self._number_of_glyphs = len(string)
+			if string.endswith(r"\ldots"):
+				self._number_of_glyphs -= 3
+
+
+	@Expression.parenthesize
 	def __str__(self, decimal_places=4, use_decimal=False):
 		if self.symbol and not use_decimal:
 			return self.symbol
@@ -71,18 +79,6 @@ class Real(Number):
 		else:
 			return f"{self.value:.{decimal_places}f}" + r"\ldots"
 	
-	def number_of_glyphs(self):
-		if self.symbol:
-			return self.symbol_glyph_length
-		else:
-			string = str(self)
-			if string.endswith(r"\ldots"):
-				return len(string) - 3
-			else:
-				return len(string)
-
-	def __float__(self):
-		return float(self.value)
 
 	def is_identical_to(self, other):
 		return type(self) == type(other) and self.value == other.value
@@ -96,10 +92,14 @@ class Real(Number):
 		else:
 			return self.value
 
+	def __float__(self):
+		return float(self.value)
+
 
 class Rational(Div):
 	# Better to subclass Div than Number because 5/3 is no more a number than 5^3 or 5+3
 	# Multiclassing is an option but seems to be more trouble than it's worth
+	# Actually, I'm not so sure. Sometime I'd like to implement rational arithmetic and idk the best way
 	def __init__(self, a, b, **kwargs):
 		if not isinstance(a, (Integer, int)):
 			raise TypeError (f"Unsupported numerator type {type(a)}: {a}")
