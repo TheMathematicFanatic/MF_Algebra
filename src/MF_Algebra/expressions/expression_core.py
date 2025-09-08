@@ -65,10 +65,10 @@ class Expression:
 		for n in range(len(self.children)):
 			for child_address in self.children[n].get_all_addresses():
 				addresses.append(str(n)+child_address)
-		return addresses
+		return sorted(list(set(addresses)))
 	
 	def get_all_nonleaf_addresses(self):
-		return sorted(list({a[:-1] for a in self.get_all_addresses() if a != ""}))
+		return sorted(list(set(a[:-1] for a in self.get_all_addresses() if a != "")))
 	
 	def get_all_leaf_addresses(self):
 		return sorted(list(set(self.get_all_addresses()) - set(self.get_all_nonleaf_addresses())))
@@ -78,13 +78,13 @@ class Expression:
 		for address in self.get_all_addresses():
 			if condition(self.get_subex(address)):
 				result |= {address}
-		return result
+		return sorted(list(result))
 	
 	def get_all_addresses_of_type(self, expression_type):
-		return self.get_all_addresses_with_condition(lambda address: isinstance(self.get_subex(address), expression_type))
+		return self.get_all_addresses_with_condition(lambda subex: isinstance(subex, expression_type))
 
-	def get_addresses_of_subex(self, subex):
-		return self.get_all_addresses_with_condition(lambda address: self.get_subex(address).is_identical_to(subex))
+	def get_addresses_of_subex(self, target_subex):
+		return self.get_all_addresses_with_condition(lambda subex: subex.is_identical_to(target_subex))
 
 
 	### Subexpressions ###
@@ -144,7 +144,7 @@ class Expression:
 	def get_glyphs_at_address(self, address):
 		# Returns the list of glyph indices at the given address
 		if len(address) == 0:
-			return list(range(self.number_of_glyphs))
+			return list(range(self.number_of_glyphs()))
 
 		addigit = address[0]
 		remainder = address[1:]

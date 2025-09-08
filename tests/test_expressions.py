@@ -105,22 +105,22 @@ def test_glyph_indices_small(Q):
     assert Q.get_exp_glyphs_without_parentheses("1") == [5]
     assert Q.get_op_glyphs("1") == []
     # ~~~ now with shortened syntax ~~~
-    assert Q.get_glyphs("") == [0,1,2,3,4,5]
-    assert Q.get_glyphs("(") == []
-    assert Q.get_glyphs(")") == []
-    assert Q.get_glyphs("_") == [0,1,2,3,4,5]
-    assert Q.get_glyphs("+") == []
-    assert Q.get_glyphs("0") == [0,1,2,3,4]
-    assert Q.get_glyphs("0(") == [0]
-    assert Q.get_glyphs("0)") == [4]
-    assert Q.get_glyphs("0_") == [1,2,3]
-    assert Q.get_glyphs("0+") == [2]
-    assert Q.get_glyphs("1") == [5]
-    assert Q.get_glyphs("1(") == []
-    assert Q.get_glyphs("1)") == []
-    assert Q.get_glyphs("1_") == [5]
-    assert Q.get_glyphs("1+") == []
-    assert Q.get_glyphs("0(+)") == [0,2,4]
+    assert Q.get_glyphs_at_address("") == [0,1,2,3,4,5]
+    assert Q.get_glyphs_at_address("(") == []
+    assert Q.get_glyphs_at_address(")") == []
+    assert Q.get_glyphs_at_address("_") == [0,1,2,3,4,5]
+    assert Q.get_glyphs_at_address("+") == []
+    assert Q.get_glyphs_at_address("0") == [0,1,2,3,4]
+    assert Q.get_glyphs_at_address("0(") == [0]
+    assert Q.get_glyphs_at_address("0)") == [4]
+    assert Q.get_glyphs_at_address("0_") == [1,2,3]
+    assert Q.get_glyphs_at_address("0+") == [2]
+    assert Q.get_glyphs_at_address("1") == [5]
+    assert Q.get_glyphs_at_address("1(") == []
+    assert Q.get_glyphs_at_address("1)") == []
+    assert Q.get_glyphs_at_address("1_") == [5]
+    assert Q.get_glyphs_at_address("1+") == []
+    assert Q.get_glyphs_at_address("0(+)") == [0,2,4]
 
 def test_glyph_indices_large(B):
     assert len(B) == 36
@@ -155,38 +155,38 @@ def test_glyph_indices_large(B):
     assert B.get_exp_glyphs_without_parentheses("0000") == [4,5,6,7]
     assert B.get_op_glyphs("0000") == [6]
     # ~~~ now with shortened syntax ~~~
-    assert B.get_glyphs("") == list(range(36))
-    assert B.get_glyphs("(") == []
-    assert B.get_glyphs(")") == []
-    assert B.get_glyphs("_") == list(range(36))
-    assert B.get_glyphs("+") == []
-    assert B.get_glyphs("0") == list(range(35))
-    assert B.get_glyphs("0(") == [0,1,2]
-    assert B.get_glyphs("0)") == [32,33,34]
-    assert B.get_glyphs("0_") == list(range(3,32))
-    assert B.get_glyphs("0+") == [17]
-    assert B.get_glyphs("1") == [35]
-    assert B.get_glyphs("1(") == []
-    assert B.get_glyphs("1)") == []
-    assert B.get_glyphs("1_") == [35]
-    assert B.get_glyphs("1+") == []
-    assert B.get_glyphs("00") == list(range(3,17))
-    assert B.get_glyphs("00(") == []
-    assert B.get_glyphs("00)") == []
-    assert B.get_glyphs("00_") == list(range(3,17))
-    assert B.get_glyphs("00+") == []
-    assert B.get_glyphs("000") == list(range(3,16))
-    assert B.get_glyphs("000(") == [3]
-    assert B.get_glyphs("000)") == [15]
-    assert B.get_glyphs("000_") == list(range(4,15))
-    assert B.get_glyphs("000+") == [8]
-    assert B.get_glyphs("0000") == [4,5,6,7]
-    assert B.get_glyphs("0000(") == []
-    assert B.get_glyphs("0000)") == []
-    assert B.get_glyphs("0000_") == [4,5,6,7]
-    assert B.get_glyphs("0000+") == [6]
-    assert B.get_glyphs("0()") == [0,1,2,32,33,34]
-    assert B.get_glyphs("000()/") == [3,8,15]
+    assert B.get_glyphs_at_address("") == list(range(36))
+    assert B.get_glyphs_at_address("(") == []
+    assert B.get_glyphs_at_address(")") == []
+    assert B.get_glyphs_at_address("_") == list(range(36))
+    assert B.get_glyphs_at_address("+") == []
+    assert B.get_glyphs_at_address("0") == list(range(35))
+    assert B.get_glyphs_at_address("0(") == [0,1,2]
+    assert B.get_glyphs_at_address("0)") == [32,33,34]
+    assert B.get_glyphs_at_address("0_") == list(range(3,32))
+    assert B.get_glyphs_at_address("0+") == [17]
+    assert B.get_glyphs_at_address("1") == [35]
+    assert B.get_glyphs_at_address("1(") == []
+    assert B.get_glyphs_at_address("1)") == []
+    assert B.get_glyphs_at_address("1_") == [35]
+    assert B.get_glyphs_at_address("1+") == []
+    assert B.get_glyphs_at_address("00") == list(range(3,17))
+    assert B.get_glyphs_at_address("00(") == []
+    assert B.get_glyphs_at_address("00)") == []
+    assert B.get_glyphs_at_address("00_") == list(range(3,17))
+    assert B.get_glyphs_at_address("00+") == []
+    assert B.get_glyphs_at_address("000") == list(range(3,16))
+    assert B.get_glyphs_at_address("000(") == [3]
+    assert B.get_glyphs_at_address("000)") == [15]
+    assert B.get_glyphs_at_address("000_") == list(range(4,15))
+    assert B.get_glyphs_at_address("000+") == [8]
+    assert B.get_glyphs_at_address("0000") == [4,5,6,7]
+    assert B.get_glyphs_at_address("0000(") == []
+    assert B.get_glyphs_at_address("0000)") == []
+    assert B.get_glyphs_at_address("0000_") == [4,5,6,7]
+    assert B.get_glyphs_at_address("0000+") == [6]
+    assert B.get_glyphs_at_address("0()") == [0,1,2,32,33,34]
+    assert B.get_glyphs_at_address("000()/") == [3,8,15]
 
 def test_glyph_indices_multi_children(S):
     assert len(S) == 23
@@ -206,45 +206,45 @@ def test_glyph_indices_multi_children(S):
     assert S.get_exp_glyphs_without_parentheses("1") == list(range(5,23))
     assert S.get_op_glyphs("1") == [6,11,17]
     # ~~~ now with shortened syntax ~~~
-    assert S.get_glyphs("") == list(range(23))
-    assert S.get_glyphs("(") == []
-    assert S.get_glyphs(")") == []
-    assert S.get_glyphs("_") == list(range(23))
-    assert S.get_glyphs("+") == [4]
-    assert S.get_glyphs("0") == [0,1,2,3]
-    assert S.get_glyphs("0(") == []
-    assert S.get_glyphs("0)") == []
-    assert S.get_glyphs("0_") == [0,1,2,3]
-    assert S.get_glyphs("0+") == [1]
-    assert S.get_glyphs("1") == list(range(5,23))
-    assert S.get_glyphs("1(") == []
-    assert S.get_glyphs("1)") == []
-    assert S.get_glyphs("1_") == list(range(5,23))
-    assert S.get_glyphs("1+") == [6,11,17]
-    assert S.get_glyphs("1()+*_") == list(range(5,23))
+    assert S.get_glyphs_at_address("") == list(range(23))
+    assert S.get_glyphs_at_address("(") == []
+    assert S.get_glyphs_at_address(")") == []
+    assert S.get_glyphs_at_address("_") == list(range(23))
+    assert S.get_glyphs_at_address("+") == [4]
+    assert S.get_glyphs_at_address("0") == [0,1,2,3]
+    assert S.get_glyphs_at_address("0(") == []
+    assert S.get_glyphs_at_address("0)") == []
+    assert S.get_glyphs_at_address("0_") == [0,1,2,3]
+    assert S.get_glyphs_at_address("0+") == [1]
+    assert S.get_glyphs_at_address("1") == list(range(5,23))
+    assert S.get_glyphs_at_address("1(") == []
+    assert S.get_glyphs_at_address("1)") == []
+    assert S.get_glyphs_at_address("1_") == list(range(5,23))
+    assert S.get_glyphs_at_address("1+") == [6,11,17]
+    assert S.get_glyphs_at_address("1()+*_") == list(range(5,23))
 
 def test_glyph_indices_function(F):
     assert len(F) == 17
-    assert F.get_glyphs("") == [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-    assert F.get_glyphs("()") == []
-    assert F.get_glyphs("_") == [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-    assert F.get_glyphs("/") == [12]
-    assert F.get_glyphs("0") == [0,1,2,3,4,5,6,7,8,9,10,11]
-    assert F.get_glyphs("0()") == []
-    assert F.get_glyphs("0_") == [0,1,2,3,4,5,6,7,8,9,10,11]
-    assert F.get_glyphs("0/") == [0]
-    assert F.get_glyphs("00") == [1,2,3,4,5,6,7,8,9,10,11]
-    assert F.get_glyphs("00()") == [1,11]
-    assert F.get_glyphs("00_") == [2,3,4,5,6,7,8,9,10]
-    assert F.get_glyphs("00,") == [3,5]
-    assert F.get_glyphs("002") == [6,7,8,9,10]
-    assert F.get_glyphs("002-") == [8]
-    assert F.get_glyphs("1") == [13,14,15,16]
-    assert F.get_glyphs("1()") == []
-    assert F.get_glyphs("1_") == [13,14,15,16]
-    assert F.get_glyphs("1*") == [13,14,15]
-    assert F.get_glyphs("10") == [16]
-    assert F.get_glyphs("100") == [16]
+    assert F.get_glyphs_at_address("") == [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+    assert F.get_glyphs_at_address("()") == []
+    assert F.get_glyphs_at_address("_") == [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+    assert F.get_glyphs_at_address("/") == [12]
+    assert F.get_glyphs_at_address("0") == [0,1,2,3,4,5,6,7,8,9,10,11]
+    assert F.get_glyphs_at_address("0()") == []
+    assert F.get_glyphs_at_address("0_") == [0,1,2,3,4,5,6,7,8,9,10,11]
+    assert F.get_glyphs_at_address("0/") == [0]
+    assert F.get_glyphs_at_address("00") == [1,2,3,4,5,6,7,8,9,10,11]
+    assert F.get_glyphs_at_address("00()") == [1,11]
+    assert F.get_glyphs_at_address("00_") == [2,3,4,5,6,7,8,9,10]
+    assert F.get_glyphs_at_address("00,") == [3,5]
+    assert F.get_glyphs_at_address("002") == [6,7,8,9,10]
+    assert F.get_glyphs_at_address("002-") == [8]
+    assert F.get_glyphs_at_address("1") == [13,14,15,16]
+    assert F.get_glyphs_at_address("1()") == []
+    assert F.get_glyphs_at_address("1_") == [13,14,15,16]
+    assert F.get_glyphs_at_address("1*") == [13,14,15]
+    assert F.get_glyphs_at_address("10") == [16]
+    assert F.get_glyphs_at_address("100") == [16]
 
 def test_substitute(Q,B):
     assert Q.substitute_at_address(B, "1").is_identical_to((x/y)**B)
