@@ -1,7 +1,7 @@
 from .expression_core import *
 
 
-class Operation(Combiner):
+class BinaryOperation(Combiner):
 	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
 		super().__init__(symbol, symbol_glyph_length, children=children, **kwargs)
 
@@ -12,7 +12,7 @@ class Operation(Combiner):
 		return result
 
 
-class Add(Operation):
+class Add(BinaryOperation):
 	def __init__(self, *children, **kwargs):
 		self.eval_op = lambda x,y: x+y
 		super().__init__("+", 1, *children, **kwargs)
@@ -24,7 +24,7 @@ class Add(Operation):
 	def is_negative(self):
 		return self.children[0].is_negative()
 
-class Sub(Operation):
+class Sub(BinaryOperation):
 	def __init__(self, *children, **kwargs):
 		self.eval_op = lambda x,y: x-y
 		super().__init__("-", 1, *children, **kwargs)
@@ -39,7 +39,7 @@ class Sub(Operation):
 	def is_negative(self):
 		return self.children[0].is_negative()
 
-class Mul(Operation):
+class Mul(BinaryOperation):
 	def __init__(self, *children, mode="auto", **kwargs):
 		from .numbers import Number
 		self.eval_op = lambda x,y: x*y
@@ -67,7 +67,7 @@ class Mul(Operation):
 	def is_negative(self):
 		return self.children[0].is_negative()
 
-class Div(Operation):
+class Div(BinaryOperation):
 	def __init__(self, *children, mode=None, **kwargs):
 		self.eval_op = lambda x,y: x/y
 		self.mode = algebra_config["division_mode"] if mode is None else mode
@@ -97,14 +97,14 @@ class Div(Operation):
 		else:
 			return float(num) / float(den)
 
-class Pow(Operation):
+class Pow(BinaryOperation):
 	def __init__(self, *children, **kwargs):
 		self.eval_op = lambda x,y: x**y
 		super().__init__("^", 0, *children, **kwargs)
 
 	def auto_parentheses(self):
 		assert len(self.children) == 2, f'Children: {self.children}' #idc how to auto paren power towers
-		if isinstance(self.children[0], Operation) or self.children[0].is_negative():
+		if isinstance(self.children[0], BinaryOperation) or self.children[0].is_negative():
 			self.children[0].give_parentheses()
 		for child in self.children:
 			child.auto_parentheses()
@@ -113,14 +113,44 @@ class Pow(Operation):
 		return False
 
 
-class Negative(Expression):
-	def __init__(self, child, **kwargs):
-		self.children = [Smarten(child)]
-		super().__init__(**kwargs)
+
+class UnaryOperation(Expression):
+	def __init__(self, symbol, symbol_glyph_length, **kwargs):
+		super().__init__(symbol=symbol, symbol_glyph_length=symbol_glyph_length, **kwargs)
+		self.symbol = symbol
+		self.symbol_glyph_length = symbol_glyph_length
 
 	@Expression.parenthesize
 	def __str__(self):
-		return "-" + str(self.children[0])
+		return self.symbol + str(self.children[0])
+	
+	def compute(self):
+		return self.eval_op(self.children[0].compute())
+
+	special_character_to_glyph_method_dict = {
+		**Expression.special_character_to_glyph_method_dict,
+		'-': 'get_unary_glyph',
+		'~': 'get_unary_glyph'
+	}
+
+	def get_unary_glyph(self):
+		return list(range(0, self.symbol_glyph_length))
+	
+	def get_glyphs_at_addigit(self, addigit):
+		if addigit == 0:
+			start = 0
+			start += self.parentheses * self.paren_length()
+			start += self.symbol_glyph_length
+			end = start + self.children[0].number_of_glyphs()
+			return list(range(start, end))
+		else:
+			raise NotImplementedError(f"{self} has no children at index {addigit}")
+
+
+class Negative(UnaryOperation):
+	def __init__(self, child, **kwargs):
+		super().__init__(symbol='-', symbol_glyph_length=1, children=[child], **kwargs)
+		self.eval_op = lambda x: -x
 
 	def auto_parentheses(self):
 		if isinstance(self.children[0], (Add, Sub)) or self.children[0].is_negative():
@@ -130,12 +160,4 @@ class Negative(Expression):
 	def is_negative(self):
 		return True
 
-	def compute(self):
-		return -self.children[0].compute()
 	
-	special_character_to_glyph_method_dict = {
-		**Expression.special_character_to_glyph_method_dict,
-		'-': 'get_negative_glyph',
-	}
-	def get_negative_glyph(self):
-		return [0]
