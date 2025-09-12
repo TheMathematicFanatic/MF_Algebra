@@ -141,6 +141,9 @@ class Expression:
 		else:
 			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
 
+	def get_glyphs_at_addigit(self, addigit:int):
+		raise NotImplementedError #Implement in subclasses
+
 	def get_glyphs_at_address(self, address):
 		# Returns the list of glyph indices at the given address
 		if len(address) == 0:
@@ -179,7 +182,7 @@ class Expression:
 		if not self.parentheses:
 			return []
 		start = 0
-		end = self.paren_length()
+		end = start + self.paren_length()
 		return list(range(start, end))
 
 	def get_right_paren_glyphs(self):
@@ -190,6 +193,8 @@ class Expression:
 		return list(range(start, end))
 	
 	def get_exp_glyphs_without_parentheses(self):
+		if not self.parentheses:
+			return self.get_glyphs_at_address('')
 		start = 0
 		end = self.number_of_glyphs()
 		if self.parentheses:
@@ -469,14 +474,13 @@ class Combiner(Expression):
 		',': 'get_op_glyphs',
 	}
 
-	def get_glyphs_at_addigit(self, addigit):
-		child_index = int(addigit)
+	def get_glyphs_at_addigit(self, addigit:int):
 		start = 0
 		start += self.parentheses * self.paren_length()
-		for sibling in self.children[:child_index]:
+		for sibling in self.children[:addigit]:
 			start += sibling.number_of_glyphs()
 			start += self.symbol_glyph_length
-		child = self.children[child_index]
+		child = self.children[addigit]
 		end = start + child.number_of_glyphs()
 		return list(range(start, end))
 
