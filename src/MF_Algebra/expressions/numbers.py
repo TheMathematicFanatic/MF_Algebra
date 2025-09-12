@@ -13,6 +13,9 @@ class Number(Expression):
 
 	def __float__(self):
 		return float(self.value)
+	
+	def is_identical_to(self, other):
+		return type(self) == type(other) and self.value == other.value
 
 
 class Integer(Number):
@@ -28,9 +31,6 @@ class Integer(Number):
 	
 	def compute(self):
 		return self.value
-
-	def is_identical_to(self, other):
-		return type(self) == type(other) and self.value == other.value
 
 	def is_negative(self):
 		return self.value < 0
@@ -76,10 +76,6 @@ class Real(Number):
 			return str(rounded)
 		else:
 			return f"{self.value:.{decimal_places}f}" + r"\ldots"
-	
-
-	def is_identical_to(self, other):
-		return type(self) == type(other) and self.value == other.value
 
 	def is_negative(self):
 		return self.value < 0
