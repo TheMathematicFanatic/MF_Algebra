@@ -37,7 +37,7 @@ class Expression:
 		self._mob = Tex(string, **kwargs)
 		self.set_color_by_subex(algebra_config["always_color"])
 
-	def __getitem__(self, *keys):
+	def __getitem__(self, key):
 		# Returns a VGroup of the glyphs at the given addresses
 		if MANIM_TYPE == 'GL':
 			parent = self.mob
@@ -47,13 +47,14 @@ class Expression:
 			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
 		
 		result = VGroup()
-		for key in keys:
-			if isinstance(key, (int, slice)):
-				result.add(*parent[key])
-			elif isinstance(key, str):
-				result.add(*[parent[g] for g in self.get_glyphs_at_address(key)])
-			else:
-				raise ValueError(f"Invalid key: {key}")
+		if isinstance(key, (int, slice)):
+			result.add(*parent[key])
+		elif isinstance(key, str):
+			result.add(*[parent[g] for g in self.get_glyphs_at_address(key)])
+		elif isinstance(key, (list, tuple)):
+			result.add(*[parent[g] for g in self.get_glyphs_at_addresses(*key)])
+		else:
+			raise ValueError(f"Invalid key: {key}")
 		return result
 
 
@@ -125,6 +126,7 @@ class Expression:
 		'(': 'get_left_paren_glyphs',
 		')': 'get_right_paren_glyphs',
 		'_': 'get_exp_glyphs_without_parentheses',
+		'#': 'get_glyphs_at_all_children', # This would be a cool idea, so 10#1 is equivalent to 1001,1011,1021 or whatever
 	}
 	
 	def number_of_glyphs(self):
