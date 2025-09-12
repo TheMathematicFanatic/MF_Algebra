@@ -23,8 +23,9 @@ class Function(Expression):
 		self.algebra_rule = algebra_rule
 		self.parentheses_mode = parentheses_mode
 		self.spacing = spacing
-		if symbol and symbol_glyph_length:
-			self._number_of_glyphs = symbol_glyph_length
+		# if symbol and symbol_glyph_length:
+		# 	self._number_of_glyphs = symbol_glyph_length
+		# This doesn't seem right 
 
 
 
@@ -44,10 +45,9 @@ class Function(Expression):
 		'f': 'get_func_glyphs_without_extras',
 	}
 
-	def get_glyphs_at_addigit(self, addigit):
+	def get_glyphs_at_addigit(self, addigit:int):
 		# Overwrite for subclasses with indices, subscripts, etc
-		child_index = int(addigit)
-		if child_index == 0:
+		if addigit == 0:
 			start = self.symbol_glyph_length
 			start += self.parentheses * self.paren_length()
 			end = start + self.children[0].number_of_glyphs()
@@ -81,9 +81,9 @@ class Function(Expression):
 		if self.parentheses_mode == 'always' or isinstance(self.children[0], Sequence):
 			self.children[0].give_parentheses(True)
 			return self
-		from ..expressions.operations import Operation, Add, Sub
+		from ..expressions.operations import BinaryOperation, Add, Sub
 		from ..expressions.functions import Function
-		if self.parentheses_mode == 'strong' and isinstance(self.children[0], (Operation, Function)):
+		if self.parentheses_mode == 'strong' and isinstance(self.children[0], (BinaryOperation, Function)):
 			self.children[0].give_parentheses(True)
 		if self.parentheses_mode == 'weak' and isinstance(self.children[0], (Add, Sub)):
 			self.children[0].give_parentheses(True)
@@ -115,6 +115,7 @@ class Function(Expression):
 class Rad(Function):
 	def __init__(self, index, allow_nickname = True, **kwargs):
 		if index==2 and allow_nickname:
+			self.nicknamed = True
 			symbol = '\\sqrt'
 		else:
 			symbol = f'\\sqrt[{index}]',

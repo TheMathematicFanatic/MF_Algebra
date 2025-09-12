@@ -15,19 +15,17 @@ videos/
 # Ignore demo for now
 demo/
 
-# Ignore manim slides
-slides/
-.manim-slides.toml
-
 # Ignore pycaches
 **/__pycache__/
 .pytest_cache/
 
-# Ignore pytest prof folder
-prof/
 
 # Ignore VSCode tasks
 .vscode/
 
 # Ignore DS Store files
 .DS_Store
+
+# Ignore pytest coverage
+.coverage
+htmlcov

@@ -52,13 +52,13 @@ def test_Integer():
     assert str(four) == "4"
     assert str(fourteen) == "14"
     assert str(neg_eighteen) == "-18"
-    assert four.n == 4
+    assert four.value == 4
     assert not four.is_negative()
     assert neg_eighteen.is_negative()
-    assert Integer.GCF(four, fourteen).n == 2
-    assert Integer.GCF(6,10,15).n == 1
-    assert Integer.LCM(four, fourteen).n == 28
-    assert Integer.LCM(6,10,15).n == 30
+    assert Integer.GCF(four, fourteen).value == 2
+    assert Integer.GCF(6,10,15).value == 1
+    assert Integer.LCM(four, fourteen).value == 28
+    assert Integer.LCM(6,10,15).value == 30
 
 def test_Real():
     assert str(pi) == "\\pi"
