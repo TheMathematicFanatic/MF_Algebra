@@ -193,8 +193,6 @@ class Expression:
 		return list(range(start, end))
 	
 	def get_exp_glyphs_without_parentheses(self):
-		if not self.parentheses:
-			return self.get_glyphs_at_address('')
 		start = 0
 		end = self.number_of_glyphs()
 		if self.parentheses:
