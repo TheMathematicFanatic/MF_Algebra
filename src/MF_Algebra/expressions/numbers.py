@@ -15,6 +15,7 @@ class Number(Expression):
 		return float(self.value)
 	
 	def is_identical_to(self, other):
+		other = Smarten(other)
 		return type(self) == type(other) and self.value == other.value
 
 

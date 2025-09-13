@@ -533,20 +533,20 @@ class Coloring(Scene):
 
 class BackgroundAlgebra(Scene):
 	def construct(self):
-		self.embed()
+		self.loop(1)
     
 	def loop(self, number_of_times):
 		for i in range(number_of_times):
-			try:
-				T = self.generate_timeline()
-				T.play_all(self)
-			except:
-				pass
+			#try:
+			T = self.generate_timeline()
+			T.play_all(self)
+			#except:
+			#	pass
 			if self.mobjects:
-				self.play(FadeOut(*self.mobjects))
+				self.play(FadeOut(Group(*self.mobjects)))
 
 	def generate_timeline(self):
-		A = random_number_expression()
+		A = Equation(random_number_expression(), random_number_expression())
 		var_letter = random.choice('abcdfghjkmnpqrstuvwxyz')
 		var = Variable(var_letter)
 		var_color = random.choice([RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE])
@@ -556,9 +556,7 @@ class BackgroundAlgebra(Scene):
 			auto_color={var:var_color},
             auto_fit=[10, 6, None]
         )
-		var_address = random.choice(A.get_all_addresses())
-		A.substitute_at_address(var, var_address)
+		var_address = random.choice([ad for ad in A.get_all_addresses() if len(ad)>0])
+		A = A.substitute_at_address(var, var_address)
 		A >> S
 		return S
-
-BackgroundAlgebra().generate_timeline()

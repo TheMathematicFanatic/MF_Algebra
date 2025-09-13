@@ -28,7 +28,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
-addopts = "--cov=src/MF_Algebra --cov-report=term-missing --cov-report=html"
+# addopts = "--cov=src/MF_Algebra --cov-report=term-missing --cov-report=html"
 filterwarnings = [
     "ignore::DeprecationWarning"
 ]

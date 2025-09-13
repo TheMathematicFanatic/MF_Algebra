@@ -47,12 +47,15 @@ class Expression:
 			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
 		
 		result = VGroup()
-		if isinstance(key, (int, slice)):
+		if isinstance(key, int):
+			result.add(parent[key])
+		elif isinstance(key, slice):
 			result.add(*parent[key])
 		elif isinstance(key, str):
 			result.add(*[parent[g] for g in self.get_glyphs_at_address(key)])
 		elif isinstance(key, (list, tuple)):
-			result.add(*[parent[g] for g in self.get_glyphs_at_addresses(*key)])
+			for k in key:
+				result.add(*self[k])
 		else:
 			raise ValueError(f"Invalid key: {key}")
 		return result
@@ -160,7 +163,7 @@ class Expression:
 			result += glyph_method()
 			if remainder:
 				result += self.get_glyphs_at_address(remainder)
-			return list(set(result))
+			return sorted(list(set(result)))
 
 		else:
 			try:
@@ -170,7 +173,7 @@ class Expression:
 				glyphs_within_child = child.get_glyphs_at_address(remainder)
 				shift_value = child_glyphs[0]
 				result = [glyph + shift_value for glyph in glyphs_within_child]
-				return list(set(result))
+				return sorted(list(set(result)))
 			except:
 				raise ValueError(f"Invalid address: {address}")
 
@@ -178,7 +181,7 @@ class Expression:
 		result = []
 		for address in addresses:
 			result += self.get_glyphs_at_address(address)
-		return list(set(result))
+		return sorted(list(set(result)))
 
 	def get_left_paren_glyphs(self):
 		if not self.parentheses:
@@ -430,6 +433,7 @@ class Expression:
 
 	def is_identical_to(self, other):
 		# Checks if they are equal as expressions. Implemented separately in leaves.
+		other = Smarten(other)
 		return type(self) == type(other) and len(self.children) == len(other.children) \
 			and all(self.children[i].is_identical_to(other.children[i]) for i in range(len(self.children)))
 
