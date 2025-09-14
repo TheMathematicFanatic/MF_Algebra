@@ -4,15 +4,15 @@ from ..utils import Smarten, add_spaces_around_brackets
 from copy import deepcopy
 import numpy as np
 
-
 algebra_config = {
-		"auto_parentheses": True,
-		"multiplication_mode": "auto",
-		"division_mode": "fraction",
-		"decimal_precision": 4,
-		"always_color": {},
-		"fast_paren_length": True
-	}
+	'auto_parentheses': True,
+	'multiplication_mode': 'auto',
+	'division_mode': 'fraction',
+	'decimal_precision': 4,
+	'always_color': {},
+	'fast_paren_length': True,
+	'fast_glyph_count': True
+}
 
 class Expression:
 	def __init__(self, children=[], parentheses=False, **kwargs):
@@ -61,76 +61,7 @@ class Expression:
 		return result
 
 
-	### Addresses ###
-
-	def get_all_addresses(self):
-		# Returns the addresses of all subexpressions
-		addresses = [""]
-		for n in range(len(self.children)):
-			for child_address in self.children[n].get_all_addresses():
-				addresses.append(str(n)+child_address)
-		return sorted(list(set(addresses)))
-	
-	def get_all_nonleaf_addresses(self):
-		return sorted(list(set(a[:-1] for a in self.get_all_addresses() if a != "")))
-	
-	def get_all_leaf_addresses(self):
-		return sorted(list(set(self.get_all_addresses()) - set(self.get_all_nonleaf_addresses())))
-
-	def get_all_addresses_with_condition(self, condition):
-		result = set()
-		for address in self.get_all_addresses():
-			if condition(self.get_subex(address)):
-				result |= {address}
-		return sorted(list(result))
-	
-	def get_all_addresses_of_type(self, expression_type):
-		return self.get_all_addresses_with_condition(lambda subex: isinstance(subex, expression_type))
-
-	def get_addresses_of_subex(self, target_subex):
-		return self.get_all_addresses_with_condition(lambda subex: subex.is_identical_to(target_subex))
-
-
-	### Subexpressions ###
-
-	def get_subex(self, address_string):
-		# Returns the Expression object corresponding to the subexpression at the given address.
-		if address_string == "":
-			return self
-		elif int(address_string[0]) < len(self.children):
-			return self.children[int(address_string[0])].get_subex(address_string[1:])
-		else:
-			raise IndexError(f"No subexpression of {self} at address {address_string} .")
-
-	def get_all_subexpressions_with_condition(self, condition):
-		result = set()
-		for address in self.get_all_addresses():
-			if condition(subex := self.get_subex(address)):
-				result |= {subex}
-		return result
-
-	def get_all_subexpressions(self):
-		return self.get_all_subexpressions_with_condition(lambda subex: True)
-
-	def get_all_subexpressions_of_type(self, expression_type):
-		return self.get_all_subexpressions_with_condition(lambda subex: isinstance(subex, expression_type))
-	
-	def get_all_variables(self):
-		from .variables import Variable
-		return self.get_all_subexpressions_of_type(Variable)
-
-
 	### Glyphs ###
-
-	special_character_to_glyph_method_dict = {
-		# Class dictionary mapping special characters to methods
-		# When a character is seen in an address, the corresponding method is called
-		# Subclasses can add entries to this dictionary
-		'(': 'get_left_paren_glyphs',
-		')': 'get_right_paren_glyphs',
-		'_': 'get_exp_glyphs_without_parentheses',
-		'#': 'get_glyphs_at_all_children', # This would be a cool idea, so 10#1 is equivalent to 1001,1011,1021 or whatever
-	}
 	
 	def number_of_glyphs(self):
 		# Set this value in subclasses so as not to need to render latex
@@ -146,8 +77,15 @@ class Expression:
 		else:
 			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
 
-	def get_glyphs_at_addigit(self, addigit:int):
-		raise NotImplementedError #Implement in subclasses
+	special_character_to_glyph_method_dict = {
+		# Class dictionary mapping special characters to methods
+		# When a character is seen in an address, the corresponding method is called
+		# Subclasses can add entries to this dictionary
+		'(': 'get_left_paren_glyphs',
+		')': 'get_right_paren_glyphs',
+		'_': 'get_exp_glyphs_without_parentheses',
+		'#': 'get_glyphs_at_all_children', # This would be a cool idea, so 10#1 is equivalent to 1001,1011,1021 or whatever
+	}
 
 	def get_glyphs_at_address(self, address):
 		# Returns the list of glyph indices at the given address
@@ -207,6 +145,75 @@ class Expression:
 
 	def __len__(self):
 		return self.number_of_glyphs()
+
+	def get_glyphs_at_addigit(self, addigit:int):
+		raise NotImplementedError #Implement in subclasses
+
+
+	### Addresses ###
+
+	def get_all_addresses(self):
+		# Returns the addresses of all subexpressions
+		addresses = [""]
+		for n in range(len(self.children)):
+			for child_address in self.children[n].get_all_addresses():
+				addresses.append(str(n)+child_address)
+		return sorted(list(set(addresses)))
+	
+	def get_all_nonleaf_addresses(self):
+		return sorted(list(set(a[:-1] for a in self.get_all_addresses() if a != "")))
+	
+	def get_all_leaf_addresses(self):
+		return sorted(list(set(self.get_all_addresses()) - set(self.get_all_nonleaf_addresses())))
+	
+	def get_all_twig_addresses(self):
+		return sorted(list(set(a[:-1] for a in self.get_all_leaf_addresses() if a != "")))
+
+	def get_all_addresses_with_condition(self, condition):
+		result = set()
+		for address in self.get_all_addresses():
+			if condition(self.get_subex(address)):
+				result |= {address}
+		return sorted(list(result))
+	
+	def get_all_addresses_of_type(self, expression_type):
+		return self.get_all_addresses_with_condition(lambda subex: isinstance(subex, expression_type))
+
+	def get_addresses_of_subex(self, target_subex):
+		return self.get_all_addresses_with_condition(lambda subex: subex.is_identical_to(target_subex))
+
+
+	### Subexpressions ###
+
+	def get_subex(self, address_string):
+		# Returns the Expression object corresponding to the subexpression at the given address.
+		if address_string == "":
+			return self
+		elif int(address_string[0]) < len(self.children):
+			return self.children[int(address_string[0])].get_subex(address_string[1:])
+		else:
+			raise IndexError(f"No subexpression of {self} at address {address_string} .")
+
+	def get_all_subexpressions_with_condition(self, condition):
+		result = set()
+		for address in self.get_all_addresses():
+			if condition(subex := self.get_subex(address)):
+				result |= {subex}
+		return result
+
+	def get_all_subexpressions(self):
+		return self.get_all_subexpressions_with_condition(lambda subex: True)
+
+	def get_all_subexpressions_of_type(self, expression_type):
+		return self.get_all_subexpressions_with_condition(lambda subex: isinstance(subex, expression_type))
+	
+	def get_all_variables(self):
+		from .variables import Variable
+		return self.get_all_subexpressions_of_type(Variable)
+
+	def get_all_numbers(self):
+		from .numbers import Number
+		return self.get_all_subexpressions_of_type(Number)
 
 
 	### Operations ###
@@ -296,14 +303,16 @@ class Expression:
 		change = parentheses - self.parentheses
 		if change:
 			self._mob = None # Don't init mob just yet, just mark it as needing to be reinitialized
-			if self._number_of_glyphs is not None: # Adjust cached number of glyphs according to change
+			if algebra_config['fast_glyph_count'] and self._number_of_glyphs is not None: # Adjust cached number of glyphs according to change
 				self._number_of_glyphs += 2 * change * self.paren_length()
+			else:
+				self._number_of_glyphs = None
 			self.parentheses = parentheses
 		return self
 
 	def clear_all_parentheses(self):
-		for c in self.children:
-			c.clear_all_parentheses()
+		for child in self.children:
+			child.clear_all_parentheses()
 		self.give_parentheses(False)
 		return self
 
