@@ -23,8 +23,8 @@ class Function(Expression):
 		self.algebra_rule = algebra_rule
 		self.parentheses_mode = parentheses_mode
 		self.spacing = spacing
-		# if symbol and symbol_glyph_length:
-		# 	self._number_of_glyphs = symbol_glyph_length
+		if symbol and symbol_glyph_length:
+			self._number_of_glyphs = symbol_glyph_length
 		# This doesn't seem right 
 
 

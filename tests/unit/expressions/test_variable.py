@@ -1,13 +1,11 @@
-from conftest import MFparam
-from MF_Algebra import *
+from conftest import *
 
 
-variables = [
-	x := Variable('x'),
-	y := Variable('y'),
-	theta := Variable('\\theta'),
-	a12 := Variable('a_{12}')
-]
+x = Variable('x')
+y = Variable('y')
+theta = Variable('\\theta')
+a12 = Variable('a_{12}')
+
 
 @MFparam('var, num', [
 	('x', x, 1),
