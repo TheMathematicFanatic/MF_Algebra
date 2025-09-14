@@ -13,9 +13,10 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.8"
-MF_Tools = ">=1.4.3"
 manim = { version = ">=0.17.0", optional = true }
 manimgl = { version = ">=1.7.0", optional = true }
+MF_Tools = ">=1.4.3"
+sympy = { version = ">=1.8", extras = ["latex"] }
 
 [tool.poetry.extras]
 manimce = ["manim"]

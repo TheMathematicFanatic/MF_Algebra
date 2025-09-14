@@ -2,7 +2,6 @@
 from MF_Tools.dual_compatibility import dc_Tex as Tex, MANIM_TYPE, VGroup
 from ..utils import Smarten, add_spaces_around_brackets
 from copy import deepcopy
-import numpy as np
 
 algebra_config = {
 	'auto_parentheses': True,
@@ -449,6 +448,10 @@ class Expression:
 	def evaluate(self):
 		return Smarten(self.compute())
 
+	@property
+	def sympy(self):
+		from sympy.parsing.latex import parse_latex
+		return parse_latex(str(self))
 
 
 
