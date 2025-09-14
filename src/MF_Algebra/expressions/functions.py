@@ -1,4 +1,5 @@
 from .expression_core import *
+from .sequences import Sequence
 
 
 class Function(Expression):
@@ -10,18 +11,19 @@ class Function(Expression):
 		algebra_rule = None,
 		parentheses_mode="always",
 		spacing = "",
-		children=[],
+		children=[Sequence()],
 		# First child is argument(s) such as a Variable, Number, or Sequence.
 		# Further children are parameters like subscripts, indices, or bounds.
+		# First child needs to have a placeholder if not filled so that indices etc can be added before the main argument.
 		**kwargs
 	):
+		self.parentheses_mode = parentheses_mode
 		super().__init__(children=children, **kwargs)
 		self.symbol = symbol #string
 		self.symbol_glyph_length = symbol_glyph_length #int
 		self.python_rule = python_rule #callable
 		self.algebra_rule_variables = algebra_rule_variables
 		self.algebra_rule = algebra_rule
-		self.parentheses_mode = parentheses_mode
 		self.spacing = spacing
 		if symbol and symbol_glyph_length:
 			self._number_of_glyphs = symbol_glyph_length
@@ -65,20 +67,19 @@ class Function(Expression):
 	def __call__(self, *inputs):
 		new_func = self.copy()
 		if len(inputs) == 1:
-			new_func.children.append(Smarten(inputs[0]))
+			new_child = Smarten(inputs[0])
 		elif len(inputs) > 1:
-			from .sequences import Sequence
-			new_func.children.append(Sequence(*list(map(Smarten, inputs))))
+			new_child = Sequence(*list(map(Smarten, inputs)))
+		new_func.children[0] = new_child
 		new_func.auto_parentheses()
 		new_func._mob = None
-		new_func._number_of_glyphs += new_func.children[0].number_of_glyphs()
+		new_func._number_of_glyphs += new_child.number_of_glyphs()
 		return new_func
 	
 	def auto_parentheses(self):
 		if len(self.children) == 0:
 			return self
-		from ..expressions.sequences import Sequence
-		if self.parentheses_mode == 'always' or isinstance(self.children[0], Sequence):
+		if self.parentheses_mode == 'always' or isinstance(self.children[0], Sequence) and not self.children[0].is_identical_to(Sequence()):
 			self.children[0].give_parentheses(True)
 			return self
 		from ..expressions.operations import BinaryOperation, Add, Sub
@@ -92,7 +93,6 @@ class Function(Expression):
 		return self
 	
 	def compute(self):
-		from ..expressions.sequences import Sequence
 		if len(self.children) == 0:
 			raise ValueError(f"Function {self.symbol} has no arguments.")
 		if isinstance(self.children[0], Sequence):

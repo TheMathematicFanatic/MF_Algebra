@@ -102,7 +102,9 @@ def test_get_glyphs_at_addigit(exp, addigit, glyphs):
 
 	('complicated pseudo', B, '-1()01', [2,3,5,9]),
 
-	('function', func, '0,(2', [1,3,5,6])
+	('function 1', func, '0,(2', [1,3,5,6]),
+
+	('function 2', func, 'f(0_)', [0,2,3,4,5,6,7]),
 
 ])
 def test_get_glyphs_at_address(exp, address, glyphs):
