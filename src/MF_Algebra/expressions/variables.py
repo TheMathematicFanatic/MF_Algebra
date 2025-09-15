@@ -16,3 +16,31 @@ class Variable(Expression):
 
 	def compute(self):
 		raise ValueError(f"Expression contains a variable {self.symbol}.")
+
+
+a = Variable('a')
+b = Variable('b')
+c = Variable('c')
+
+k = Variable('k')
+m = Variable('m')
+n = Variable('n')
+
+p = Variable('p')
+q = Variable('q')
+r = Variable('r')
+
+t = Variable('t')
+u = Variable('u')
+v = Variable('v')
+
+x = Variable('x')
+y = Variable('y')
+z = Variable('z')
+
+alpha = Variable('\\alpha')
+beta = Variable('\\beta')
+gamma = Variable('\\gamma')
+theta = Variable('\\theta')
+phi = Variable('\\phi')
+

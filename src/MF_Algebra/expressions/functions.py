@@ -112,6 +112,13 @@ class Function(Expression):
 			return substituted_expression.compute()
 
 
+f = Function('f', 1)
+
+g = Function('g', 1)
+
+h = Function('h', 1)
+
+
 class Rad(Function):
 	def __init__(self, index, allow_nickname = True, **kwargs):
 		if index==2 and allow_nickname:

@@ -1,5 +1,5 @@
 from .action_core import *
-from ..expressions.expression_common import *
+from ..expressions import *
 from MF_Tools.dual_compatibility import PI, FadeIn, FadeOut, Write, Uncreate
 from .action_common import swap_children_
 

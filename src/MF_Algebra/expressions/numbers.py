@@ -49,7 +49,20 @@ class Integer(Number):
 		return Smarten(int(np.lcm.reduce(nums)))
 
 	def prime_factorization(self):
-		...
+		pass
+
+
+zero = Integer(0)
+one = Integer(1)
+two = Integer(2)
+three = Integer(3)
+four = Integer(4)
+five = Integer(5)
+six = Integer(6)
+seven = Integer(7)
+eight = Integer(8)
+nine = Integer(9)
+ten = Integer(10)
 
 
 class Real(Number):
@@ -87,6 +100,10 @@ class Real(Number):
 		else:
 			return self.value
 
+
+e = Real(np.e, "e")
+pi = Real(np.pi, "\\pi")
+tau = Real(np.pi*2, "\\tau")
 
 
 class Rational(Div):
