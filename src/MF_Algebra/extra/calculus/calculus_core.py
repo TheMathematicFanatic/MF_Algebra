@@ -27,7 +27,7 @@ class Limit(Function):
 class Differential(Function):
     def __init__(self, **kwargs):
         super().__init__(
-            symbol = "\\text{d} \\! \\!",
+            symbol = "\\mathrm{d}",
             symbol_glyph_length = 1,
             parentheses_mode="weak",
             **kwargs
