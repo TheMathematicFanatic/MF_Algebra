@@ -24,9 +24,12 @@ class Integer(Number):
 		assert isinstance(n, int)
 		super().__init__(**kwargs)
 		self.value = n
-		self._number_of_glyphs = len(str(n))
 
-	@Expression.parenthesize
+	@Expression.parenthesize_glyph_count
+	def get_glyph_count(self):
+		return len(str(self.value))
+
+	@Expression.parenthesize_latex
 	def __str__(self):
 		return str(self.value)
 	
@@ -70,26 +73,30 @@ class Real(Number):
 		super().__init__(**kwargs)
 		self.value = value
 		self.symbol = symbol
+		self.symbol_glyph_length = symbol_glyph_length
 		self.decimal_places = decimal_places
 
-		if symbol and symbol_glyph_length:
-			self._number_of_glyphs = symbol_glyph_length
-		elif not symbol:
-			string = str(self)
-			self._number_of_glyphs = len(string)
-			if string.endswith(r"\ldots"):
-				self._number_of_glyphs -= 3
+	@Expression.parenthesize_glyph_count
+	def get_glyph_count(self):
+		if self.symbol:
+			if self.symbol_glyph_length:
+				return self.symbol_glyph_length
+		else: # This needs work... parentheses are an issue.
+			string = self.__str__.__wrapped__(self) # Ok this might do it but still seems a little stupid
+			count = len(string)
+			if string.endswith(r"\ldots"): # Like fr? But it works lol
+				count -= 3
+			return count
 
-
-	@Expression.parenthesize
-	def __str__(self, decimal_places=4, use_decimal=False):
+	@Expression.parenthesize_latex
+	def __str__(self, use_decimal=False):
 		if self.symbol and not use_decimal:
 			return self.symbol
-		rounded = round(self.value, decimal_places)
+		rounded = round(self.value, self.decimal_places)
 		if rounded == self.value:
 			return str(rounded)
 		else:
-			return f"{self.value:.{decimal_places}f}" + r"\ldots"
+			return f"{self.value:.{self.decimal_places}f}" + r"\ldots"
 
 	def is_negative(self):
 		return self.value < 0

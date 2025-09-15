@@ -5,9 +5,13 @@ class Variable(Expression):
 	def __init__(self, symbol, symbol_glyph_length=None, **kwargs):
 		super().__init__(**kwargs)
 		self.symbol = symbol
-		self._number_of_glyphs = symbol_glyph_length
+		self.symbol_glyph_length = symbol_glyph_length
 
-	@Expression.parenthesize
+	@Expression.parenthesize_glyph_count
+	def get_glyph_count(self):
+		return self.symbol_glyph_length
+
+	@Expression.parenthesize_latex
 	def __str__(self):
 		return self.symbol
 

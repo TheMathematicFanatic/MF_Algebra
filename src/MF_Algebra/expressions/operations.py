@@ -120,7 +120,11 @@ class UnaryOperation(Expression):
 		self.symbol = symbol
 		self.symbol_glyph_length = symbol_glyph_length
 
-	@Expression.parenthesize
+	@Expression.parenthesize_glyph_count
+	def get_glyph_count(self):
+		return self.symbol_glyph_length + self.children[0].glyph_count
+
+	@Expression.parenthesize_latex
 	def __str__(self):
 		return self.symbol + str(self.children[0])
 	
@@ -141,7 +145,7 @@ class UnaryOperation(Expression):
 			start = 0
 			start += self.parentheses * self.paren_length()
 			start += self.symbol_glyph_length
-			end = start + self.children[0].number_of_glyphs()
+			end = start + self.children[0].glyph_count
 			return list(range(start, end))
 		else:
 			raise NotImplementedError(f"{self} has no children at index {addigit}")

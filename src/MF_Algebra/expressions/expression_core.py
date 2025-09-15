@@ -2,6 +2,8 @@
 from MF_Tools.dual_compatibility import dc_Tex as Tex, MANIM_TYPE, VGroup
 from ..utils import Smarten, add_spaces_around_brackets
 from copy import deepcopy
+from functools import wraps
+
 
 algebra_config = {
 	'auto_parentheses': True,
@@ -10,8 +12,10 @@ algebra_config = {
 	'decimal_precision': 4,
 	'always_color': {},
 	'fast_paren_length': True,
-	'fast_glyph_count': True
+	'fast_glyph_count': True,
+	'fast_root_length': True,
 }
+
 
 class Expression:
 	def __init__(self, children=[], parentheses=False, **kwargs):
@@ -20,7 +24,7 @@ class Expression:
 		if algebra_config["auto_parentheses"]:
 			self.auto_parentheses()
 		self._mob = None
-		self._number_of_glyphs = None
+		self._glyph_count = None
 
 
 	### Mobject ###
@@ -61,20 +65,38 @@ class Expression:
 
 
 	### Glyphs ###
-	
-	def number_of_glyphs(self):
+	@property
+	def glyph_count(self):
 		# Set this value in subclasses so as not to need to render latex
-		if self._number_of_glyphs is None:
-			self.init_number_of_glyphs_from_mob()
-		return self._number_of_glyphs
+		if self._glyph_count is None:
+			self.init_glyph_count()
+		return self._glyph_count
 	
-	def init_number_of_glyphs_from_mob(self):	
+	def init_glyph_count(self):
+		if algebra_config['fast_glyph_count']:
+			try:
+				gc = self.get_glyph_count()
+				assert isinstance(gc, int)
+				self._glyph_count = gc
+				return
+			except (NotImplementedError, AssertionError, AttributeError):
+				pass
+		gc = self.get_glyph_count_from_mob()
+		self._glyph_count = gc
+	
+	def get_glyph_count(self):
+		# Guesses the number of glyphs in the expression, from a formula for the subclass.
+		# Override in subclasses
+		raise NotImplementedError
+	
+	def get_glyph_count_from_mob(self):	
 		if MANIM_TYPE == 'GL':
-			self._number_of_glyphs = len(self.mob)
+			parent = self.mob
 		elif MANIM_TYPE == 'CE':
-			self._number_of_glyphs = len(self.mob[0])
+			parent = self.mob[0]
 		else:
 			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
+		return len(parent)
 
 	special_character_to_glyph_method_dict = {
 		# Class dictionary mapping special characters to methods
@@ -89,7 +111,7 @@ class Expression:
 	def get_glyphs_at_address(self, address):
 		# Returns the list of glyph indices at the given address
 		if len(address) == 0:
-			return list(range(self.number_of_glyphs()))
+			return list(range(self.glyph_count))
 
 		addigit = address[0]
 		remainder = address[1:]
@@ -106,6 +128,8 @@ class Expression:
 			try:
 				digit = int(addigit)
 				child_glyphs = self.get_glyphs_at_addigit(digit)
+				if len(child_glyphs) == 0:
+					return []
 				child = self.children[digit]
 				glyphs_within_child = child.get_glyphs_at_address(remainder)
 				shift_value = child_glyphs[0]
@@ -130,20 +154,20 @@ class Expression:
 	def get_right_paren_glyphs(self):
 		if not self.parentheses:
 			return []
-		end = self.number_of_glyphs()
+		end = self.glyph_count
 		start = end - self.paren_length()
 		return list(range(start, end))
 	
 	def get_exp_glyphs_without_parentheses(self):
 		start = 0
-		end = self.number_of_glyphs()
+		end = self.glyph_count
 		if self.parentheses:
 			start += self.paren_length()
 			end -= self.paren_length()
 		return list(range(start, end))
 
 	def __len__(self):
-		return self.number_of_glyphs()
+		return self.glyph_count
 
 	def get_glyphs_at_addigit(self, addigit:int):
 		raise NotImplementedError #Implement in subclasses
@@ -301,11 +325,13 @@ class Expression:
 	def give_parentheses(self, parentheses=True):
 		change = parentheses - self.parentheses
 		if change:
-			self._mob = None # Don't init mob just yet, just mark it as needing to be reinitialized
-			if algebra_config['fast_glyph_count'] and self._number_of_glyphs is not None: # Adjust cached number of glyphs according to change
-				self._number_of_glyphs += 2 * change * self.paren_length()
+			self._mob = None # Don't init mob just yet, just clear the cached mob
+			if algebra_config['fast_glyph_count'] and self._glyph_count is not None:
+				# Adjust cached number of glyphs according to change
+				self._glyph_count += 2 * change * self.paren_lenge
 			else:
-				self._number_of_glyphs = None
+				# Otherwise just clear the cache
+				self._glyph_count = None
 			self.parentheses = parentheses
 		return self
 
@@ -337,13 +363,25 @@ class Expression:
 		return num_paren_glyphs // 2
 	
 	@staticmethod
-	def parenthesize(str_func):
+	def parenthesize_latex(str_func):
 		# To decorate most subclasses' __str__ methods
+		@wraps(str_func)
 		def wrapper(expr, *args, **kwargs):
 			pretex = str_func(expr, *args, **kwargs)
 			if expr.parentheses:
 				pretex = "\\left(" + pretex + "\\right)"
 			return pretex
+		return wrapper
+
+	@staticmethod
+	def parenthesize_glyph_count(gc_func):
+		# To decorate most subclasses' get_glyph_count methods
+		@wraps(gc_func)
+		def wrapper(expr, *args, **kwargs):
+			gc = gc_func(expr, *args, **kwargs)
+			if isinstance(gc, int) and expr.parentheses:
+				gc += 2 * expr.paren_length()
+			return gc
 		return wrapper
 
 
@@ -434,7 +472,10 @@ class Expression:
 		return deepcopy(self)
 
 	def __repr__(self):
-		return type(self).__name__ + "(" + str(self) + ")"
+		return type(self).__name__ + "(" + self.repr_string() + ")"
+	
+	def repr_string(self):
+		return self.__class__.__str__.__wrapped__(self) # Can be overriden in subclasses with an annoying latex string
 
 	def is_negative(self):
 		return False # catchall if not defined in subclasses
@@ -462,13 +503,14 @@ class Combiner(Expression):
 		self.symbol_glyph_length = symbol_glyph_length
 		self.left_spacing = ""
 		self.right_spacing = ""
-		self._number_of_glyphs = sum([
-			sum(child.number_of_glyphs() for child in self.children),
-			self.symbol_glyph_length * (len(self.children) - 1),
-			self.parentheses * self.paren_length() * 2
-		])
 
-	@Expression.parenthesize
+	@Expression.parenthesize_glyph_count
+	def get_glyph_count(self):
+		count = sum([child.glyph_count for child in self.children])
+		count += self.symbol_glyph_length * (len(self.children) - 1)
+		return count
+
+	@Expression.parenthesize_latex
 	def __str__(self, *args, **kwargs):
 		joiner = self.left_spacing + self.symbol + self.right_spacing
 		return joiner.join(["{" + str(child) + "}" for child in self.children])
@@ -494,17 +536,17 @@ class Combiner(Expression):
 		start = 0
 		start += self.parentheses * self.paren_length()
 		for sibling in self.children[:addigit]:
-			start += sibling.number_of_glyphs()
+			start += sibling.glyph_count
 			start += self.symbol_glyph_length
 		child = self.children[addigit]
-		end = start + child.number_of_glyphs()
+		end = start + child.glyph_count
 		return list(range(start, end))
 
 	def get_op_glyphs(self):
 		results = []
 		turtle = self.parentheses * self.paren_length()
 		for child in self.children[:-1]:
-			turtle += child.number_of_glyphs()
+			turtle += child.glyph_count
 			results += list(range(turtle, turtle + self.symbol_glyph_length))
 			turtle += self.symbol_glyph_length
 		return results

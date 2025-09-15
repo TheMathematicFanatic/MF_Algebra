@@ -20,7 +20,7 @@ func = f(x,y,z)
 
 	('var_given', Variable('\\gamma', symbol_glyph_length=581), 581),
 
-	('integer', SmZ(-120), 4),
+	('integer', Integer(-120), 4),
 
 	('add', add, 3),
 
@@ -207,6 +207,7 @@ def test_get_all_addresses_with_condition(exp, condition, addresses):
 ])
 def test_get_all_addresses_of_type(exp, type, addresses):
 	assert exp.get_all_addresses_of_type(type) == addresses
+
 
 
 @MFparam('exp, subex, addresses', [
@@ -485,7 +486,7 @@ def test_substitute_at_addresses(exp, subex, addresses, result):
 
 	('div', n/12, {n: 51}, Div(51,12)),
 
-	('compound1', A, {x: 3, y: 4}, SmZ(3)**2+SmZ(4)**2),
+	('compound1', A, {x: 3, y: 4}, Integer(3)**2+Integer(4)**2),
 
 	('compound2', B, {x**2:a, y:b}, 10-(a+b**2)),
 

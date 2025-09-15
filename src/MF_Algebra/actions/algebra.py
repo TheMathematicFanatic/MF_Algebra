@@ -184,15 +184,42 @@ class alg_mul_L(EquationManeuver):
 class alg_pow_R(EquationManeuver):
     def __init__(self, **kwargs):
         super().__init__(
-            a**2 & c,
-            a & sqrt(c),
+            a**b & c,
+            a & Rad(b)(c),
             **kwargs
         )
         self.addressmap = (
-            ['01', '1f', {'path_arc':-PI/3}],
+            ['01', '11', {'path_arc':-PI/3}],
+            [Write, '1f', {'delay':0.5, 'run_time':0.5}],
 		)
+    
+    def reverse(self):
+        super().reverse()
+        self.addressmap = (
+            ['11', '01', {'path_arc':PI/3}],
+            ['1f', FadeOut, {'run_time':0.5}]
+        )
 
 
+
+class alg_pow_L(EquationManeuver):
+    def __init__(self, **kwargs):
+        super().__init__(
+            a**b & c,
+            b & Log(a)(c),
+            **kwargs
+        )
+        self.addressmap = (
+            ['00', '11', {'path_arc':PI/3}],
+            [Write, '1f', {'delay':0.5, 'run_time':0.5}],
+        )
+    
+    def reverse(self):
+        super().reverse()
+        self.addressmap = (
+            ['11', '00', {'path_arc':-PI/3}],
+            ['1f', FadeOut, {'run_time':0.5}]
+        )
 
 
 
