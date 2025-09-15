@@ -14,7 +14,7 @@ def Smarten(input):
 	from .expressions.expression_core import Expression
 	from .actions.action_core import Action
 	from .timelines.timeline_core import Timeline
-	from .expressions.numbers import Integer, Real
+	from .expressions.numbers.number import Integer, Real
 	if isinstance(input, (Expression, Action, Timeline)):
 		return input.copy()
 	elif isinstance(input, int):
@@ -129,8 +129,8 @@ def match_expressions(template, expression):
 
 def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per_node=2, **kwargs):
 	import random
-	from .expressions.numbers import Integer
-	from .expressions.operations import Add, Sub, Mul, Div, Pow, Negative
+	from .expressions.numbers.number import Integer
+	from .expressions.combiners.operations import Add, Sub, Mul, Div, Pow, Negative
 	nodes = [Add, Sub, Mul, Pow]
 	node = random.choice(nodes)
 	def generate_child(current_depth):
@@ -151,12 +151,12 @@ def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per
 
 def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, printing=False):
 	def create_node(address):
-		from .expressions.numbers import Integer, Real, Rational
+		from .expressions.numbers.number import Integer, Real, Rational
 		from .expressions.variables import Variable
-		from .expressions.operations import Add, Sub, Mul, Div, Pow, Negative
-		from .expressions.functions import Function
-		from .expressions.sequences import Sequence
-		from .expressions.relations import Equation, LessThan, LessThanOrEqualTo, GreaterThan, GreaterThanOrEqualTo
+		from .expressions.combiners.operations import Add, Sub, Mul, Div, Pow, Negative
+		from .expressions.functions.functions import Function
+		from .expressions.combiners.sequences import Sequence
+		from .expressions.combiners.relations import Equation, LessThan, LessThanOrEqualTo, GreaterThan, GreaterThanOrEqualTo
 		type_to_symbol_dict = {
 			Integer: lambda expr: str(expr.n),
 			Real: lambda expr: expr.symbol if expr.symbol else str(expr),

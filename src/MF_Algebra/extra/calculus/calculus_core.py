@@ -1,7 +1,7 @@
 from ...expressions.expression_core import *
-from ...expressions.numbers import Real
-from ...expressions.functions import Function
-from ...expressions.relations import Equation
+from ...expressions.numbers.number import Real
+from ...expressions.functions.functions import Function
+from ...expressions.combiners.relations import Equation
 from ...utils import *
 
 

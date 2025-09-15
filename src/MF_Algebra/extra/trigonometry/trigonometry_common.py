@@ -1,4 +1,4 @@
-from ...expressions.functions import *
+from ...expressions.functions.functions import *
 from ...expressions.variables import Variable
 import numpy as np
 

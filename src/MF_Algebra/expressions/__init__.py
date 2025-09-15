@@ -1,7 +1,16 @@
 from .expression_core import *
-from .operations import *
-from .numbers import *
+
 from .variables import *
-from .functions import *
-from .sequences import *
-from .relations import *
+
+from .numbers.integer import *
+from .numbers.rational import *
+from .numbers.real import *
+from .numbers.complex import *
+
+from .combiners.operations import *
+from .combiners.relations import *
+from .combiners.sequences import *
+
+from .functions.functions import *
+from .functions.logarithms import *
+from .functions.radicals import *

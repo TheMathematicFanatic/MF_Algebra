@@ -1,4 +1,5 @@
-from .expression_core import *
+from ..expression_core import *
+from .combiners import *
 
 
 class BinaryOperation(Combiner):
@@ -41,7 +42,7 @@ class Sub(BinaryOperation):
 
 class Mul(BinaryOperation):
 	def __init__(self, *children, mode="auto", **kwargs):
-		from .numbers import Number
+		from ..numbers.number import Number
 		self.eval_op = lambda x,y: x*y
 		self.mode = algebra_config["multiplication_mode"] if mode is None else mode
 		if self.mode == "auto":

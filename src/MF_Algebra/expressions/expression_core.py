@@ -235,70 +235,70 @@ class Expression:
 		return self.get_all_subexpressions_of_type(Variable)
 
 	def get_all_numbers(self):
-		from .numbers import Number
+		from .numbers.number import Number
 		return self.get_all_subexpressions_of_type(Number)
 
 
 	### Operations ###
 
 	def __neg__(self):
-		from .operations import Negative
+		from .combiners.operations import Negative
 		return Negative(self)
 
 	def __add__(self, other):
-		from .operations import Add
+		from .combiners.operations import Add
 		return Add(self, other)
 
 	def __radd__(self, other):
-		from .operations import Add
+		from .combiners.operations import Add
 		return Add(other, self)
 
 	def __sub__(self, other):
-		from .operations import Sub
+		from .combiners.operations import Sub
 		return Sub(self, other)
 
 	def __rsub__(self, other):
-		from .operations import Sub
+		from .combiners.operations import Sub
 		return Sub(other, self)
 
 	def __mul__(self, other):
-		from .operations import Mul
+		from .combiners.operations import Mul
 		return Mul(self, other)
 
 	def __rmul__(self, other):
-		from .operations import Mul
+		from .combiners.operations import Mul
 		return Mul(other, self)
 
 	def __truediv__(self, other):
-		from .operations import Div
+		from .combiners.operations import Div
 		return Div(self, other)
 
 	def __rtruediv__(self, other):
-		from .operations import Div
+		from .combiners.operations import Div
 		return Div(other, self)
 
 	def __pow__(self, other):
-		from .operations import Pow
+		from .combiners.operations import Pow
 		return Pow(self, other)
 
 	def __rpow__(self, other):
-		from .operations import Pow
+		from .combiners.operations import Pow
 		return Pow(other, self)
 
 	def __and__(self, other):
-		from .relations import Equation
+		from .combiners.relations import Equation
 		return Equation(self, other)
 	
 	def __rand__(self, other):
-		from .relations import Equation
+		from .combiners.relations import Equation
 		return Equation(other, self)
 
 	def __or__(self, other):
-		from .relations import Equation
+		from .combiners.relations import Equation
 		return Equation(self, other)
 	
 	def __ror__(self, other):
-		from .relations import Equation
+		from .combiners.relations import Equation
 		return Equation(other, self)
 
 	def __rshift__(self, other):
@@ -493,65 +493,6 @@ class Expression:
 	def sympy(self):
 		from sympy.parsing.latex import parse_latex
 		return parse_latex(str(self))
-
-
-
-class Combiner(Expression):
-	def __init__(self, symbol, symbol_glyph_length, children, **kwargs):
-		super().__init__(children=children, **kwargs)
-		self.symbol = symbol
-		self.symbol_glyph_length = symbol_glyph_length
-		self.left_spacing = ""
-		self.right_spacing = ""
-
-	@Expression.parenthesize_glyph_count
-	def get_glyph_count(self):
-		count = sum([child.glyph_count for child in self.children])
-		count += self.symbol_glyph_length * (len(self.children) - 1)
-		return count
-
-	@Expression.parenthesize_latex
-	def __str__(self, *args, **kwargs):
-		joiner = self.left_spacing + self.symbol + self.right_spacing
-		return joiner.join(["{" + str(child) + "}" for child in self.children])
-
-	def set_spacing(self, left_spacing, right_spacing):
-		self.left_spacing = left_spacing
-		self.right_spacing = right_spacing
-
-	special_character_to_glyph_method_dict = {
-		**Expression.special_character_to_glyph_method_dict,
-		'+': 'get_op_glyphs',
-		'-': 'get_op_glyphs',
-		'*': 'get_op_glyphs',
-		'/': 'get_op_glyphs',
-		'^': 'get_op_glyphs',
-		'=': 'get_op_glyphs',
-		'<': 'get_op_glyphs',
-		'>': 'get_op_glyphs',
-		',': 'get_op_glyphs',
-	}
-
-	def get_glyphs_at_addigit(self, addigit:int):
-		start = 0
-		start += self.parentheses * self.paren_length()
-		for sibling in self.children[:addigit]:
-			start += sibling.glyph_count
-			start += self.symbol_glyph_length
-		child = self.children[addigit]
-		end = start + child.glyph_count
-		return list(range(start, end))
-
-	def get_op_glyphs(self):
-		results = []
-		turtle = self.parentheses * self.paren_length()
-		for child in self.children[:-1]:
-			turtle += child.glyph_count
-			results += list(range(turtle, turtle + self.symbol_glyph_length))
-			turtle += self.symbol_glyph_length
-		return results
-
-
 
 
 

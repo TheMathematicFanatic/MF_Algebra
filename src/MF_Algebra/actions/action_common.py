@@ -1,9 +1,9 @@
 from .action_core import *
 from .action_variants import *
 from .combinations import *
-from ..expressions.operations import *
+from ..expressions.combiners.operations import *
 from ..expressions.variables import *
-from ..expressions.relations import *
+from ..expressions.combiners.relations import *
 from MF_Tools.dual_compatibility import PI, FadeIn
 
 

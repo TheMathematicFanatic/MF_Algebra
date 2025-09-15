@@ -1,3 +1,3 @@
-from ...expressions.functions import *
+from ...expressions.functions.functions import *
 
 

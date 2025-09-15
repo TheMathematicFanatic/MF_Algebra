@@ -1,4 +1,5 @@
-from .expression_core import *
+from ..expression_core import *
+from .combiners import *
 
 
 class Relation(Combiner):
