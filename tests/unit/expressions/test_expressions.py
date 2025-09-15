@@ -39,8 +39,42 @@ func = f(x,y,z)
 	('function', func, 8),
 
 ])
-def test_glyph_count(exp, count):
-	assert exp.number_of_glyphs() == count
+def test_get_glyph_count_from_shortcut(exp, count):
+	exp.init_number_of_glyphs_from_mob = None
+	assert exp.glyph_count == count
+
+
+
+@MFparam('exp, count', [
+
+	('var', x, 1),
+
+	('var_subscript', Variable('a_{12}'), 3),
+
+	('var_given', Variable('\\gamma', symbol_glyph_length=581), 1),
+
+	('integer', Integer(-120), 4),
+
+	('add', add, 3),
+
+	('sub', sub, 3),
+
+	('mul', mul, 2),
+
+	('div', div, 4),
+
+	('pow', pow, 3),
+
+	('compound1', A, 5),
+
+	('compound2', B, 10),
+
+	('function', func, 8),
+
+])
+def test_get_glyph_count_from_mob(exp, count):
+	exp.get_glyph_count = lambda *args, **kwargs: None
+	assert exp.glyph_count == count
 
 
 
@@ -341,6 +375,8 @@ def test_get_all_variables(exp, subexes):
 
 	('var', Variable('x'), 1),
 
+	('fake_given', Variable('hello', symbol_glyph_length=108), 1),
+
 	('add', add, 1),
 
 	('compound1', A, 1),
@@ -351,10 +387,10 @@ def test_get_all_variables(exp, subexes):
 
 ])
 def test_give_parentheses_using_mob(exp, paren_length):
-	exp._number_of_glyphs = None
+	exp.get_glyph_count = lambda *args, **kwargs: None
 	yes_paren = exp.copy().give_parentheses(True)
 	no_paren = exp.copy().give_parentheses(False)
-	assert yes_paren.number_of_glyphs() - no_paren.number_of_glyphs() == 2 * paren_length
+	assert yes_paren.glyph_count - no_paren.glyph_count == 2 * paren_length
 
 
 
@@ -375,7 +411,7 @@ def test_give_parentheses_without_mob(exp, paren_length):
 	exp.init_number_of_glyphs_from_mob = None
 	yes_paren = exp.copy().give_parentheses(True)
 	no_paren = exp.copy().give_parentheses(False)
-	assert yes_paren.number_of_glyphs() - no_paren.number_of_glyphs() == 2 * paren_length
+	assert yes_paren.glyph_count - no_paren.glyph_count == 2 * paren_length
 
 
 

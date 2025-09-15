@@ -28,8 +28,11 @@ class Function(Expression):
 
 	@Expression.parenthesize_glyph_count
 	def get_glyph_count(self):
+		count = 0
 		if self.symbol and self.symbol_glyph_length:
-			return self.symbol_glyph_length
+			count += self.symbol_glyph_length
+		count += self.arg.glyph_count
+		return count
 
 	@Expression.parenthesize_latex
 	def __str__(self):
@@ -56,7 +59,7 @@ class Function(Expression):
 		if addigit == 0:
 			start = self.symbol_glyph_length
 			start += self.parentheses * self.paren_length()
-			end = start + self.children[0].glyph_count
+			end = start + self.arg.glyph_count
 			return list(range(start, end))
 		else:
 			raise NotImplementedError(f"This function has no children at index {addigit}")
@@ -80,28 +83,28 @@ class Function(Expression):
 		return new_func
 	
 	def auto_parentheses(self):
-		if len(self.children) == 0:
+		if self.arg.is_identical_to(Sequence()):
 			return self
-		if self.parentheses_mode == 'always' or isinstance(self.children[0], Sequence) and not self.children[0].is_identical_to(Sequence()):
-			self.children[0].give_parentheses(True)
+		if self.parentheses_mode == 'always' or isinstance(self.arg, Sequence):
+			self.arg.give_parentheses(True)
 			return self
 		from ..combiners.operations import BinaryOperation, Add, Sub
 		from .functions import Function
-		if self.parentheses_mode == 'strong' and isinstance(self.children[0], (BinaryOperation, Function)):
-			self.children[0].give_parentheses(True)
-		if self.parentheses_mode == 'weak' and isinstance(self.children[0], (Add, Sub)):
-			self.children[0].give_parentheses(True)
+		if self.parentheses_mode == 'strong' and isinstance(self.arg, (BinaryOperation, Function)):
+			self.arg.give_parentheses(True)
+		if self.parentheses_mode == 'weak' and isinstance(self.arg, (Add, Sub)):
+			self.arg.give_parentheses(True)
 		if self.parentheses_mode == 'never':
-			self.children[0].give_parentheses(False)
+			self.arg.give_parentheses(False)
 		return self
 	
 	def compute(self):
 		if self.arg.is_identical_to(Sequence()):
 			raise ValueError(f"Function {self.symbol} has no arguments.")
-		if isinstance(self.children[0], Sequence):
-			args = self.children[0].children
+		if isinstance(self.arg, Sequence):
+			args = self.arg.children
 		else:
-			args = [self.children[0]]
+			args = [self.arg]
 		args = [arg.compute() for arg in args]
 		if self.python_rule is not None:
 			return self.python_rule(*args)

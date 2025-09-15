@@ -14,18 +14,25 @@ def Smarten(input):
 	from .expressions.expression_core import Expression
 	from .actions.action_core import Action
 	from .timelines.timeline_core import Timeline
-	from .expressions.numbers.number import Integer, Real
 	if isinstance(input, (Expression, Action, Timeline)):
 		return input.copy()
-	elif isinstance(input, int):
+
+	from .expressions.numbers.integer import Integer
+	if isinstance(input, int):
 		return Integer(input)
-	elif isinstance(input, float):
+
+	from .expressions.numbers.real import Real
+	if isinstance(input, float):
 		if input.is_integer():
 			return Integer(int(input))
 		else:
 			return Real(input)
-	else:
-		raise NotImplementedError(f"Unsupported type {type(input)}")
+
+	from .expressions.numbers.complex import Complex
+	if isinstance(input, complex):
+		return Complex(input)
+
+	raise NotImplementedError(f"Unsupported type {type(input)}")
 
 
 def add_spaces_around_brackets(input_string): #GPT

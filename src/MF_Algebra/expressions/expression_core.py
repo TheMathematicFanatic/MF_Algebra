@@ -328,7 +328,7 @@ class Expression:
 			self._mob = None # Don't init mob just yet, just clear the cached mob
 			if algebra_config['fast_glyph_count'] and self._glyph_count is not None:
 				# Adjust cached number of glyphs according to change
-				self._glyph_count += 2 * change * self.paren_lenge
+				self._glyph_count += 2 * change * self.paren_length()
 			else:
 				# Otherwise just clear the cache
 				self._glyph_count = None
@@ -358,7 +358,7 @@ class Expression:
 			return 1
 		yes_paren = self.copy().give_parentheses(True)
 		no_paren = self.copy().give_parentheses(False)
-		num_paren_glyphs = len(yes_paren) - len(no_paren)
+		num_paren_glyphs = yes_paren.glyph_count - no_paren.glyph_count
 		assert num_paren_glyphs > 0 and num_paren_glyphs % 2 == 0
 		return num_paren_glyphs // 2
 	

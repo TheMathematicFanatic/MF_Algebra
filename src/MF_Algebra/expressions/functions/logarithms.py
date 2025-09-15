@@ -1,6 +1,7 @@
 from ..expression_core import *
 from .functions import Function
-from ..numbers.number import Integer, e
+from ..numbers.integer import Integer
+from ..numbers.real import e
 
 
 class Log(Function):

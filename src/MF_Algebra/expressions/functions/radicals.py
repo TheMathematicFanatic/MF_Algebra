@@ -1,6 +1,6 @@
 from ..expression_core import *
 from .functions import Function
-from ..numbers.number import Integer
+from ..numbers.integer import Integer
 
 
 class Rad(Function):
@@ -29,7 +29,7 @@ class Rad(Function):
 
 	@Expression.parenthesize_glyph_count
 	def get_glyph_count(self):
-		return self.index_glyph_count() + self.radical_glyph_count() + self.children[0].glyph_count
+		return self.index_glyph_count() + self.radical_glyph_count() + self.arg.glyph_count
 
 	def index_glyph_count(self):
 		if self.nicknamed:
