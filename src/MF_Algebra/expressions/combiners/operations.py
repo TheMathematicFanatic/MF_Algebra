@@ -2,7 +2,11 @@ from ..expression_core import *
 from .combiners import *
 
 
-class BinaryOperation(Combiner):
+class Operation:
+	...
+
+
+class BinaryOperation(Combiner, Operation):
 	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
 		super().__init__(symbol, symbol_glyph_length, children=children, **kwargs)
 
@@ -21,6 +25,7 @@ class Add(BinaryOperation):
 	def auto_parentheses(self):
 		for child in self.children:
 			child.auto_parentheses()
+		return self
 
 	def is_negative(self):
 		return self.children[0].is_negative()
@@ -31,11 +36,11 @@ class Sub(BinaryOperation):
 		super().__init__("-", 1, *children, **kwargs)
 
 	def auto_parentheses(self):
-		self.children[0].auto_parentheses()
-		for child in self.children[1:]:
-			if isinstance(child, (Add, Sub)) or child.is_negative():
+		for i,child in enumerate(self.children):
+			if i>0 and isinstance(child, (Add, Sub)) or child.is_negative():
 				child.give_parentheses()
 			child.auto_parentheses()
+		return self
 
 	def is_negative(self):
 		return self.children[0].is_negative()
@@ -64,6 +69,7 @@ class Mul(BinaryOperation):
 			if isinstance(child, (Add, Sub)) or child.is_negative():
 				child.give_parentheses()
 			child.auto_parentheses()
+		return self
 
 	def is_negative(self):
 		return self.children[0].is_negative()
@@ -84,6 +90,7 @@ class Div(BinaryOperation):
 			if (isinstance(child, (Add, Sub, Mul, Div)) or child.is_negative()) and algebra_config["division_mode"] == "inline":
 				child.give_parentheses()
 			child.auto_parentheses()
+		return self
 
 	def is_negative(self):
 		return self.children[0].is_negative() or self.children[1].is_negative()
@@ -109,13 +116,14 @@ class Pow(BinaryOperation):
 			self.children[0].give_parentheses()
 		for child in self.children:
 			child.auto_parentheses()
+		return self
 
 	def is_negative(self):
 		return False
 
 
 
-class UnaryOperation(Expression):
+class UnaryOperation(Expression, Operation):
 	def __init__(self, symbol, symbol_glyph_length, **kwargs):
 		super().__init__(symbol=symbol, symbol_glyph_length=symbol_glyph_length, **kwargs)
 		self.symbol = symbol
@@ -161,6 +169,7 @@ class Negative(UnaryOperation):
 		if isinstance(self.children[0], (Add, Sub)) or self.children[0].is_negative():
 			self.children[0].give_parentheses()
 		self.children[0].auto_parentheses()
+		return self
 
 	def is_negative(self):
 		return True

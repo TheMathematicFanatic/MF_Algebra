@@ -10,6 +10,7 @@ from .numbers.complex import *
 from .combiners.operations import *
 from .combiners.relations import *
 from .combiners.sequences import *
+from .combiners.subscripts import *
 
 from .functions.functions import *
 from .functions.logarithms import *

@@ -22,6 +22,7 @@ class Variable(Expression):
 		raise ValueError(f"Expression contains a variable {self.symbol}.")
 
 
+
 a = Variable('a', 1)
 b = Variable('b', 1)
 c = Variable('c', 1)
@@ -48,13 +49,13 @@ gamma = Variable('\\gamma', 1)
 theta = Variable('\\theta', 1)
 phi = Variable('\\phi', 1)
 
-x1 = Variable('x_1', 2)
-x2 = Variable('x_2', 2)
-x3 = Variable('x_3', 2)
-y1 = Variable('y_1', 2)
-y2 = Variable('y_2', 2)
-y3 = Variable('y_3', 2)
-z1 = Variable('z_1', 2)
-z2 = Variable('z_2', 2)
-z3 = Variable('z_3', 2)
+x1 = x.subscript(1)
+x2 = x.subscript(2)
+x3 = x.subscript(3)
+y1 = y.subscript(1)
+y2 = y.subscript(2)
+y3 = y.subscript(3)
+z1 = z.subscript(1)
+z2 = z.subscript(2)
+z3 = z.subscript(3)
 

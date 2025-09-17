@@ -319,6 +319,10 @@ class Expression:
 	def __rrshift__(self, other):
 		return Smarten(other).__rshift__(self)
 
+	def subscript(self, subscript):
+		from .combiners.subscripts import Subscript
+		return Subscript(self, subscript)
+
 
 	### Parentheses ###
 
@@ -485,6 +489,10 @@ class Expression:
 		other = Smarten(other)
 		return type(self) == type(other) and len(self.children) == len(other.children) \
 			and all(self.children[i].is_identical_to(other.children[i]) for i in range(len(self.children)))
+
+	def compute(self):
+		# Define for operations, functions, etc
+		raise NotImplementedError
 
 	def evaluate(self):
 		return Smarten(self.compute())
