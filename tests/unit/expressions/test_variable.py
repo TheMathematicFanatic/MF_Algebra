@@ -4,7 +4,7 @@ from conftest import *
 x = Variable('x')
 y = Variable('y')
 theta = Variable('\\theta')
-a12 = Variable('a_{12}')
+a12 = Variable('a').add_subscript(12)
 
 
 @MFparam('var, num', [

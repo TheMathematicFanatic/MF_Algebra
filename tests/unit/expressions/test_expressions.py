@@ -10,13 +10,14 @@ pow = b**-3
 A = x**2 + y**2
 B = 10 - A
 func = f(x,y,z)
+a12 = a.subscript(12)
 
 
 @MFparam('exp, count', [
 
 	('var', x, 1),
 
-	('var_subscript', Variable('a_{12}'), 3),
+	('var_subscript', a12, 3),
 
 	('var_given', Variable('\\gamma', symbol_glyph_length=581), 581),
 
@@ -49,7 +50,7 @@ def test_get_glyph_count_from_shortcut(exp, count):
 
 	('var', x, 1),
 
-	('var_subscript', Variable('a_{12}'), 3),
+	('var_subscript', a12, 3),
 
 	('var_given', Variable('\\gamma', symbol_glyph_length=581), 1),
 
@@ -96,7 +97,11 @@ def test_get_glyph_count_from_mob(exp, count):
 
 	('compound3', B, 1, [3,4,5,6,7,8,9]),
 
-	('function', func, 0, [1,2,3,4,5,6,7])
+	('function', func, 0, [1,2,3,4,5,6,7]),
+
+	('subscript', a12, 0, [0]),
+
+	('subscript', a12, 1, [1,2]),
 
 ])
 def test_get_glyphs_at_addigit(exp, addigit, glyphs):
@@ -168,7 +173,9 @@ def test_get_glyphs_at_addresses(exp, addresses, glyphs):
 
 	('compound', A, ['', '0', '00', '01', '1', '10', '11']),
 
-	('function', func, ['', '0', '00', '01', '02'])
+	('function', func, ['', '0', '00', '01', '02']),
+
+	('subscript', a12, ['', '0', '1'])
 
 ])
 def test_get_all_addresses(exp, addresses):
@@ -391,6 +398,7 @@ def test_give_parentheses_using_mob(exp, paren_length):
 	yes_paren = exp.copy().give_parentheses(True)
 	no_paren = exp.copy().give_parentheses(False)
 	assert yes_paren.glyph_count - no_paren.glyph_count == 2 * paren_length
+	assert str(yes_paren) == '\\left(' + str(no_paren) + '\\right)'
 
 
 
@@ -412,6 +420,8 @@ def test_give_parentheses_without_mob(exp, paren_length):
 	yes_paren = exp.copy().give_parentheses(True)
 	no_paren = exp.copy().give_parentheses(False)
 	assert yes_paren.glyph_count - no_paren.glyph_count == 2 * paren_length
+	assert str(yes_paren) == '\\left(' + str(no_paren) + '\\right)'
+
 
 
 
