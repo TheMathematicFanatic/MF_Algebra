@@ -33,7 +33,7 @@ class ApplyFunction(BinaryOperation):
 			result = self.func.get_string_with_arg(self.arg)
 			if result is not None:
 				return result
-		return super().__str__()
+		return super().__str__.__wrapped__(self)
 
 	def auto_parentheses(self):
 		from ..combiners.combiners import Combiner

@@ -509,16 +509,15 @@ class Expression:
 		return False # catchall if not defined in subclasses
 
 	def is_identical_to(self, other):
-		# Checks if they are equal as expressions. Implemented separately in leaves.
 		other = Smarten(other)
-		return all([
-			type(self) == type(other),
-			len(self.children) == len(other.children),
-			*[
-				self.children[i].is_identical_to(other.children[i])
-				for i in range(len(self.children))
-			]
-		])
+		if type(self) != type(other):
+			return False
+		if len(self.children) != len(other.children):
+			return False
+		for c1, c2 in zip(self.children, other.children):
+			if not c1.is_identical_to(c2):
+				return False
+		return True
 
 	def compute(self):
 		# Define for operations, functions, etc

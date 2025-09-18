@@ -16,4 +16,4 @@ class Number(Expression):
 	
 	def is_identical_to(self, other):
 		other = Smarten(other)
-		super().is_identical_to(other) and self.value == other.value
+		return super().is_identical_to(other) and self.value == other.value

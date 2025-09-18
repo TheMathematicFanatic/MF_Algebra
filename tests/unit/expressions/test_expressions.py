@@ -143,9 +143,9 @@ def test_get_glyphs_at_addigit(exp, addigit, glyphs):
 
 	('complicated pseudo', B, '-1()01', [2,3,5,9]),
 
-	('function 1', func, '0,(2', [1,3,5,6]),
+	('function 1', func, '1,(2', [1,3,5,6]),
 
-	('function 2', func, 'f(0_)', [0,2,3,4,5,6,7]),
+	('function 2', func, '1_)', [2,3,4,5,6,7]),
 
 ])
 def test_get_glyphs_at_address(exp, address, glyphs):
@@ -329,7 +329,7 @@ def test_get_all_subexpressions_with_condition(exp, condition, subexes):
 
 	('compound2', B, {B, 10, A, x**2, y**2, x, y, 2}),
 
-	('function', func, {func, Sequence(x,y,z), x, y, z})
+	('function', func, {func, f, Sequence(x,y,z), x, y, z})
 
 ])
 def test_get_all_subexpressions(exp, subexes):
@@ -352,7 +352,7 @@ def test_get_all_subexpressions(exp, subexes):
 
 	('child_pow', B, Pow, {x**2, y**2, 10}),
 
-	('function1', func, Function, {func}),
+	('function1', func, Function, {f}),
 
 	('function2', func, Sequence, {Sequence(x,y,z)}),
 
@@ -500,9 +500,9 @@ def test_auto_parentheses(exp, child_parens):
 
 	('compound2', B, 3-n, '101', 10-(x**(3-n)+y**2)),
 
-	('function1', func, 3, '0', f(3)),
+	('function1', func, 3, '1', f(3)),
 
-	('function2', func, x*y, '02', f(x,y,x*y))
+	('function2', func, x*y, '12', f(x,y,x*y))
 
 ])
 def test_substitute_at_address(exp, subex, address, result):
