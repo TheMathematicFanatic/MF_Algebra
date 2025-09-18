@@ -392,7 +392,7 @@ class Expression:
 	### Substitution ###
 
 	def substitute_at_address(self, subex, address):
-		subex = Smarten(subex).copy() #?
+		subex = Smarten(subex)
 		if len(address) == 0:
 			return subex
 		index = int(address[0])
@@ -487,8 +487,14 @@ class Expression:
 	def is_identical_to(self, other):
 		# Checks if they are equal as expressions. Implemented separately in leaves.
 		other = Smarten(other)
-		return type(self) == type(other) and len(self.children) == len(other.children) \
-			and all(self.children[i].is_identical_to(other.children[i]) for i in range(len(self.children)))
+		return all([
+			type(self) == type(other),
+			len(self.children) == len(other.children),
+			*[
+				self.children[i].is_identical_to(other.children[i])
+				for i in range(len(self.children))
+			]
+		])
 
 	def compute(self):
 		# Define for operations, functions, etc

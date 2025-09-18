@@ -37,7 +37,7 @@ class Sub(BinaryOperation):
 
 	def auto_parentheses(self):
 		for i,child in enumerate(self.children):
-			if i>0 and isinstance(child, (Add, Sub)) or child.is_negative():
+			if i>0 and (isinstance(child, (Add, Sub)) or child.is_negative()):
 				child.give_parentheses()
 			child.auto_parentheses()
 		return self
