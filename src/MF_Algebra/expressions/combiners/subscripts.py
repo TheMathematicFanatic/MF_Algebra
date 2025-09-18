@@ -13,6 +13,12 @@ class Subscript(Combiner):
 			child.auto_parentheses()
 		return self
 
+	def is_variable(self):
+		from ..variables import Variable
+		# This is horrible we gotta find another way lol
+		self.children[0].is_variable = lambda *args: False
+		return isinstance(self, Variable) or isinstance(self.children[0], Variable)
+
 
 
 class Subscriptable(type):

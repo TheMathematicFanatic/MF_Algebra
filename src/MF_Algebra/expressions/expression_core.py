@@ -231,8 +231,7 @@ class Expression:
 		return self.get_all_subexpressions_with_condition(lambda subex: isinstance(subex, expression_type))
 	
 	def get_all_variables(self):
-		from .variables import Variable
-		return self.get_all_subexpressions_of_type(Variable)
+		return self.get_all_subexpressions_with_condition(lambda subex: subex.is_variable())
 
 	def get_all_numbers(self):
 		from .numbers.number import Number
@@ -518,6 +517,10 @@ class Expression:
 			if not c1.is_identical_to(c2):
 				return False
 		return True
+
+	def is_variable(self):
+		from .variables import Variable
+		return isinstance(self, Variable)
 
 	def compute(self):
 		# Define for operations, functions, etc
