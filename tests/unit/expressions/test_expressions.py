@@ -97,7 +97,9 @@ def test_get_glyph_count_from_mob(exp, count):
 
 	('compound3', B, 1, [3,4,5,6,7,8,9]),
 
-	('function', func, 0, [1,2,3,4,5,6,7]),
+	('function1', func, 0, [0]),
+
+	('function2', func, 1, [1,2,3,4,5,6,7]),
 
 	('subscript', a12, 0, [0]),
 
@@ -173,7 +175,7 @@ def test_get_glyphs_at_addresses(exp, addresses, glyphs):
 
 	('compound', A, ['', '0', '00', '01', '1', '10', '11']),
 
-	('function', func, ['', '0', '00', '01', '02']),
+	('function', func, ['', '0', '1', '10', '11', '12']),
 
 	('subscript', a12, ['', '0', '1'])
 
@@ -191,7 +193,7 @@ def test_get_all_addresses(exp, addresses):
 
 	('compound', A, ['', '0', '1']),
 
-	('function', func, ['', '0'])
+	('function', func, ['', '1'])
 
 ])
 def test_get_all_nonleaf_addresses(exp, addresses):
@@ -207,7 +209,7 @@ def test_get_all_nonleaf_addresses(exp, addresses):
 
 	('compound', A, ['00', '01', '10', '11']),
 
-	('function', func, ['00', '01', '02'])
+	('function', func, ['0', '10', '11', '12'])
 
 ])
 def test_get_all_leaf_addresses(exp, addresses):
@@ -239,11 +241,11 @@ def test_get_all_addresses_with_condition(exp, condition, addresses):
 
 	('child_pow', B, Pow, ['10', '11']),
 
-	('function1', func, Function, ['']),
+	('function1', func, Function, ['0']),
 
-	('function2', func, Sequence, ['0']),
+	('function2', func, Sequence, ['1']),
 
-	('function3', func, Variable, ['00', '01', '02'])
+	('function3', func, Variable, ['10', '11', '12'])
 
 ])
 def test_get_all_addresses_of_type(exp, type, addresses):
@@ -265,7 +267,7 @@ def test_get_all_addresses_of_type(exp, type, addresses):
 
 	('fail', B, z, []),
 
-	('function', func, y, ['01'])
+	('function', func, y, ['11'])
 
 ])
 def test_get_addresses_of_subex(exp, subex, addresses):
@@ -283,9 +285,11 @@ def test_get_addresses_of_subex(exp, subex, addresses):
 
 	('compound2', B, '101', 2),
 
-	('function1', func, '0', Sequence(x,y,z)),
+	('function1', func, '0', f),
 
-	('function2', func, '02', z)
+	('function2', func, '1', Sequence(x,y,z)),
+
+	('function3', func, '12', z)
 
 ])
 def test_get_subex(exp, address, subex):
@@ -300,6 +304,10 @@ def test_get_subex(exp, address, subex):
 	('get_twos', A, lambda subex: subex.is_identical_to(2), {2}),
 
 	('get_vars_and_twos', B, lambda subex: isinstance(subex, Variable) or subex.is_identical_to(2), {x,y,2}),
+
+	('get_function', (3+func)**2, lambda subex: isinstance(subex, Function), {f}),
+
+	('get_apply_function', (3+func)**2, lambda subex: isinstance(subex, ApplyFunction), {func}),
 
 ])
 def test_get_all_subexpressions_with_condition(exp, condition, subexes):
@@ -469,7 +477,7 @@ def test_clear_all_parentheses(exp):
 
 	('div2', 5/(a-b), (False, False)),
 
-	('function', func, (True,))
+	('function', func, (False, True))
 
 ])
 def test_auto_parentheses(exp, child_parens):
@@ -498,6 +506,8 @@ def test_auto_parentheses(exp, child_parens):
 
 ])
 def test_substitute_at_address(exp, subex, address, result):
+	print(result.children)
+	print(exp.substitute_at_address(subex, address).children)
 	assert exp.substitute_at_address(subex, address).is_identical_to(result)
 
 
@@ -514,9 +524,9 @@ def test_substitute_at_address(exp, subex, address, result):
 
 	('compound2', B, 3-n, ['101', '110', '0'], (3-n)-(x**(3-n)+(3-n)**2)),
 
-	('function1', func, 3, ['0'], f(3)),
+	('function1', func, 3, ['1'], f(3)),
 
-	('function2', func, x**2-5, ['00', '02'], f(x**2-5,y,x**2-5))
+	('function2', func, x**2-5, ['10', '12'], f(x**2-5,y,x**2-5))
 
 ])
 def test_substitute_at_addresses(exp, subex, addresses, result):

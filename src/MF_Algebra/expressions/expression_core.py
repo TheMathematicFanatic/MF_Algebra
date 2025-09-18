@@ -319,6 +319,16 @@ class Expression:
 	def __rrshift__(self, other):
 		return Smarten(other).__rshift__(self)
 
+	def __matmul__(self, other):
+		if isinstance(other, dict):
+			return self.substitute(other)
+		other = Smarten(other)
+		if self.is_function() and other.is_function():
+			from .functions.functions import Composition
+			return Composition(self, other)
+		else:
+			return NotImplemented
+
 	def subscript(self, subscript):
 		from .combiners.subscripts import Subscript
 		return Subscript(self, subscript)
@@ -417,8 +427,22 @@ class Expression:
 			result = result.substitute_at_addresses(to_subex, result.get_addresses_of_subex(Variable(f"T_{i}")))
 		return result
 
-	def __matmul__(self, expression_dict):
-		return self.substitute(expression_dict)
+
+	### Functions ###
+
+	def is_function(self):
+		from .functions.functions import Function
+		return isinstance(self, Function) or any(child.is_function() for child in self.children)
+
+	def __call__(self, *inputs):
+		assert self.is_function(), 'Tried to function call an expression that cannot be interpreted as a function'
+		from .functions.functions import ApplyFunction
+		if len(inputs) == 1:
+			arg = Smarten(inputs[0])
+		elif len(inputs) > 1:
+			from .combiners.sequences import Sequence
+			arg = Sequence(*list(map(Smarten, inputs)))
+		return ApplyFunction(self, arg)
 
 
 	### Nesting ###
