@@ -3,7 +3,7 @@ from .combiners import *
 
 
 class Operation:
-	...
+	eval_op = None
 
 
 class BinaryOperation(Combiner, Operation):

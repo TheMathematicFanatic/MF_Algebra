@@ -1,5 +1,5 @@
 from ...expressions.expression_core import *
-from ...expressions.numbers.number import Real
+from ...expressions.numbers.real import Real
 from ...expressions.functions.functions import Function
 from ...expressions.combiners.relations import Equation
 from ...utils import *

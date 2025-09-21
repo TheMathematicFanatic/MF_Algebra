@@ -13,5 +13,6 @@ from .combiners.sequences import *
 from .combiners.subscripts import *
 
 from .functions.functions import *
+from .functions.operators import *
 from .functions.logarithms import *
 from .functions.radicals import *

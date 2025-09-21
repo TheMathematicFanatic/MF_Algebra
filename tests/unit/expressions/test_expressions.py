@@ -418,7 +418,7 @@ def test_give_parentheses_using_mob(exp, paren_length):
 
 	('compound1', A, 1),
 
-	('compound2', (A/A)**3, 1), # Just assumes 1 if in fast paren mode
+	('compound2', (B/B)**3, 1), # Just assumes 1 if in fast paren mode
 
 	('function', func, 1),
 
