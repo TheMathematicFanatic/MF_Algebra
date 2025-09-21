@@ -16,3 +16,4 @@ from .functions.functions import *
 from .functions.operators import *
 from .functions.logarithms import *
 from .functions.radicals import *
+from .functions.miscellaneous import *

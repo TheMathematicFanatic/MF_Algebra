@@ -272,20 +272,8 @@ class Composition(BinaryOperation):
 
 
 
-class _AbsoluteValue(Function):
-	string_code = ['\\left|', arg, '\\right|']
-	glyph_code = [1, arg, 1]
-
-class _Radical(Function):
-	string_code = ['\\sqrt[', c0, ']', arg]
-	glyph_code = [c0, 2, arg]
-
 class _Logarithm(Function):
 	string_code = ['\\log', c0, arg]
 	glyph_code = [3, c0, arg]
-
-class _Factorial(Function):
-	string_code = [arg, '!']
-	glyph_code = [arg, 1]
 
 
