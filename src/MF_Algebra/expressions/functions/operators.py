@@ -25,18 +25,24 @@ class BigOperator(Function):
 	def end(self):
 		return self.get_subex('1').compute()
 
-	def expand_on_args(self, arg, min=None, max=None, max_num_terms=7):
+	def expand_on_args(self, arg, min=None, max=None, max_num_terms=7, substitute=True):
 		if min is None:
 			min = self.start
 		if max is None:
 			max = self.end
 		assert min <= max
 		if max - min > max_num_terms:
-			terms = [arg @ {self.variable : i} for i in range(min, min+max_num_terms)]
+			terms = [
+				arg @ {self.variable : i} if substitute else arg
+				for i in range(min, min+max_num_terms)
+			]
 			from ..variables import dots
 			terms.append(dots)
 		else:
-			terms = [arg @ {self.variable : i} for i in range(min, max+1)]
+			terms = [
+				arg @ {self.variable : i} if substitute else arg
+				for i in range(min, max+1)
+			]
 		return self.opclass(*terms)
 
 

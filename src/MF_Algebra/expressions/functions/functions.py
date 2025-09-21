@@ -4,13 +4,16 @@ from ..combiners.operations import BinaryOperation
 from ..variables import Variable
 
 
-arg = Variable(f'arg')
-child = lambda n: Variable(f'child {n}')
-c0 = child(0)
-c1 = child(1)
-c2 = child(2)
-c3 = child(3)
-c4 = child(4)
+arg = Variable('arg')
+arg_num = lambda n: Variable(f'arg {n}')
+arg0 = arg_num(0)
+arg1 = arg_num(1)
+arg2 = arg_num(2)
+child = Variable('child')
+child_num = lambda n: Variable(f'child {n}')
+c0 = child_num(0)
+c1 = child_num(1)
+c2 = child_num(2)
 
 
 # Example glyph and string codes
@@ -27,6 +30,46 @@ glyph_code = [c0, 2, arg]
 string_code = [lambda self: self.symbol, arg]
 glyph_code = [lambda self: self.symbol_glyph_length, arg]
 
+def get_value_from_code_entry(expression, entry, desired_type):
+	if isinstance(entry, desired_type):
+		return entry
+
+	if isinstance(expression, Function):
+		func = expression
+	elif isinstance(expression, ApplyFunction):
+		func = expression.func
+		arg = expression.arg
+	else:
+		raise ValueError('Function or ApplyFunction expected')
+
+	if isinstance(entry, Variable):
+		if entry.symbol.startswith('child'):
+			if entry.symbol == 'child':
+				target = func.children[0]
+			else:
+				func_child_number = int(entry.symbol.split()[-1])
+				target = func.children[func_child_number]
+		elif entry.symbol.startswith('arg'):
+			if isinstance(expression, Function):
+				return desired_type()
+			if entry.symbol == 'arg':
+				target = arg
+			else:
+				arg_child_number = int(entry.symbol.split()[-1])
+				target = func.children[arg_child_number]
+		else:
+			raise ValueError('Invalid code variable: ' + entry.symbol)
+		if desired_type == int:
+			return target.glyph_count
+		elif desired_type == str:
+			return '{' + str(target) + '}'
+		else:
+			raise ValueError('Invalid desired_type. Must be int or str')
+
+	if callable(entry):
+		return desired_type(entry(func))
+
+	raise ValueError(f'Invalid glyph code entry of type {type(entry)}: {entry}')
 
 
 class Function(Expression):
@@ -54,55 +97,29 @@ class Function(Expression):
 	def __str__(self):
 		return self.get_string_from_code()
 
-	def get_string_from_code(self, arg=''):
+	def get_string_from_code(self):
 		string = ''
 		for sc in self.string_code:
-			if isinstance(sc, Variable) and sc.symbol == 'arg':
-				string += arg
-			else:
-				string += self.str_from_string_code_entry(sc)
+			string += get_value_from_code_entry(self, sc, str)
 		return string
 
-	def str_from_string_code_entry(self, entry):
-		if isinstance(entry, str):
-			return entry
-		if isinstance(entry, Variable) and entry.symbol.startswith('child'):
-			func_child_number = int(entry.symbol.split()[-1])
-			return str(self.children[func_child_number])
-		try:
-			return entry(self)
-		except:
-			raise ValueError(f'Invalid glyph code entry of type {type(entry)}: {entry}')
-
 	@Expression.parenthesize_glyph_count
-	def get_glyph_count(self): # Needs glyph_code rework
-		return self.symbol_glyph_length
+	def get_glyph_count(self):
+		count = 0
+		for gc in self.glyph_code:
+			count += get_value_from_code_entry(self, gc, int)
+		return count
 
 	def get_glyphs_at_addigit(self, addigit):
 		start = 0
 		start += self.parentheses * self.paren_length()
 		for gc in self.glyph_code:
-			if isinstance(gc, Variable) and gc.symbol == 'arg':
-				pass
-			if isinstance(gc, Variable) and gc.is_identical_to(child(addigit)):
+			if isinstance(gc, Variable) and gc.is_identical_to(child_num(addigit)):
 				end = start + self.children[addigit].glyph_count
 				return list(range(start, end))
 			else:
-				start += self.int_from_glyph_code_entry(gc)
+				start += get_value_from_code_entry(self, gc, int)
 			return []
-
-	def int_from_glyph_code_entry(self, entry):
-		if isinstance(entry, int):
-			return entry
-		if isinstance(entry, Variable) and entry.symbol.startswith('child'):
-			child_number = int(entry.symbol.split()[-1])
-			return self.children[child_number].glyph_count
-		if isinstance(entry, Variable) and entry.symbol == 'arg':
-			raise ValueError('arg should not be processed by the child function')
-		try:
-			return entry(self)
-		except:
-			raise ValueError(f'Invalid glyph code entry of type {type(entry)}: {entry}')
 
 	special_character_to_glyph_method_dict = {
 		**Expression.special_character_to_glyph_method_dict,
@@ -169,40 +186,19 @@ class ApplyFunction(BinaryOperation):
 
 	@Expression.parenthesize_latex
 	def __str__(self):
-		if hasattr(self.func, 'string_code'):
-			return self.get_string_from_string_code()
-		else:
-			return super().__str__.__wrapped__(self)
+		return self.get_string_from_string_code()
 
 	def get_string_from_string_code(self):
 		string = ''
 		for sc in self.func.string_code:
-			string += self.str_from_string_code_entry(sc)
+			string += get_value_from_code_entry(self, sc, str)
 		return string
-
-	def str_from_string_code_entry(self, entry):
-		if isinstance(entry, str):
-			return entry
-		if isinstance(entry, Variable) and entry.symbol.startswith('child'):
-			func_child_number = int(entry.symbol.split()[-1])
-			return '{' + str(self.func.children[func_child_number]) + '}'
-		if isinstance(entry, Variable) and entry.symbol.startswith('arg'):
-			if entry.symbol == 'arg':
-				return '{' + str(self.arg) + '}'
-			else:
-				arg_child_number = int(entry.symbol.split()[-1])
-				return '{' + str(self.arg.children[arg_child_number]) + '}'
-		if callable(entry):
-			return entry(self.func)
-		else:
-			raise ValueError(f'Invalid glyph code entry of type {type(entry)}: {entry}')
 
 	@Expression.parenthesize_glyph_count
 	def get_glyph_count(self):
 		count = 0
 		for gc in self.func.glyph_code:
-			gc = self.int_from_glyph_code_entry(gc)
-			count += gc
+			count += get_value_from_code_entry(self, gc, int)
 		return count
 
 	def get_glyphs_at_addigit(self, addigit):
@@ -221,21 +217,8 @@ class ApplyFunction(BinaryOperation):
 				end = start + self.arg.glyph_count
 				return list(range(start, end))
 			else:
-				start += self.int_from_glyph_code_entry(gc)
+				start += get_value_from_code_entry(self, gc, int)
 		raise ValueError('arg not found in glyph_code')
-
-	def int_from_glyph_code_entry(self, entry):
-		if isinstance(entry, int):
-			return entry
-		if isinstance(entry, Variable) and entry.symbol.startswith('child'):
-			child_number = int(entry.symbol.split()[-1])
-			return self.func.children[child_number].glyph_count
-		if isinstance(entry, Variable) and entry.symbol == 'arg':
-			return self.arg.glyph_count
-		if callable(entry):
-			return entry(self.func)
-		else:
-			raise ValueError(f'Invalid glyph code entry of type {type(entry)}: {entry}')
 
 	def auto_parentheses(self):
 		from ..combiners.sequences import Sequence

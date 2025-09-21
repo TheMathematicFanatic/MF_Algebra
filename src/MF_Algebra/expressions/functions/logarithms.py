@@ -34,7 +34,7 @@ class Log(Function):
 		return [
 			'\\ln' if self.nicknamed == 'ln' else '\\log',
 			'' if self.nicknamed else '_{',
-			'' if self.nicknamed else child(0),
+			'' if self.nicknamed else child,
 			'' if self.nicknamed else '}',
 			arg
 		]
@@ -43,7 +43,7 @@ class Log(Function):
 	def glyph_code(self):
 		return [
 			2 if self.nicknamed == 'ln' else 3,
-			0 if self.nicknamed else child(0),
+			0 if self.nicknamed else child,
 			arg
 		]
 

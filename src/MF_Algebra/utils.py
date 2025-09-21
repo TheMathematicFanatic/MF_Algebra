@@ -63,38 +63,38 @@ def add_spaces_around_brackets(input_string): #GPT
 
 
 def print_info(expression):
-    def tree_prefix(address):
-        V, T = "│ ", "├─"
-        d = len(address)
-        return (V * (d - 1) + T) if d else ""
+	def tree_prefix(address):
+		V, T = "│ ", "├─"
+		d = len(address)
+		return (V * (d - 1) + T) if d else ""
 
-    def get_all_info(expression, address):
-        def get_info(callable):
-            try:
-                result = callable(expression, address)
-                string = str(result)
-                if len(string) > 20:
-                    string = string[:17] + '...'
-                return string
-            except Exception as e:
-                return e
+	def get_all_info(expression, address):
+		def get_info(callable):
+			try:
+				result = callable(expression, address)
+				string = str(result)
+				if len(string) > 20:
+					string = string[:17] + '...'
+				return string
+			except Exception as e:
+				return e
 
-        return {
-            'type+children': get_info(lambda Exp, ad: f"{tree_prefix(ad)}{type(Exp.get_subex(ad)).__name__}"),
+		return {
+			'type+children': get_info(lambda Exp, ad: f"{tree_prefix(ad)}{type(Exp.get_subex(ad)).__name__}"),
 			'string': get_info(lambda Exp, ad: str(Exp.get_subex(ad))),
-            'address': get_info(lambda Exp, ad: ad),
-            'glyph_count': get_info(lambda Exp, ad: Exp.get_subex(ad).glyph_count),
-            'glyph_indices': get_info(lambda Exp, ad: Exp.get_glyphs_at_address(ad)),
-        }
+			'address': get_info(lambda Exp, ad: ad),
+			'glyph_count': get_info(lambda Exp, ad: Exp.get_subex(ad).glyph_count),
+			'glyph_indices': get_info(lambda Exp, ad: Exp.get_glyphs_at_address(ad)),
+		}
 
-    addresses = expression.get_all_addresses()
-    rows = [get_all_info(expression, address) for address in addresses]
-    table = tabulate(
-        rows,
-        headers='keys',
-        disable_numparse=True  # keep your formatting choices
-    )
-    print(table)
+	addresses = expression.get_all_addresses()
+	rows = [get_all_info(expression, address) for address in addresses]
+	table = tabulate(
+		rows,
+		headers='keys',
+		disable_numparse=True  # keep your formatting choices
+	)
+	print(table)
 
 
 

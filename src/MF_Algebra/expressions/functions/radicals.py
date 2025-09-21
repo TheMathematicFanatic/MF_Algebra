@@ -31,7 +31,7 @@ class Rad(Function):
 		return [
 			lambda self: self.symbol,
 			'' if self.nicknamed else '[',
-			'' if self.nicknamed else child(0),
+			'' if self.nicknamed else child,
 			'' if self.nicknamed else ']',
 			arg
 		]
@@ -39,7 +39,7 @@ class Rad(Function):
 	@property
 	def glyph_code(self):
 		return [
-			0 if self.nicknamed else child(0),
+			0 if self.nicknamed else child,
 			lambda self: self.radical_glyph_count(),
 			arg
 		]
