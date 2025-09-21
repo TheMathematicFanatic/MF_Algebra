@@ -125,12 +125,18 @@ class Function(Expression):
 	def compute(self):
 		raise ValueError('Functions should not be computed directly. It can be computed on its arguments by the ApplyFunction operation.')
 
-	def compute_on_args(self, *args):
+	def compute_on_args(self, *computed_args):
 		if self.python_rule is not None:
-			return self.python_rule(*args)
+			return self.python_rule(*computed_args)
 		else:
 			raise NotImplementedError
 
+	def expand_on_args(self, *arg_expressions):
+		if self.algebra_rule is not None:
+			assert len(self.algebra_rule_variables) == len(arg_expressions), 'Mismatched number of arguments'
+			return self.algebra_rule @ {var: arg for var, arg in zip(self.algebra_rule_variables, arg_expressions)}
+		else:
+			return NotImplemented
 
 
 f = Function('f', 1)
@@ -179,13 +185,13 @@ class ApplyFunction(BinaryOperation):
 			return entry
 		if isinstance(entry, Variable) and entry.symbol.startswith('child'):
 			func_child_number = int(entry.symbol.split()[-1])
-			return str(self.func.children[func_child_number])
+			return '{' + str(self.func.children[func_child_number]) + '}'
 		if isinstance(entry, Variable) and entry.symbol.startswith('arg'):
 			if entry.symbol == 'arg':
-				return str(self.arg)
+				return '{' + str(self.arg) + '}'
 			else:
 				arg_child_number = int(entry.symbol.split()[-1])
-				return str(self.arg.children[arg_child_number])
+				return '{' + str(self.arg.children[arg_child_number]) + '}'
 		if callable(entry):
 			return entry(self.func)
 		else:
@@ -259,6 +265,17 @@ class ApplyFunction(BinaryOperation):
 		# This should always be False because it can no longer be called on something
 		# Maybe not in very bold circumstances, but this will do for now
 		return False
+
+	def expand_on_args(self, **kwargs):
+		if isinstance(self.arg, Sequence):
+			args = [*self.arg.children]
+		else:
+			args = [self.arg]
+		return self.func.expand_on_args(*args, **kwargs)
+
+	def equation_from_args(self, **kwargs):
+		from ..combiners.relations import Equation
+		return Equation(self, self.expand_on_args(**kwargs))
 
 
 

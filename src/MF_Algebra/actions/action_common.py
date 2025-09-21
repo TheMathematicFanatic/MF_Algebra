@@ -194,9 +194,9 @@ class evaluate_(Action):
 
 	@preaddressfunc
 	def get_output_expression(self, input_expression=None):
-		if isinstance(input_expression, Relation):
-			raise ValueError("Not implemented yet")
-		return input_expression.evaluate()
+		if isinstance(input_expression, Operation):
+			return input_expression.evaluate()
+		raise ValueError
 
 	@autoparenmap
 	@preaddressmap

@@ -2,6 +2,9 @@ from .action_core import *
 from ..expressions import *
 from MF_Tools.dual_compatibility import PI, FadeIn, FadeOut, Write, Uncreate
 from .action_common import swap_children_
+from ..expressions.variables import a,b,c
+from ..expressions.functions.radicals import sqrt, cbrt, Rad
+from ..expressions.functions.logarithms import ln, Log
 
 
 class AlgebraicAction(Action):
@@ -58,6 +61,7 @@ class AlgebraicAction(Action):
     def reverse(self):
         # swaps input and output templates
         self.template1, self.template2 = self.template2, self.template1
+        return self
 
 
 class EquationManeuver(AlgebraicAction):

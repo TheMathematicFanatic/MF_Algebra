@@ -36,7 +36,7 @@ class Log(Function):
 			'' if self.nicknamed else '_{',
 			'' if self.nicknamed else child(0),
 			'' if self.nicknamed else '}',
-			'{', arg, '}'
+			arg
 		]
 
 	@property

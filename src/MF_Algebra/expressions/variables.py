@@ -36,6 +36,7 @@ p = Variable('p', 1)
 q = Variable('q', 1)
 r = Variable('r', 1)
 
+s = Variable('s', 1)
 t = Variable('t', 1)
 u = Variable('u', 1)
 v = Variable('v', 1)

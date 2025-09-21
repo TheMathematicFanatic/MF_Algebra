@@ -2,6 +2,7 @@ from .timeline_core import *
 from .timeline_variants import *
 from ..actions.action_common import evaluate_
 
+
 class Evaluate(AutoTimeline):
     def __init__(self, first_expression=None, mode="one at a time", number_mode="float", **kwargs):
         self.mode = mode
@@ -38,6 +39,7 @@ class Solve(AutoTimeline):
         self.solve_for = solve_for
         self.auto_evaluate = auto_evaluate
         self.all_actions_to_try = []
+        from ..actions.algebra import EquationManeuver
         for maneuver_ in EquationManeuver.__subclasses__():
             self.all_actions_to_try += [
                 maneuver_(),

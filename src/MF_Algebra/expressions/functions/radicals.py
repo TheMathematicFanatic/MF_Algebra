@@ -33,7 +33,7 @@ class Rad(Function):
 			'' if self.nicknamed else '[',
 			'' if self.nicknamed else child(0),
 			'' if self.nicknamed else ']',
-			'{', arg, '}'
+			arg
 		]
 
 	@property
@@ -47,6 +47,12 @@ class Rad(Function):
 	def radical_glyph_count(self):
 		if algebra_config['fast_root_length']:
 			return 2
+		else:
+			raise NotImplementedError
+	
+	def expand_on_args(self, arg, mode='rational_exponent'):
+		if mode == 'rational_exponent':
+			return arg ** (1 / self.index)
 		else:
 			raise NotImplementedError
 
