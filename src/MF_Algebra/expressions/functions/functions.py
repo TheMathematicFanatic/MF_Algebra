@@ -169,7 +169,7 @@ class ApplyFunction(BinaryOperation):
 
 	@Expression.parenthesize_latex
 	def __str__(self):
-		if self.func.string_code is not None:
+		if hasattr(self.func, 'string_code'):
 			return self.get_string_from_string_code()
 		else:
 			return super().__str__.__wrapped__(self)
@@ -238,11 +238,10 @@ class ApplyFunction(BinaryOperation):
 			raise ValueError(f'Invalid glyph code entry of type {type(entry)}: {entry}')
 
 	def auto_parentheses(self):
-		from ..combiners.combiners import Combiner
-		from ..combiners.operations import Pow
+		from ..combiners.sequences import Sequence
+		from ..combiners.operations import Add, Sub, Mul
 		# Usually False, true for say (f+g)(x)
-		# Excepting Pow because I want to be able to write f**-1 without parentheses
-		if isinstance(self.func, Combiner) and not isinstance(self.func, Pow):
+		if isinstance(self.func, (Sequence, Add, Sub, Mul, Composition)):
 			self.func.give_parentheses(True)
 		self.func.auto_parentheses()
 
