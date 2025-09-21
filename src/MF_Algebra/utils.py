@@ -8,6 +8,7 @@ from MF_Tools.dual_compatibility import (
 	Scene
 )
 import numpy as np
+from tabulate import tabulate
 
 
 def Smarten(input):
@@ -61,32 +62,41 @@ def add_spaces_around_brackets(input_string): #GPT
 
 
 
+def print_info(expression):
+    def tree_prefix(address):
+        V, T = "│ ", "├─"
+        d = len(address)
+        return (V * (d - 1) + T) if d else ""
 
-def debug_smarttex(scene, smarttex, show_indices=True, show_addresses=True, show_submobjects=True):
-	print("Debugging Expression:")
-	print(smarttex)
-	print("Length: ", len(smarttex))
-	print("Type: ", type(smarttex))
-	print("Number of children: ", len(smarttex.children))
-	if show_indices:
-		for index in range(len(smarttex)):
-			index_text = Text(str(index), color=GREEN).next_to(smarttex, DOWN)
-			scene.add(index_text)
-			scene.play(Indicate(smarttex[0][index], color=GREEN))
-			scene.remove(index_text)
-	if show_addresses:
-		for ad in smarttex.get_all_addresses():
-			ad_text = Text(ad, color=ORANGE).next_to(smarttex, DOWN)
-			subex_type = Text(type(smarttex.get_subex(ad)).__name__, color=ORANGE).next_to(ad_text, DOWN)
-			scene.add(ad_text, subex_type)
-			scene.play(Indicate(smarttex[ad], color=ORANGE))
-			scene.remove(ad_text, subex_type)
-	if show_addresses:
-		for i, subm in enumerate(smarttex.submobjects[0]):
-			subm_number = Text(str(i), color=BLUE).next_to(subm, DOWN)
-			scene.add(subm_number)
-			scene.play(Indicate(subm, color=BLUE))
-			scene.remove(subm_number)
+    def get_all_info(expression, address):
+        def get_info(callable):
+            try:
+                result = callable(expression, address)
+                string = str(result)
+                if len(string) > 20:
+                    string = string[:17] + '...'
+                return string
+            except Exception as e:
+                return e
+
+        return {
+            'type+children': get_info(lambda Exp, ad: f"{tree_prefix(ad)}{type(Exp.get_subex(ad)).__name__}"),
+			'string': get_info(lambda Exp, ad: str(Exp.get_subex(ad))),
+            'address': get_info(lambda Exp, ad: ad),
+            'glyph_count': get_info(lambda Exp, ad: Exp.get_subex(ad).glyph_count),
+            'glyph_indices': get_info(lambda Exp, ad: Exp.get_glyphs_at_address(ad)),
+        }
+
+    addresses = expression.get_all_addresses()
+    rows = [get_all_info(expression, address) for address in addresses]
+    table = tabulate(
+        rows,
+        headers='keys',
+        disable_numparse=True  # keep your formatting choices
+    )
+    print(table)
+
+
 
 
 def match_expressions(template, expression):
