@@ -272,8 +272,5 @@ class Composition(BinaryOperation):
 
 
 
-class _Logarithm(Function):
-	string_code = ['\\log', c0, arg]
-	glyph_code = [3, c0, arg]
 
 

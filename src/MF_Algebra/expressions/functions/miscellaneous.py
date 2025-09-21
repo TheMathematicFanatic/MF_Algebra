@@ -1,8 +1,8 @@
 from .functions import Function, child, arg
 
 
-class AbsoluteValueType(Function):
-	string_code = ['\\left|', arg, '\\right|']
+class AbsoluteValue(Function):
+	string_code = ['\\left|', '{', arg, '}', '\\right|']
 	glyph_code = [1, arg, 1]
 	def __init__(self, **kwargs):
 		super().__init__(
@@ -10,11 +10,11 @@ class AbsoluteValueType(Function):
 			parentheses_mode = 'never',
 			**kwargs
 		)
-abs_value = AbsoluteValueType()
+abs_value = AbsoluteValue()
 
 
-class FactorialType(Function):
-	string_code = [arg, '!']
+class Factorial(Function):
+	string_code = ['{', arg, '}', '!']
 	glyph_code = [arg, 1]
 	def __init__(self, **kwargs):
 		from scipy.special import gamma
@@ -23,6 +23,6 @@ class FactorialType(Function):
 			parentheses_mode = 'strong',
 			**kwargs
 		)
-factorial = FactorialType()
+fact = Factorial()
 
 

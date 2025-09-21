@@ -189,15 +189,15 @@ class alg_pow_R(EquationManeuver):
             **kwargs
         )
         self.addressmap = (
-            ['01', '11', {'path_arc':-PI/3}],
-            [Write, '1f', {'delay':0.5, 'run_time':0.5}],
+            ['01', '100', {'path_arc':-PI/3}],
+            [Write, '10', {'delay':0.5, 'run_time':0.5}],
 		)
     
     def reverse(self):
         super().reverse()
         self.addressmap = (
-            ['11', '01', {'path_arc':PI/3}],
-            ['1f', FadeOut, {'run_time':0.5}]
+            ['100', '01', {'path_arc':PI/3}],
+            ['10', FadeOut, {'run_time':0.5}]
         )
 
 
@@ -210,15 +210,15 @@ class alg_pow_L(EquationManeuver):
             **kwargs
         )
         self.addressmap = (
-            ['00', '11', {'path_arc':PI/3}],
-            [Write, '1f', {'delay':0.5, 'run_time':0.5}],
+            ['00', '100', {'path_arc':PI/3}],
+            [Write, '10', {'delay':0.5, 'run_time':0.5}],
         )
     
     def reverse(self):
         super().reverse()
         self.addressmap = (
-            ['11', '00', {'path_arc':-PI/3}],
-            ['1f', FadeOut, {'run_time':0.5}]
+            ['100', '00', {'path_arc':-PI/3}],
+            ['10', FadeOut, {'run_time':0.5}]
         )
 
 

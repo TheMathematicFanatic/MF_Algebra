@@ -1,6 +1,6 @@
 from ..expression_core import *
 from .functions import Function, child, arg
-from ..numbers.integer import Integer
+from ..numbers.integer import two
 
 
 class Rad(Function):
@@ -11,11 +11,16 @@ class Rad(Function):
 			parentheses_mode = 'never',
 			**kwargs
         )
-		if self.index.is_identical_to(Integer(2)) and allow_nickname:
+
+		if allow_nickname and self.index.is_identical_to(two):
 			self.nicknamed = True
 		else:
 			self.nicknamed = False
-		self.python_rule = lambda x: x**(1/self.index.compute())
+
+		def python_rule(x, self = self):
+			index = self.index.compute()
+			return x**(1/index)
+		self.python_rule = python_rule
 
 	@property
 	def index(self):
@@ -28,9 +33,7 @@ class Rad(Function):
 			'' if self.nicknamed else '[',
 			'' if self.nicknamed else child(0),
 			'' if self.nicknamed else ']',
-			'{',
-			arg,
-			'}'
+			'{', arg, '}'
 		]
 
 	@property
