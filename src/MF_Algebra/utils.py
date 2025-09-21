@@ -32,6 +32,10 @@ def Smarten(input):
 	if isinstance(input, complex):
 		return Complex(input)
 
+	from .expressions.variables import dots
+	if input is ...:
+		return dots
+
 	raise NotImplementedError(f"Unsupported type {type(input)}")
 
 

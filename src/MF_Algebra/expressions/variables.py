@@ -50,6 +50,8 @@ gamma = Variable('\\gamma', 1)
 theta = Variable('\\theta', 1)
 phi = Variable('\\phi', 1)
 
+dots = Variable('\\ldots', 3)
+
 x1 = x.subscript(1)
 x2 = x.subscript(2)
 x3 = x.subscript(3)
