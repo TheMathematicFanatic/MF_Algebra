@@ -1,73 +1,51 @@
 from ..expression_core import *
-from .functions import Function
+from .functions import Function, child, arg
 from ..numbers.integer import Integer
 
 
 class Rad(Function):
 	def __init__(self, index, allow_nickname = True, **kwargs):
 		super().__init__(
+			symbol = '\\sqrt',
+			children = [index],
 			parentheses_mode = 'never',
 			**kwargs
         )
-		index = Smarten(index)
-		self.children.append(index)
-		if index.is_identical_to(Integer(2)) and allow_nickname:
+		if self.index.is_identical_to(Integer(2)) and allow_nickname:
 			self.nicknamed = True
-			self.symbol = '\\sqrt'
 		else:
 			self.nicknamed = False
-			self.symbol = f'\\sqrt[{index}]'
-	
+		self.python_rule = lambda x: x**(1/self.index.compute())
+
 	@property
 	def index(self):
-		return self.children[1]
+		return self.children[0]
 
-	def get_symbol_string(self):
-		if self.nicknamed:
-			return '\\sqrt'
-		return f'\\sqrt[{self.index}]'
+	@property
+	def string_code(self):
+		return [
+			lambda self: self.symbol,
+			'' if self.nicknamed else '[',
+			'' if self.nicknamed else child(0),
+			'' if self.nicknamed else ']',
+			'{',
+			arg,
+			'}'
+		]
 
-	@Expression.parenthesize_glyph_count
-	def get_glyph_count(self):
-		return self.index_glyph_count() + self.radical_glyph_count() + self.arg.glyph_count
-
-	def index_glyph_count(self):
-		if self.nicknamed:
-			return 0
-		else:
-			return self.index.glyph_count
+	@property
+	def glyph_code(self):
+		return [
+			0 if self.nicknamed else child(0),
+			lambda self: self.radical_glyph_count(),
+			arg
+		]
 
 	def radical_glyph_count(self):
 		if algebra_config['fast_root_length']:
 			return 2
 		else:
 			raise NotImplementedError
-
-	def get_glyphs_at_addigit(self, addigit):
-		start = 0
-		start += self.parentheses * self.paren_length()
-		if addigit == 0:
-			start += self.index_glyph_count()
-			start += self.radical_glyph_count()
-			end = start + self.children[0].glyph_count
-			return list(range(start, end))
-		elif addigit == 1:
-			end = start + self.index_glyph_count()
-			return list(range(start, end))
-
-	def get_func_glyphs_with_extras(self):
-		start = 0
-		start += self.parentheses * self.paren_length()
-		end = start + self.index_glyph_count()
-		end += self.radical_glyph_count()
-		return list(range(start, end))
-
-	def get_func_glyphs_without_extras(self):
-		start = 0
-		start += self.parentheses * self.paren_length()
-		start += self.index_glyph_count()
-		end = start + self.radical_glyph_count()
-		return list(range(start, end))
 
 
 sqrt = Rad(2)

@@ -4,21 +4,155 @@ from ..combiners.operations import BinaryOperation
 from ..variables import Variable
 
 
-arg = Variable('arg')
-c0 = Variable('c').subscript(0)
-c1 = Variable('c').subscript(1)
-c2 = Variable('c').subscript(2)
-c3 = Variable('c').subscript(3)
-c4 = Variable('c').subscript(4)
+arg = Variable(f'arg')
+child = lambda n: Variable(f'child {n}')
+c0 = child(0)
+c1 = child(1)
+c2 = child(2)
+c3 = child(3)
+c4 = child(4)
+
+
+# Example glyph and string codes
+
+# Sigma
+string_code = ['\\sum_{', c0, '}^{', c1, '}', arg]
+glyph_code = [c1, 1, c0, arg]
+
+# Nth Root
+string_code = ['\\sqrt[', c0, ']{', arg, '}']
+glyph_code = [c0, 2, arg]
+
+# Default
+string_code = [lambda self: self.symbol, arg]
+glyph_code = [lambda self: self.symbol_glyph_length, arg]
+
+
+
+class Function(Expression):
+	string_code = [lambda self: self.symbol, arg]
+	glyph_code = [lambda self: self.symbol_glyph_length, arg]
+	def __init__(self,
+		symbol = None,
+		symbol_glyph_length = None,
+		python_rule = None,
+		algebra_rule_variables = [],
+		algebra_rule = None,
+		parentheses_mode = "always",
+		children = [],
+		**kwargs
+	):
+		self.symbol = symbol #string
+		self.symbol_glyph_length = symbol_glyph_length #int
+		self.python_rule = python_rule #callable
+		self.algebra_rule_variables = algebra_rule_variables
+		self.algebra_rule = algebra_rule
+		self.parentheses_mode = parentheses_mode
+		super().__init__(children=children, **kwargs)
+
+	@Expression.parenthesize_latex
+	def __str__(self):
+		return self.get_string_from_code()
+
+	def get_string_from_code(self, arg=''):
+		string = ''
+		for sc in self.string_code:
+			if isinstance(sc, Variable) and sc.symbol == 'arg':
+				string += arg
+			else:
+				string += self.str_from_string_code_entry(sc)
+		return string
+
+	def str_from_string_code_entry(self, entry):
+		if isinstance(entry, str):
+			return entry
+		if isinstance(entry, Variable) and entry.symbol.startswith('child'):
+			func_child_number = int(entry.symbol.split()[-1])
+			return str(self.children[func_child_number])
+		try:
+			return entry(self)
+		except:
+			raise ValueError(f'Invalid glyph code entry of type {type(entry)}: {entry}')
+
+	@Expression.parenthesize_glyph_count
+	def get_glyph_count(self): # Needs glyph_code rework
+		return self.symbol_glyph_length
+
+	def get_glyphs_at_addigit(self, addigit):
+		start = 0
+		start += self.parentheses * self.paren_length()
+		for gc in self.glyph_code:
+			if isinstance(gc, Variable) and gc.symbol == 'arg':
+				pass
+			if isinstance(gc, Variable) and gc.is_identical_to(child(addigit)):
+				end = start + self.children[addigit].glyph_count
+				return list(range(start, end))
+			else:
+				start += self.int_from_glyph_code_entry(gc)
+			return []
+
+	def int_from_glyph_code_entry(self, entry):
+		if isinstance(entry, int):
+			return entry
+		if isinstance(entry, Variable) and entry.symbol.startswith('child'):
+			child_number = int(entry.symbol.split()[-1])
+			return self.children[child_number].glyph_count
+		if isinstance(entry, Variable) and entry.symbol == 'arg':
+			raise ValueError('arg should not be processed by the child function')
+		try:
+			return entry(self)
+		except:
+			raise ValueError(f'Invalid glyph code entry of type {type(entry)}: {entry}')
+
+	special_character_to_glyph_method_dict = {
+		**Expression.special_character_to_glyph_method_dict,
+		'f': 'get_main_func_glyphs',
+		'F': 'get_all_func_glyphs',
+	}
+
+	def get_main_func_glyphs(self): # Needs glyph_code rework
+		return list(range(0, self.symbol_glyph_length))
+
+	def get_all_func_glyphs(self): # Needs glyph_code rework
+		return list(range(0, self.symbol_glyph_length))
+
+	def is_function(self):
+		return True
+	
+	def is_identical_to(self, other):
+		return super().is_identical_to(other) and str(self) == str(other)
+
+	def compute(self):
+		raise ValueError('Functions should not be computed directly. It can be computed on its arguments by the ApplyFunction operation.')
+
+	def compute_on_args(self, *args):
+		if self.python_rule is not None:
+			return self.python_rule(*args)
+		else:
+			raise NotImplementedError
+
+
+
+f = Function('f', 1)
+
+g = Function('g', 1)
+
+h = Function('h', 1)
 
 
 class ApplyFunction(BinaryOperation):
 	def __init__(self, *children, **kwargs):
 		assert len(children) == 2
 		assert children[0].is_function()
-		self.eval_op = lambda x,y: x.__call__(x,y) # ???
 		super().__init__('', 0, *children, **kwargs)
-	
+
+	def compute(self):
+		if isinstance(self.arg, Sequence):
+			args = [child.compute() for child in self.arg.children]
+		else:
+			args = [self.arg.compute()]
+		return self.func.compute_on_args(*args)
+
 	@property
 	def func(self):
 		return self.children[0]
@@ -26,18 +160,83 @@ class ApplyFunction(BinaryOperation):
 	@property
 	def arg(self):
 		return self.children[1]
-	
+
 	@Expression.parenthesize_latex
 	def __str__(self):
-		if hasattr(self.func, 'get_string_with_arg'):
-			result = self.func.get_string_with_arg(self.arg)
-			if result is not None:
-				return result
-		return super().__str__.__wrapped__(self)
+		if self.func.string_code is not None:
+			return self.get_string_from_string_code()
+		else:
+			return super().__str__.__wrapped__(self)
+
+	def get_string_from_string_code(self):
+		string = ''
+		for sc in self.func.string_code:
+			string += self.str_from_string_code_entry(sc)
+		return string
+
+	def str_from_string_code_entry(self, entry):
+		if isinstance(entry, str):
+			return entry
+		if isinstance(entry, Variable) and entry.symbol.startswith('child'):
+			func_child_number = int(entry.symbol.split()[-1])
+			return str(self.func.children[func_child_number])
+		if isinstance(entry, Variable) and entry.symbol.startswith('arg'):
+			if entry.symbol == 'arg':
+				return str(self.arg)
+			else:
+				arg_child_number = int(entry.symbol.split()[-1])
+				return str(self.arg.children[arg_child_number])
+		if callable(entry):
+			return entry(self.func)
+		else:
+			raise ValueError(f'Invalid glyph code entry of type {type(entry)}: {entry}')
+
+	@Expression.parenthesize_glyph_count
+	def get_glyph_count(self):
+		count = 0
+		for gc in self.func.glyph_code:
+			gc = self.int_from_glyph_code_entry(gc)
+			count += gc
+		return count
+
+	def get_glyphs_at_addigit(self, addigit):
+		all_glyphs = set(range(0, self.glyph_count))
+		arg_glyphs = set(self.get_arg_glyphs())
+		if addigit == 0:
+			return sorted(list(all_glyphs - arg_glyphs))
+		if addigit == 1:
+			return sorted(list(arg_glyphs))
+
+	def get_arg_glyphs(self):
+		start = 0
+		start += self.parentheses * self.paren_length()
+		for gc in self.func.glyph_code:
+			if isinstance(gc, Variable) and gc.symbol == 'arg':
+				end = start + self.arg.glyph_count
+				return list(range(start, end))
+			else:
+				start += self.int_from_glyph_code_entry(gc)
+		raise ValueError('arg not found in glyph_code')
+
+	def int_from_glyph_code_entry(self, entry):
+		if isinstance(entry, int):
+			return entry
+		if isinstance(entry, Variable) and entry.symbol.startswith('child'):
+			child_number = int(entry.symbol.split()[-1])
+			return self.func.children[child_number].glyph_count
+		if isinstance(entry, Variable) and entry.symbol == 'arg':
+			return self.arg.glyph_count
+		if callable(entry):
+			return entry(self.func)
+		else:
+			raise ValueError(f'Invalid glyph code entry of type {type(entry)}: {entry}')
 
 	def auto_parentheses(self):
 		from ..combiners.combiners import Combiner
-		if isinstance(self.func, Combiner): # Usually False, true for say (f+g)(x)
+		from ..combiners.operations import Pow
+		# Usually False, true for say (f+g)(x)
+		# Excepting Pow because I want to be able to write f**-1 without parentheses
+		if isinstance(self.func, Combiner) and not isinstance(self.func, Pow):
 			self.func.give_parentheses(True)
 		self.func.auto_parentheses()
 
@@ -63,62 +262,12 @@ class ApplyFunction(BinaryOperation):
 
 
 
-class Function(Expression):
-	def __init__(self,
-		symbol = None,
-		symbol_glyph_length = None,
-		python_rule = None,
-		algebra_rule_variables = [],
-		algebra_rule = None,
-		parentheses_mode = "always",
-		children = [],
-		# First child is argument(s) such as a Variable, Number, or Sequence.
-		# Further children are parameters like subscripts, indices, or bounds.
-		# First child needs to have a placeholder if not filled so that indices etc can be added before the main argument.
-		**kwargs
-	):
-		self.symbol = symbol #string
-		self.symbol_glyph_length = symbol_glyph_length #int
-		self.python_rule = python_rule #callable
-		self.algebra_rule_variables = algebra_rule_variables
-		self.algebra_rule = algebra_rule
-		self.parentheses_mode = parentheses_mode
-		super().__init__(children=children, **kwargs)
-	
-	@Expression.parenthesize_glyph_count
-	def get_glyph_count(self):
-		return self.symbol_glyph_length
-
-	@Expression.parenthesize_latex
-	def __str__(self):
-		return self.get_symbol_string()
-
-	def get_string_with_arg(self, arg):
-		return None
-
-	def get_symbol_string(self):
-		return self.symbol
-	
-	special_character_to_glyph_method_dict = {
-		**Expression.special_character_to_glyph_method_dict,
-		'f': 'get_main_func_glyphs',
-		'F': 'get_all_func_glyphs',
-	}
-
-	def get_main_func_glyphs(self):
-		return list(range(0, self.symbol_glyph_length))
-
-	def get_all_func_glyphs(self):
-		return list(range(0, self.symbol_glyph_length))
-
-	def get_glyphs_at_addigit(self, addigit):
-		raise NotImplementedError
-
-	def is_function(self):
-		return True
-	
-	def is_identical_to(self, other):
-		return super().is_identical_to(other) and self.get_symbol_string() == other.get_symbol_string()
+class Composition(BinaryOperation):
+	def __init__(self, *children, **kwargs):
+		assert len(children) == 2
+		assert children[0].is_function() and children[1].is_function()
+		self.eval_op = lambda x,y: Expression.__call__(x,y) # ???
+		super().__init__('\\circ', 1, *children, **kwargs)
 
 
 
@@ -140,141 +289,3 @@ class _Factorial(Function):
 	glyph_code = [arg, 1]
 
 
-class Composition(BinaryOperation):
-	def __init__(self, *children, **kwargs):
-		assert len(children) == 2
-		assert children[0].is_function() and children[1].is_function()
-		self.eval_op = lambda x,y: Expression.__call__(x,y) # ???
-		super().__init__('\\circ', 1, *children, **kwargs)
-
-
-
-
-
-
-
-
-
-
-
-class _OldFunction(Expression):
-	def __init__(self,
-		symbol = None,
-		symbol_glyph_length = None,
-		python_rule = None,
-		algebra_rule_variables = [],
-		algebra_rule = None,
-		parentheses_mode="always",
-		spacing = "",
-		children=[Sequence()],
-		# First child is argument(s) such as a Variable, Number, or Sequence.
-		# Further children are parameters like subscripts, indices, or bounds.
-		# First child needs to have a placeholder if not filled so that indices etc can be added before the main argument.
-		**kwargs
-	):
-		self.parentheses_mode = parentheses_mode
-		self.symbol = symbol #string
-		self.symbol_glyph_length = symbol_glyph_length #int
-		self.python_rule = python_rule #callable
-		self.algebra_rule_variables = algebra_rule_variables
-		self.algebra_rule = algebra_rule
-		self.spacing = spacing
-		super().__init__(children=children, **kwargs)
-
-	@Expression.parenthesize_glyph_count
-	def get_glyph_count(self):
-		count = 0
-		if self.symbol and self.symbol_glyph_length:
-			count += self.symbol_glyph_length
-		count += self.arg.glyph_count
-		return count
-
-	@Expression.parenthesize_latex
-	def __str__(self):
-		symbol_string = self.get_symbol_string()
-		argument_string = str(self.arg)
-		return symbol_string + self.spacing + '{' + argument_string + '}'
-	
-	def get_symbol_string(self):
-		# Overwrite for subclasses with indices, subscripts, etc
-		return self.symbol
-
-	@property
-	def arg(self):
-		return self.children[0]
-
-	special_character_to_glyph_method_dict = {
-		**Expression.special_character_to_glyph_method_dict,
-		'F': 'get_func_glyphs_with_extras',
-		'f': 'get_func_glyphs_without_extras',
-	}
-
-	def get_glyphs_at_addigit(self, addigit:int):
-		# Overwrite for subclasses with indices, subscripts, etc
-		if addigit == 0:
-			start = self.symbol_glyph_length
-			start += self.parentheses * self.paren_length()
-			end = start + self.arg.glyph_count
-			return list(range(start, end))
-		else:
-			raise NotImplementedError(f"This function has no children at index {addigit}")
-	
-	def get_func_glyphs_with_extras(self):
-		return list(range(0, self.symbol_glyph_length))
-	
-	def get_func_glyphs_without_extras(self):
-		return list(range(0, self.symbol_glyph_length))
-	
-	def __call__(self, *inputs):
-		new_func = self.copy()
-		if len(inputs) == 1:
-			new_child = Smarten(inputs[0])
-		elif len(inputs) > 1:
-			new_child = Sequence(*list(map(Smarten, inputs)))
-		new_func.children[0] = new_child
-		new_func.auto_parentheses()
-		new_func._mob = None
-		new_func._glyph_count = None
-		return new_func
-	
-	def auto_parentheses(self):
-		if self.arg.is_identical_to(Sequence()):
-			return self
-		if self.parentheses_mode == 'always' or isinstance(self.arg, Sequence):
-			self.arg.give_parentheses(True)
-			return self
-		from ..combiners.operations import BinaryOperation, Add, Sub
-		from .functions import Function
-		if self.parentheses_mode == 'strong' and isinstance(self.arg, (BinaryOperation, Function)):
-			self.arg.give_parentheses(True)
-		if self.parentheses_mode == 'weak' and isinstance(self.arg, (Add, Sub)):
-			self.arg.give_parentheses(True)
-		if self.parentheses_mode == 'never':
-			self.arg.give_parentheses(False)
-		return self
-	
-	def compute(self):
-		if self.arg.is_identical_to(Sequence()):
-			raise ValueError(f"Function {self.symbol} has no arguments.")
-		if isinstance(self.arg, Sequence):
-			args = self.arg.children
-		else:
-			args = [self.arg]
-		args = [arg.compute() for arg in args]
-		if self.python_rule is not None:
-			return self.python_rule(*args)
-		elif self.algebra_rule is not None:
-			if self.algebra_rule_variables is not None:
-				substituted_expression = self.algebra_rule.substitute({var:val for var, val in zip(self.algebra_rule_variables, args)})
-			elif len(var_set := self.algebra_rule.get_all_variables()) == len(args) == 1:
-				substituted_expression = self.algebra_rule.substitute({list(var_set):args[0]})
-			else:
-				raise ValueError(f"Algebra rule {self.algebra_rule} requires {len(self.algebra_rule_variables)} arguments, but {len(args)} were given.")
-			return substituted_expression.compute()
-
-
-f = Function('f', 1)
-
-g = Function('g', 1)
-
-h = Function('h', 1)
