@@ -573,6 +573,7 @@ class ExpandSumTest(Scene):
 		self.add(eq.mob)
 		self.embed()
 
+
 from MF_Algebra.extra.calculus import *
 class CalculusTest(Scene):
 	def construct(self):
@@ -580,4 +581,17 @@ class CalculusTest(Scene):
 		f = Function('f', 1, algebra_rule_variables=[x], algebra_rule=(x**2-4)/9)
 		A = I(f(x)*dx)
 		self.add(A.mob)
+		self.embed()
+
+
+class DiffQuoTest(Scene):
+	def construct(self):
+		f = Function('f', 1, algebra_rule_variables=[x], algebra_rule=x**2)
+		h = Variable('h', 0)
+		Q = ( f(x+h) - f(x) ) / h
+		L = Limit(h, 0)
+		DQ = L(Q)
+		T = Timeline(auto_color={f:BLUE,x:RED, h:PURPLE})
+		DQ >> T >> substitute_({h:0}, mode='swirl').pread('1')
+
 		self.embed()
