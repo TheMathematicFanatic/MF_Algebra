@@ -33,3 +33,6 @@ def test_create_equation():
 
 def test_create_function():
 	Function('f')
+
+def test_create_apply_function():
+	ApplyFunction(Function('f'), Variable('x'))

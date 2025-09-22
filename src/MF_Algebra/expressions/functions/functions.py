@@ -9,6 +9,7 @@ arg_num = lambda n: Variable(f'arg {n}')
 arg0 = arg_num(0)
 arg1 = arg_num(1)
 arg2 = arg_num(2)
+
 child = Variable('child')
 child_num = lambda n: Variable(f'child {n}')
 c0 = child_num(0)
@@ -19,11 +20,11 @@ c2 = child_num(2)
 # Example glyph and string codes
 
 # Sigma
-string_code = ['\\sum_{', c0, '}^{', c1, '}', arg]
+string_code = ['\\sum_', c0, '^', c1, arg]
 glyph_code = [c1, 1, c0, arg]
 
 # Nth Root
-string_code = ['\\sqrt[', c0, ']{', arg, '}']
+string_code = ['\\sqrt[', c0, ']', arg]
 glyph_code = [c0, 2, arg]
 
 # Default
@@ -119,18 +120,23 @@ class Function(Expression):
 				return list(range(start, end))
 			else:
 				start += get_value_from_code_entry(self, gc, int)
-			return []
+		return []
 
 	special_character_to_glyph_method_dict = {
 		**Expression.special_character_to_glyph_method_dict,
 		'f': 'get_main_func_glyphs',
 		'F': 'get_all_func_glyphs',
+		'c': 'get_all_child_glyphs',
 	}
 
-	def get_main_func_glyphs(self): # Needs glyph_code rework
-		return list(range(0, self.symbol_glyph_length))
+	def get_all_child_glyphs(self):
+		return sorted(sum(self.get_glyphs_at_addigit(addigit) for addigit in range(len(self.children))))
 
-	def get_all_func_glyphs(self): # Needs glyph_code rework
+	def get_main_func_glyphs(self):
+		return sorted(list(set(self.get_all_func_glyphs() - set(self.get_all_child_glyphs()))))
+
+	def get_all_func_glyphs(self): # Needs glyph_code rework...
+		# The trouble is we need the glyph counts for the argument(s) in case there are after them like n!
 		return list(range(0, self.symbol_glyph_length))
 
 	def is_function(self):
@@ -145,8 +151,16 @@ class Function(Expression):
 	def compute_on_args(self, *computed_args):
 		if self.python_rule is not None:
 			return self.python_rule(*computed_args)
+		elif self.algebra_rule and self.algebra_rule_variables:
+			def rule(*args):
+				assert len(args) == len(self.algebra_rule_variables), 'Mismatched number of arguments'
+				substitution = {var: arg for var, arg in zip(self.algebra_rule_variables, args)}
+				result = self.algebra_rule @ substitution
+				return result.compute()
+			self.python_rule = rule
+			return rule(*computed_args)
 		else:
-			raise NotImplementedError
+			raise NotImplementedError('No python_rule or algebra_rule defined for this function')
 
 	def expand_on_args(self, *arg_expressions):
 		if self.algebra_rule is not None:
