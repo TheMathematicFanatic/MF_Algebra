@@ -18,7 +18,7 @@ algebra_config = {
 
 
 class Expression:
-	def __init__(self, children=[], parentheses=False, **kwargs):
+	def __init__(self, *children, parentheses=False, **kwargs):
 		self.children = list(map(Smarten,children))
 		self.parentheses = parentheses
 		if algebra_config["auto_parentheses"]:

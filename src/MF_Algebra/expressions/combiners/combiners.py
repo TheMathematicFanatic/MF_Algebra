@@ -6,8 +6,6 @@ class Combiner(Expression):
 	symbol_glyph_length = None
 	left_spacing = ''
 	right_spacing = ''
-	def __init__(self, *children, **kwargs):
-		super().__init__(children=children, **kwargs)
 
 	@Expression.parenthesize_glyph_count
 	def get_glyph_count(self):

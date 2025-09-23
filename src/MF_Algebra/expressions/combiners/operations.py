@@ -5,6 +5,7 @@ from .combiners import Combiner
 class Operation:
 	eval_op = None
 
+
 class BinaryOperation(Combiner, Operation):
 	def compute(self):
 		result = self.children[0].compute()
@@ -50,7 +51,7 @@ class Mul(BinaryOperation):
 			return 'dot'
 		else:
 			return 'juxtapose'
-	
+
 	@property
 	def symbol(self):
 		mode = self.mode
@@ -154,6 +155,7 @@ class Pow(BinaryOperation):
 
 	def is_negative(self):
 		return False
+
 
 class UnaryOperation(Expression, Operation):
 	symbol = None

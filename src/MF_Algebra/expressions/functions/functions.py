@@ -92,7 +92,7 @@ class Function(Expression):
 		self.algebra_rule_variables = algebra_rule_variables
 		self.algebra_rule = algebra_rule
 		self.parentheses_mode = parentheses_mode
-		super().__init__(children=children, **kwargs)
+		super().__init__(*children, **kwargs)
 
 	@Expression.parenthesize_latex
 	def __str__(self):
