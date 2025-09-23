@@ -124,7 +124,11 @@ class Action:
 		return Smarten(other).__rshift__(self)
 	
 	def __repr__(self):
-		return type(self).__name__ + "(" + self.preaddress + ")"
+		max_length = 50
+		string = type(self).__name__ + "(" + self.preaddress + ")"
+		if len(string) > max_length:
+			string = string[:max_length-3] + '...'
+		return string
 	
 	def copy(self):
 		return deepcopy(self)

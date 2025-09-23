@@ -175,7 +175,7 @@ class Timeline:
             raise ValueError('Timeline can only be combined via >> with a Expression, Action, or another Timeline')
         
     def __repr__(self):
-        return f"Timeline({self.steps})"
+        return f"Timeline({str([[repr(exp), repr(act)] for exp, act in self.steps])})"
 
     def get_vgroup(self, **kwargs):
         return VGroup(*[self.steps[i][0].mob for i in range(len(self.steps))])

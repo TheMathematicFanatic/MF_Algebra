@@ -73,12 +73,12 @@ def print_info(expression, tablefmt='rst'):
 			try:
 				result = callable(expression, address)
 				string = str(result)
-				max_length = 20
-				if len(string) > max_length:
-					string = string[:max_length-4] + ' ...'
-				return string
 			except Exception as e:
-				return e
+				string = str(e)
+			max_length = 20
+			if len(string) > max_length:
+				string = string[:max_length-3] + '...'
+			return string
 
 		return {
 			'Type': get_info(lambda Exp, ad: f"{tree_prefix(ad)}{type(Exp.get_subex(ad)).__name__}"),
@@ -86,6 +86,7 @@ def print_info(expression, tablefmt='rst'):
 			'LaTeX string': get_info(lambda Exp, ad: str(Exp.get_subex(ad))),
 			'glyph_count': get_info(lambda Exp, ad: str(Exp.get_subex(ad).glyph_count)),
 			'glyph_indices': get_info(lambda Exp, ad: Exp.get_glyphs_at_address(ad)),
+			'paren': get_info(lambda Exp, ad: Exp.get_subex(ad).parentheses),
 		}
 
 	addresses = expression.get_all_addresses()

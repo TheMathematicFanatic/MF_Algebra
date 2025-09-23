@@ -10,7 +10,7 @@ pow = b**-3
 A = x**2 + y**2
 B = 10 - A
 func = f(x,y,z)
-a12 = a.subscript(12)
+a12 = Subscript(a, 12)
 
 
 @MFparam('exp, count', [

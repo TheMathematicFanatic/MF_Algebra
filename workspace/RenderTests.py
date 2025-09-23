@@ -587,11 +587,10 @@ class CalculusTest(Scene):
 class DiffQuoTest(Scene):
 	def construct(self):
 		f = Function('f', 1, algebra_rule_variables=[x], algebra_rule=x**2)
-		h = Variable('h', 0)
+		h = Variable('h', 1)
 		Q = ( f(x+h) - f(x) ) / h
 		L = Limit(h, 0)
 		DQ = L(Q)
-		T = Timeline(auto_color={f:BLUE,x:RED, h:PURPLE})
-		DQ >> T >> substitute_({h:0}, mode='swirl').pread('1')
+		DQ.set_color_by_subex({f:BLUE, x:RED, h:PURPLE_B})
 
 		self.embed()

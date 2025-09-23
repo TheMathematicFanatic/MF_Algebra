@@ -328,10 +328,6 @@ class Expression:
 		else:
 			return NotImplemented
 
-	def subscript(self, subscript):
-		from .combiners.subscripts import Subscript
-		return Subscript(self, subscript)
-
 
 	### Parentheses ###
 
@@ -499,7 +495,11 @@ class Expression:
 		return deepcopy(self)
 
 	def __repr__(self):
-		return type(self).__name__ + "(" + self.repr_string() + ")"
+		max_length = 50
+		string = type(self).__name__ + "(" + self.repr_string() + ")"
+		if len(string) > max_length:
+			string = string[:max_length-3] + '...'
+		return string
 	
 	def repr_string(self):
 		return self.__class__.__str__.__wrapped__(self) # Can be overriden in subclasses with an annoying latex string
