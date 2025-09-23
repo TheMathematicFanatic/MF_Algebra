@@ -283,7 +283,7 @@ class ApplyFunction(BinaryOperation):
 class Composition(BinaryOperation):
 	symbol = '\\circ'
 	symbol_glyph_length = 1
-	eval_op = lambda x,y: Expression.__call__(x,y) # ???
+	eval_op = staticmethod(lambda x,y: Expression.__call__(x,y)) # ???
 	def __init__(self, *children, **kwargs):
 		assert len(children) == 2
 		assert children[0].is_function() and children[1].is_function()

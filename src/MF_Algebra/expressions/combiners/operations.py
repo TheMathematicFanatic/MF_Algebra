@@ -1,10 +1,9 @@
 from ..expression_core import *
-from .combiners import *
+from .combiners import Combiner
 
 
 class Operation:
 	eval_op = None
-
 
 class BinaryOperation(Combiner, Operation):
 	def compute(self):
@@ -13,11 +12,10 @@ class BinaryOperation(Combiner, Operation):
 			result = self.eval_op(result, child.compute())
 		return result
 
-
 class Add(BinaryOperation):
 	symbol = '+'
 	symbol_glyph_length = 1
-	eval_op = lambda x,y: x+y
+	eval_op = staticmethod(lambda x, y: x + y)
 
 	def auto_parentheses(self):
 		for child in self.children:
@@ -30,11 +28,11 @@ class Add(BinaryOperation):
 class Sub(BinaryOperation):
 	symbol = '-'
 	symbol_glyph_length = 1
-	eval_op = lambda x,y: x-y
+	eval_op = staticmethod(lambda x, y: x - y)
 
 	def auto_parentheses(self):
-		for i,child in enumerate(self.children):
-			if i>0 and (isinstance(child, (Add, Sub)) or child.is_negative()):
+		for i, child in enumerate(self.children):
+			if i > 0 and (isinstance(child, (Add, Sub)) or child.is_negative()):
 				child.give_parentheses()
 			child.auto_parentheses()
 		return self
@@ -44,11 +42,11 @@ class Sub(BinaryOperation):
 
 class Mul(BinaryOperation):
 	mode = 'auto'
-	eval_op = lambda x,y: x*y
+	eval_op = staticmethod(lambda x, y: x * y)
 	
 	def auto_determine_mode(self):
 		from ..numbers.number import Number
-		if all(isinstance(child, Number) for child in list(map(Smarten,self.children))):
+		if all(isinstance(child, Number) for child in list(map(Smarten, self.children))):
 			return 'dot'
 		else:
 			return 'juxtapose'
@@ -94,7 +92,7 @@ class Mul(BinaryOperation):
 		return self.children[0].is_negative()
 
 class Div(BinaryOperation):
-	eval_op = lambda x,y: x/y
+	eval_op = staticmethod(lambda x, y: x / y)
 	mode = 'fraction'
 
 	@property
@@ -144,7 +142,7 @@ class Div(BinaryOperation):
 class Pow(BinaryOperation):
 	symbol = '^'
 	symbol_glyph_length = 0
-	eval_op = lambda x,y: x**y
+	eval_op = staticmethod(lambda x, y: x ** y)
 
 	def auto_parentheses(self):
 		assert len(self.children) == 2, f'Children: {self.children}' #idc how to auto paren power towers
@@ -156,8 +154,6 @@ class Pow(BinaryOperation):
 
 	def is_negative(self):
 		return False
-
-
 
 class UnaryOperation(Expression, Operation):
 	symbol = None
@@ -194,11 +190,10 @@ class UnaryOperation(Expression, Operation):
 		else:
 			raise NotImplementedError(f"{self} has no children at index {addigit}")
 
-
 class Negative(UnaryOperation):
 	symbol = '-'
 	symbol_glyph_length = 1
-	eval_op = lambda x: -x
+	eval_op = staticmethod(lambda x: -x)
 
 	def auto_parentheses(self):
 		if isinstance(self.children[0], (Add, Sub)) or self.children[0].is_negative():
@@ -208,5 +203,3 @@ class Negative(UnaryOperation):
 
 	def is_negative(self):
 		return True
-
-	

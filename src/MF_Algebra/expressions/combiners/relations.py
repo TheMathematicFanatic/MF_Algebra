@@ -10,24 +10,24 @@ class Relation(Combiner):
 class Equation(Relation):
 	symbol = '='
 	symbol_glyph_length = 1
-	eval_op = lambda x, y: x == y
+	eval_op = staticmethod(lambda x, y: x == y)
 
 class LessThan(Relation):
 	symbol = '<'
 	symbol_glyph_length = 1
-	eval_op = lambda x, y: x < y
+	eval_op = staticmethod(lambda x, y: x < y)
 
 class GreaterThan(Relation):
 	symbol = '>'
 	symbol_glyph_length = 1
-	eval_op = lambda x, y: x > y
+	eval_op = staticmethod(lambda x, y: x > y)
 
 class LessThanOrEqualTo(Relation):
 	symbol = '\\leq'
 	symbol_glyph_length = 1
-	eval_op = lambda x, y: x <= y
+	eval_op = staticmethod(lambda x, y: x <= y)
 
 class GreaterThanOrEqualTo(Relation):
 	symbol = '\\geq'
 	symbol_glyph_length = 1
-	eval_op = lambda x, y: x >= y
+	eval_op = staticmethod(lambda x, y: x >= y)
