@@ -2,12 +2,12 @@ from ..expression_core import *
 
 
 class Combiner(Expression):
-	def __init__(self, symbol, symbol_glyph_length, children, **kwargs):
+	symbol = None
+	symbol_glyph_length = None
+	left_spacing = ''
+	right_spacing = ''
+	def __init__(self, *children, **kwargs):
 		super().__init__(children=children, **kwargs)
-		self.symbol = symbol
-		self.symbol_glyph_length = symbol_glyph_length
-		self.left_spacing = ""
-		self.right_spacing = ""
 
 	@Expression.parenthesize_glyph_count
 	def get_glyph_count(self):
@@ -56,3 +56,26 @@ class Combiner(Expression):
 			turtle += self.symbol_glyph_length
 		return results
 
+
+class Script(Combiner):
+	def auto_parentheses(self):
+		from .operations import Operation
+		for i,child in enumerate(self.children):
+			if i==0 and isinstance(child, (Combiner, Operation)):
+				child.give_parentheses()
+			child.auto_parentheses()
+		return self
+
+	def is_variable(self):
+		from ..variables import Variable
+		# This is horrible we gotta find another way lol
+		self.children[0].is_variable = lambda *args: False
+		return isinstance(self, Variable) or isinstance(self.children[0], Variable)
+
+class Subscript(Script):
+	symbol = '_'
+	symbol_glyph_length = 0
+
+class Superscript(Script):
+	symbol = '^'
+	symbol_glyph_length = 0

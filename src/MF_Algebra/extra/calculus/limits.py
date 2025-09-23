@@ -1,20 +1,11 @@
-from ...expressions.combiners.combiners import Combiner
+from ...expressions.combiners.combiners import Combiner, Superscript
 from ...expressions.functions.functions import Function, c0, arg
 from ...expressions.variables import Variable
 
 
 class Approaches(Combiner):
-	def __init__(self, *children, **kwargs):
-		super().__init__('\\to', 1, children=children, **kwargs)
-
-
-class Superscript(Combiner):
-	def __init__(self, *children, **kwargs):
-		super().__init__('^', 0, children=children, **kwargs)
-
-
-plus_symbol = Variable('+')
-minus_symbol = Variable('-')
+	symbol = '\\to'
+	symbol_glyph_length = 1
 
 
 class Limit(Function):
@@ -24,16 +15,16 @@ class Limit(Function):
 		if direction == 'both':
 			destination = value
 		elif direction == 'left':
-			destination = Superscript(value, minus_symbol)
+			destination = Superscript(value, Variable('-'))
 		elif direction == 'right':
-			destination = Superscript(value, plus_symbol)
+			destination = Superscript(value, Variable('+'))
 		else:
 			raise ValueError(f"Invalid direction: {direction}. Must be both, left, or right.")
 		self.direction = direction
 			
 		super().__init__(
-			children=[Approaches(variable, destination)],
-			parentheses_mode='weak', 
+			children = [Approaches(variable, destination)],
+			parentheses_mode = 'weak', 
 			**kwargs
 		)
 

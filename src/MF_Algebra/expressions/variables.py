@@ -1,4 +1,5 @@
 from .expression_core import *
+from .combiners.combiners import Subscript
 
 
 class Variable(Expression):
@@ -53,13 +54,13 @@ phi = Variable('\\phi', 1)
 
 dots = Variable('\\ldots', 3)
 
-x1 = x.subscript(1)
-x2 = x.subscript(2)
-x3 = x.subscript(3)
-y1 = y.subscript(1)
-y2 = y.subscript(2)
-y3 = y.subscript(3)
-z1 = z.subscript(1)
-z2 = z.subscript(2)
-z3 = z.subscript(3)
+x1 = Subscript(x,1)
+x2 = Subscript(x,2)
+x3 = Subscript(x,3)
+y1 = Subscript(y,1)
+y2 = Subscript(y,2)
+y3 = Subscript(y,3)
+z1 = Subscript(z,1)
+z2 = Subscript(z,2)
+z3 = Subscript(z,3)
 

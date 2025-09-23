@@ -38,8 +38,8 @@ class swap_children_(Action):
 
 
 class apply_operation_(Action):
-	def __init__(self, OpClass, other, preaddress='', side="right", introducer=Write, **kwargs):
-		self.OpClass = OpClass
+	OpClass = None
+	def __init__(self, other, preaddress='', side="right", introducer=Write, **kwargs):
 		self.other = Smarten(other)
 		self.side = side
 		self.introducer = introducer
@@ -72,37 +72,29 @@ class apply_operation_(Action):
 			]
 		else:
 			raise ValueError(f"Invalid side: {self.side}. Must be left or right.")
-	
-	def __repr__(self):
-		return type(self).__name__ + "(" + str(self.other) + ',' + self.preaddress + ")"
 
 class add_(apply_operation_):
-	def __init__(self, other, *args, **kwargs):
-		super().__init__(Add, other, *args, **kwargs)
+	OpClass = Add
 
 class sub_(apply_operation_):
-	def __init__(self, other, *args, **kwargs):
-		super().__init__(Sub, other, *args, **kwargs)
+	OpClass = Sub
 
 class mul_(apply_operation_):
-	def __init__(self, other, *args, **kwargs):
-		super().__init__(Mul, other, *args, **kwargs)
+	OpClass = Mul
 
 class div_(apply_operation_):
-	def __init__(self, other, *args, **kwargs):
-		super().__init__(Div, other, *args, **kwargs)
+	OpClass = Div
 
 class pow_(apply_operation_):
-	def __init__(self, other, *args, **kwargs):
-		super().__init__(Pow, other, *args, **kwargs)
+	OpClass = Pow
 
 class equals_(apply_operation_):
-	def __init__(self, other, *args, **kwargs):
-		super().__init__(Equation, other, *args, **kwargs)
+	OpClass = Equation
 
 class apply_func(apply_operation_):
-	def __init__(self, func, *args, **kwargs):
-		super().__init__(ApplyFunction, func, *args, side='left', **kwargs)
+	OpClass = ApplyFunction
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, side='left', **kwargs)
 
 
 class substitute_(Action):

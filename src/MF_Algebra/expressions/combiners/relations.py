@@ -3,35 +3,31 @@ from .combiners import *
 
 
 class Relation(Combiner):
-	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
-		super().__init__(symbol, symbol_glyph_length, children=children, **kwargs)
-	
 	def compute(self):
-		return all([self.eval_op(self.children[i], self.children[i+1]) for i in range(len(self.children)-1)])
+		return all([self.eval_op(self.children[i].compute(), self.children[i+1].compute()) for i in range(len(self.children)-1)])
 
 
 class Equation(Relation):
-	def __init__(self, *children, **kwargs):
-		self.eval_op = lambda X,Y: X.is_identical_to(Y)
-		super().__init__("=", 1, *children, **kwargs)
+	symbol = '='
+	symbol_glyph_length = 1
+	eval_op = lambda x, y: x == y
 
 class LessThan(Relation):
-	def __init__(self, *children, **kwargs):
-		self.eval_op = lambda X,Y: X < Y
-		super().__init__("<", 1, *children, **kwargs)
+	symbol = '<'
+	symbol_glyph_length = 1
+	eval_op = lambda x, y: x < y
 
 class GreaterThan(Relation):
-	def __init__(self, *children, **kwargs):
-		self.eval_op = lambda X,Y: X > Y
-		super().__init__(">", 1, *children, **kwargs)
+	symbol = '>'
+	symbol_glyph_length = 1
+	eval_op = lambda x, y: x > y
 
 class LessThanOrEqualTo(Relation):
-	def __init__(self, *children, **kwargs):
-		self.eval_op = lambda X,Y: X <= Y
-		super().__init__("\\leq", 1, *children, **kwargs)
+	symbol = '\\leq'
+	symbol_glyph_length = 1
+	eval_op = lambda x, y: x <= y
 
 class GreaterThanOrEqualTo(Relation):
-	def __init__(self, *children, **kwargs):
-		self.eval_op = lambda X,Y: X >= Y
-		super().__init__("\\geq", 1, *children, **kwargs)
-
+	symbol = '\\geq'
+	symbol_glyph_length = 1
+	eval_op = lambda x, y: x >= y

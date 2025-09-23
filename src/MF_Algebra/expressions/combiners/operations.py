@@ -7,9 +7,6 @@ class Operation:
 
 
 class BinaryOperation(Combiner, Operation):
-	def __init__(self, symbol, symbol_glyph_length, *children, **kwargs):
-		super().__init__(symbol, symbol_glyph_length, children=children, **kwargs)
-
 	def compute(self):
 		result = self.children[0].compute()
 		for child in self.children[1:]:
@@ -18,9 +15,9 @@ class BinaryOperation(Combiner, Operation):
 
 
 class Add(BinaryOperation):
-	def __init__(self, *children, **kwargs):
-		self.eval_op = lambda x,y: x+y
-		super().__init__("+", 1, *children, **kwargs)
+	symbol = '+'
+	symbol_glyph_length = 1
+	eval_op = lambda x,y: x+y
 
 	def auto_parentheses(self):
 		for child in self.children:
@@ -31,9 +28,9 @@ class Add(BinaryOperation):
 		return self.children[0].is_negative()
 
 class Sub(BinaryOperation):
-	def __init__(self, *children, **kwargs):
-		self.eval_op = lambda x,y: x-y
-		super().__init__("-", 1, *children, **kwargs)
+	symbol = '-'
+	symbol_glyph_length = 1
+	eval_op = lambda x,y: x-y
 
 	def auto_parentheses(self):
 		for i,child in enumerate(self.children):
@@ -46,23 +43,45 @@ class Sub(BinaryOperation):
 		return self.children[0].is_negative()
 
 class Mul(BinaryOperation):
-	def __init__(self, *children, mode="auto", **kwargs):
+	mode = 'auto'
+	eval_op = lambda x,y: x*y
+	
+	def auto_determine_mode(self):
 		from ..numbers.number import Number
-		self.eval_op = lambda x,y: x*y
-		self.mode = algebra_config["multiplication_mode"] if mode is None else mode
-		if self.mode == "auto":
-			if all(isinstance(child, Number) for child in list(map(Smarten,children))):
-				self.mode = "dot"
-			else:
-				self.mode = "juxtapose"
-		if self.mode == "dot":
-			super().__init__("\\cdot", 1, *children, **kwargs)
-		elif self.mode == "x":
-			super().__init__("\\times", 1, *children, **kwargs)
-		elif self.mode == "juxtapose":
-			super().__init__("", 0, *children, **kwargs)
+		if all(isinstance(child, Number) for child in list(map(Smarten,self.children))):
+			return 'dot'
 		else:
-			raise ValueError(f"Invalid multiplication mode: {self.mode}. Mode must be dot, x, or juxtapose")
+			return 'juxtapose'
+	
+	@property
+	def symbol(self):
+		mode = self.mode
+		if mode == 'auto':
+			mode = self.auto_determine_mode()
+		symbol_dict = {
+			'dot': '\\cdot',
+			'x': '\\times',
+			'juxtapose': ''
+		}
+		if mode in symbol_dict:
+			return symbol_dict[mode]
+		else:
+			raise ValueError(f"Invalid multiplication mode: {mode}. Mode must be among {list(symbol_dict.keys())}")
+
+	@property
+	def symbol_glyph_length(self):
+		mode = self.mode
+		if mode == 'auto':
+			mode = self.auto_determine_mode()
+		glyph_length_dict = {
+			'dot': 1,
+			'x': 1,
+			'juxtapose': 0
+		}
+		if mode in glyph_length_dict:
+			return glyph_length_dict[mode]
+		else:
+			raise ValueError(f"Invalid multiplication mode: {mode}. Mode must be among {list(glyph_length_dict.keys())}")
 
 	def auto_parentheses(self): # should be more intelligent based on mode
 		for child in self.children:
@@ -75,15 +94,32 @@ class Mul(BinaryOperation):
 		return self.children[0].is_negative()
 
 class Div(BinaryOperation):
-	def __init__(self, *children, mode=None, **kwargs):
-		self.eval_op = lambda x,y: x/y
-		self.mode = algebra_config["division_mode"] if mode is None else mode
-		if self.mode == "fraction":
-			super().__init__("\\over", 1, *children, **kwargs)
-		elif self.mode == "inline":
-			super().__init__("\\div", 1, *children, **kwargs)
+	eval_op = lambda x,y: x/y
+	mode = 'fraction'
+
+	@property
+	def symbol(self):
+		mode = self.mode
+		symbol_dict = {
+			'fraction': '\\over',
+			'inline': '\\div',
+		}
+		if mode in symbol_dict:
+			return symbol_dict[mode]
 		else:
-			raise ValueError(f"Invalid division mode: {self.mode}. Mode must be fraction or inline")
+			raise ValueError(f"Invalid division mode: {mode}. Mode must be among {list(symbol_dict.keys())}")
+
+	@property
+	def symbol_glyph_length(self):
+		mode = self.mode
+		glyph_length_dict = {
+			'fraction': 1,
+			'inline': 1,
+		}
+		if mode in glyph_length_dict:
+			return glyph_length_dict[mode]
+		else:
+			raise ValueError(f"Invalid division mode: {mode}. Mode must be among {list(glyph_length_dict.keys())}")
 
 	def auto_parentheses(self):
 		for child in self.children:
@@ -106,9 +142,9 @@ class Div(BinaryOperation):
 			return float(num) / float(den)
 
 class Pow(BinaryOperation):
-	def __init__(self, *children, **kwargs):
-		self.eval_op = lambda x,y: x**y
-		super().__init__("^", 0, *children, **kwargs)
+	symbol = '^'
+	symbol_glyph_length = 0
+	eval_op = lambda x,y: x**y
 
 	def auto_parentheses(self):
 		assert len(self.children) == 2, f'Children: {self.children}' #idc how to auto paren power towers
@@ -124,10 +160,9 @@ class Pow(BinaryOperation):
 
 
 class UnaryOperation(Expression, Operation):
-	def __init__(self, symbol, symbol_glyph_length, **kwargs):
-		super().__init__(symbol=symbol, symbol_glyph_length=symbol_glyph_length, **kwargs)
-		self.symbol = symbol
-		self.symbol_glyph_length = symbol_glyph_length
+	symbol = None
+	symbol_glyph_length = None
+	eval_op = None
 
 	@Expression.parenthesize_glyph_count
 	def get_glyph_count(self):
@@ -161,9 +196,9 @@ class UnaryOperation(Expression, Operation):
 
 
 class Negative(UnaryOperation):
-	def __init__(self, child, **kwargs):
-		super().__init__(symbol='-', symbol_glyph_length=1, children=[child], **kwargs)
-		self.eval_op = lambda x: -x
+	symbol = '-'
+	symbol_glyph_length = 1
+	eval_op = lambda x: -x
 
 	def auto_parentheses(self):
 		if isinstance(self.children[0], (Add, Sub)) or self.children[0].is_negative():

@@ -178,10 +178,12 @@ h = Function('h', 1)
 
 
 class ApplyFunction(BinaryOperation):
+	symbol = ''
+	symbol_glyph_length = 0
 	def __init__(self, *children, **kwargs):
 		assert len(children) == 2
 		assert children[0].is_function()
-		super().__init__('', 0, *children, **kwargs)
+		super().__init__(*children, **kwargs)
 
 	def compute(self):
 		if isinstance(self.arg, Sequence):
@@ -200,7 +202,10 @@ class ApplyFunction(BinaryOperation):
 
 	@Expression.parenthesize_latex
 	def __str__(self):
-		return self.get_string_from_string_code()
+		if hasattr(self.func, 'string_code'):
+			return self.get_string_from_string_code()
+		else:
+			return super().__str__.__wrapped__(self)
 
 	def get_string_from_string_code(self):
 		string = ''
@@ -276,11 +281,13 @@ class ApplyFunction(BinaryOperation):
 
 
 class Composition(BinaryOperation):
+	symbol = '\\circ'
+	symbol_glyph_length = 1
+	eval_op = lambda x,y: Expression.__call__(x,y) # ???
 	def __init__(self, *children, **kwargs):
 		assert len(children) == 2
 		assert children[0].is_function() and children[1].is_function()
-		self.eval_op = lambda x,y: Expression.__call__(x,y) # ???
-		super().__init__('\\circ', 1, *children, **kwargs)
+		super().__init__(*children, **kwargs)
 
 
 
