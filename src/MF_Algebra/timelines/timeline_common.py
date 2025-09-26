@@ -40,7 +40,7 @@ class Solve(AutoTimeline):
 		self.solve_for = solve_for
 		self.auto_evaluate = auto_evaluate
 		self.all_actions_to_try = []
-		from ..actions.algebra import EquationManeuver
+		from ..actions.algebra.algebra_core import EquationManeuver
 		for maneuver_ in EquationManeuver.__subclasses__():
 			self.all_actions_to_try += [
 				maneuver_(),

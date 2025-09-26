@@ -1,8 +1,10 @@
 # actions.py
-from MF_Tools.dual_compatibility import Write, FadeIn, FadeOut
-from ..expressions.expression_core import *
-from ..utils import *
+from ..expressions.expression_core import Expression
 from .animations import TransformByAddressMap
+from MF_Tools.dual_compatibility import Write, FadeIn, FadeOut
+from ..utils import Smarten
+from functools import wraps
+from copy import deepcopy
 
 
 class Action:
@@ -97,7 +99,7 @@ class Action:
 		return self.get_animation(**kwargs)(expr1, expr2)
 
 	def __or__(self, other):
-		from .combinations import ParallelAction
+		from .parallel import ParallelAction
 		if isinstance(other, ParallelAction):
 			return ParallelAction(self, *other.actions)
 		elif isinstance(other, Action):
@@ -149,65 +151,68 @@ class Action:
 			for ad in addresses:
 				action = self.copy().pread(ad)
 				actions.append(action)
-			from .combinations import ParallelAction
+			from .parallel import ParallelAction
 			return ParallelAction(*actions)
 
 	def __leq__(self, expr):
 		assert isinstance(expr, Expression), "Can only apply expression >= action"
 		return self.get_output_expression(expr)
 
-
-def preaddressfunc(func):
-	def wrapper(action, expr, *args, **kwargs):
-		expr = expr.copy()
-		preaddress = kwargs.get('preaddress', '') or action.preaddress
-		if len(preaddress)==0:
-			output_expression = func(action, expr)
-		else:
+	@staticmethod
+	def preaddressfunc(func):
+		@wraps(func)
+		def wrapper(action, expr, *args, **kwargs):
+			expr = expr.copy()
+			preaddress = kwargs.get('preaddress', '') or action.preaddress
 			active_part = expr.get_subex(preaddress)
 			result = func(action, active_part)
 			output_expression = expr.substitute_at_address(result, preaddress)
-		output_expression.reset_parentheses()
-		return output_expression
-	return wrapper
+			output_expression.reset_parentheses()
+			return output_expression
+		return wrapper
 
-def preaddressmap(getmap):
-	def wrapper(action, expr, *args, **kwargs):
-		expr = expr.copy()
-		preaddress = kwargs.get('preaddress', '') or action.preaddress
-		addressmap = getmap(action, expr, *args, **kwargs)
-		if preaddress:
-			for entry in addressmap:
-				for i, ad in enumerate(entry):
-					if isinstance(ad, str):
-						entry[i] = preaddress + ad
-		return addressmap
-	return wrapper
-
-def autoparenmap(getmap, mode='stupid'):
-	if mode=='stupid':
+	@staticmethod
+	def preaddressmap(getmap):
+		@wraps(getmap)
 		def wrapper(action, expr, *args, **kwargs):
-			addressmap = list(getmap(action, expr, *args, **kwargs))
-			in_expr, out_expr = expr, action.get_output_expression(expr)
-			for in_add in in_expr.get_all_addresses():
-				if in_expr.get_subex(in_add).parentheses:
-					addressmap.append([in_add+'()', FadeOut, {'run_time':0.5}])
+			expr = expr.copy()
+			preaddress = kwargs.get('preaddress', '') or action.preaddress
+			addressmap = getmap(action, expr, *args, **kwargs)
+			if preaddress:
 				for entry in addressmap:
-					if entry[0] == in_add:
-						entry[0] = entry[0] + '_'
-			for out_add in out_expr.get_all_addresses():
-				if out_expr.get_subex(out_add).parentheses:
-					addressmap.append([FadeIn, out_add+'()', {'run_time':0.5, 'delay':0.5}])
-				for entry in addressmap:
-					if entry[1] == out_add:
-						entry[1] = entry[1] + '_'
+					for i, ad in enumerate(entry):
+						if isinstance(ad, str):
+							entry[i] = preaddress + ad
 			return addressmap
+		return wrapper
 
-	if mode=='smart':
-		def wrapper(action, expr, *args, **kwargs):
-			addressmap = list(getmap(action, expr, *args, **kwargs))
-			in_expr, out_expr = expr, action.get_output_expression(expr)
-	return wrapper
+	@staticmethod
+	def autoparenmap(getmap, mode='stupid'):
+		if mode=='stupid':
+			@wraps(getmap)
+			def wrapper(action, expr, *args, **kwargs):
+				addressmap = list(getmap(action, expr, *args, **kwargs))
+				in_expr, out_expr = expr, action.get_output_expression(expr)
+				for in_add in in_expr.get_all_addresses():
+					if in_expr.get_subex(in_add).parentheses:
+						addressmap.append([in_add+'()', FadeOut, {'run_time':0.5}])
+					for entry in addressmap:
+						if entry[0] == in_add:
+							entry[0] = entry[0] + '_'
+				for out_add in out_expr.get_all_addresses():
+					if out_expr.get_subex(out_add).parentheses:
+						addressmap.append([FadeIn, out_add+'()', {'run_time':0.5, 'delay':0.5}])
+					for entry in addressmap:
+						if entry[1] == out_add:
+							entry[1] = entry[1] + '_'
+				return addressmap
+
+		if mode=='smart':
+			@wraps(getmap)
+			def wrapper(action, expr, *args, **kwargs):
+				addressmap = list(getmap(action, expr, *args, **kwargs))
+				in_expr, out_expr = expr, action.get_output_expression(expr)
+		return wrapper
 
 
 class IncompatibleExpression(Exception):

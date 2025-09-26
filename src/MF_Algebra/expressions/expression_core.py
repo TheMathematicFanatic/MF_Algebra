@@ -1,5 +1,5 @@
 # expressions.py
-from MF_Tools.dual_compatibility import dc_Tex as Tex, MANIM_TYPE, VGroup
+from MF_Tools.dual_compatibility import dc_Tex, MANIM_TYPE, VGroup
 from ..utils import Smarten, add_spaces_around_brackets
 from copy import deepcopy
 from functools import wraps
@@ -37,7 +37,7 @@ class Expression:
 
 	def init_mob(self, **kwargs):
 		string = add_spaces_around_brackets(str(self))
-		self._mob = Tex(string, **kwargs)
+		self._mob = dc_Tex(string, **kwargs)
 		self.set_color_by_subex(algebra_config["always_color"])
 
 	def __getitem__(self, key):
@@ -65,6 +65,7 @@ class Expression:
 
 
 	### Glyphs ###
+
 	@property
 	def glyph_count(self):
 		# Set this value in subclasses so as not to need to render latex
@@ -304,16 +305,14 @@ class Expression:
 		other = Smarten(other)
 		from ..actions.action_core import Action
 		from ..timelines.timeline_core import Timeline
+		timeline = Timeline()
 		if isinstance(other, Expression):
-			timeline = Timeline()
 			timeline.add_expression_to_end(self).add_expression_to_end(other)
-			return timeline
 		elif isinstance(other, Action):
-			timeline = Timeline()
 			timeline.add_expression_to_end(self).add_action_to_end(other)
-			return timeline
 		else:
 			return NotImplemented
+		return timeline
 
 	def __rrshift__(self, other):
 		return Smarten(other).__rshift__(self)
@@ -325,6 +324,29 @@ class Expression:
 		if self.is_function() and other.is_function():
 			from .functions.functions import Composition
 			return Composition(self, other)
+		else:
+			return NotImplemented
+
+	def __lt__(self, other):
+		from .combiners.relations import LessThan
+		return LessThan(self, other)
+
+	def __le__(self, other):
+		from .combiners.relations import LessThanOrEqualTo
+		return LessThanOrEqualTo(self, other)
+
+	def __gt__(self, other):
+		from .combiners.relations import GreaterThan
+		return GreaterThan(self, other)
+
+	def __ge__(self, other):
+		other = Smarten(other)
+		from ..actions.action_core import Action
+		if isinstance(other, Expression):
+			from .combiners.relations import GreaterThanOrEqualTo
+			return GreaterThanOrEqualTo(self, other)
+		elif isinstance(other, Action):
+			return other.get_output_expression(self)
 		else:
 			return NotImplemented
 

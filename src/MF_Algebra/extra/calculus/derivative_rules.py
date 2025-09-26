@@ -1,4 +1,4 @@
-from ...actions.algebra import AlgebraicAction
+from ...actions.algebra.algebra_core import AlgebraicAction
 from ...expressions.variables import a, b
 from ...expressions.functions import f, g
 from .differentials import d

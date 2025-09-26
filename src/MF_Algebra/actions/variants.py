@@ -1,6 +1,7 @@
-from .action_core import *
-from MF_Tools.dual_compatibility import AnimationGroup
+from .action_core import Action
+from .animations import TransformByAddressMap
 from MF_Tools import TransformByGlyphMap
+from MF_Tools.dual_compatibility import AnimationGroup
 
 
 class AddressMapAction(Action):
