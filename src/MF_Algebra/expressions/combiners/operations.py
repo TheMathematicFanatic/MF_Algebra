@@ -42,7 +42,7 @@ class Sub(BinaryOperation):
 		return self.children[0].is_negative()
 
 class Mul(BinaryOperation):
-	mode = 'auto'
+	mode = 'config'
 	eval_op = staticmethod(lambda x, y: x * y)
 	
 	def auto_determine_mode(self):
@@ -55,6 +55,8 @@ class Mul(BinaryOperation):
 	@property
 	def symbol(self):
 		mode = self.mode
+		if mode == 'config':
+			mode = algebra_config['multiplication_mode']
 		if mode == 'auto':
 			mode = self.auto_determine_mode()
 		symbol_dict = {

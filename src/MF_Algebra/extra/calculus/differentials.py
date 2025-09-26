@@ -8,9 +8,9 @@ class DifferentialOperator(Function):
 
 
 d = DifferentialOperator(
-	symbol = "\\mathrm{d}",
+	symbol = '\\mathrm{d}',
 	symbol_glyph_length = 1,
-	parentheses_mode="weak",
+	parentheses_mode='var only',
 )
 
 dx = d(x)

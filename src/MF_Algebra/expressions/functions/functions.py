@@ -82,7 +82,7 @@ class Function(Expression):
 		python_rule = None,
 		algebra_rule_variables = [],
 		algebra_rule = None,
-		parentheses_mode = "always",
+		parentheses_mode = 'always',
 		children = [],
 		**kwargs
 	):
@@ -255,6 +255,8 @@ class ApplyFunction(BinaryOperation):
 			self.arg.give_parentheses(True)
 		from ..combiners.operations import Add, Sub
 		if parentheses_mode == 'weak' and (isinstance(self.arg, (Add, Sub)) or self.arg.is_negative()):
+			self.arg.give_parentheses(True)
+		if parentheses_mode == 'var only' and not self.arg.is_variable():
 			self.arg.give_parentheses(True)
 		if parentheses_mode == 'never':
 			self.arg.give_parentheses(False)

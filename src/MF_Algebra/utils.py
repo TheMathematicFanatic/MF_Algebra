@@ -87,6 +87,7 @@ def print_info(expression, tablefmt='rst'):
 			'glyph_count': get_info(lambda Exp, ad: str(Exp.get_subex(ad).glyph_count)),
 			'glyph_indices': get_info(lambda Exp, ad: Exp.get_glyphs_at_address(ad)),
 			'paren': get_info(lambda Exp, ad: Exp.get_subex(ad).parentheses),
+			'color': get_info(lambda Exp, ad: getattr(Exp.get_subex(ad), 'color', None))
 		}
 
 	addresses = expression.get_all_addresses()

@@ -594,3 +594,4 @@ class DiffQuoTest(Scene):
 		DQ.set_color_by_subex({f:BLUE, x:RED, h:PURPLE_B})
 
 		self.embed()
+

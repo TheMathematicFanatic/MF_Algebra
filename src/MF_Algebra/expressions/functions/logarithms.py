@@ -7,9 +7,9 @@ import math
 
 class Log(Function):
 	def __init__(self, base, allow_nickname = True, **kwargs):
+		kwargs.setdefault('parentheses_mode', 'strong')
 		super().__init__(
 			children = [base],
-			parentheses_mode = 'strong',
 			**kwargs
         )
 
@@ -33,9 +33,8 @@ class Log(Function):
 	def string_code(self):
 		return [
 			'\\ln' if self.nicknamed == 'ln' else '\\log',
-			'' if self.nicknamed else '_{',
+			'' if self.nicknamed else '_',
 			'' if self.nicknamed else child,
-			'' if self.nicknamed else '}',
 			arg
 		]
 
