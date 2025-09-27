@@ -19,7 +19,7 @@ class Evaluate(AutoTimeline):
 		leaves.sort(key=len, reverse=True)
 		for leaf in leaves:
 			try:
-				from ..actions.action_common import evaluate_
+				from ..actions.evaluation import evaluate_
 				twig = leaf[:-1]
 				action = evaluate_(preaddress=twig)
 				action.get_output_expression(last_exp)

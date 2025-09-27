@@ -66,9 +66,7 @@ class Script(Combiner):
 
 	def is_variable(self):
 		from ..variables import Variable
-		# This is horrible we gotta find another way lol
-		self.children[0].is_variable = lambda *args: False
-		return isinstance(self, Variable) or isinstance(self.children[0], Variable)
+		return isinstance(self.children[0], Variable)
 
 class Subscript(Script):
 	symbol = '_'

@@ -31,47 +31,6 @@ glyph_code = [c0, 2, arg]
 string_code = [lambda self: self.symbol, arg]
 glyph_code = [lambda self: self.symbol_glyph_length, arg]
 
-def get_value_from_code_entry(expression, entry, desired_type):
-	if isinstance(entry, desired_type):
-		return entry
-
-	if isinstance(expression, Function):
-		func = expression
-	elif isinstance(expression, ApplyFunction):
-		func = expression.func
-		arg = expression.arg
-	else:
-		raise ValueError('Function or ApplyFunction expected')
-
-	if isinstance(entry, Variable):
-		if entry.symbol.startswith('child'):
-			if entry.symbol == 'child':
-				target = func.children[0]
-			else:
-				func_child_number = int(entry.symbol.split()[-1])
-				target = func.children[func_child_number]
-		elif entry.symbol.startswith('arg'):
-			if isinstance(expression, Function):
-				return desired_type()
-			if entry.symbol == 'arg':
-				target = arg
-			else:
-				arg_child_number = int(entry.symbol.split()[-1])
-				target = func.children[arg_child_number]
-		else:
-			raise ValueError('Invalid code variable: ' + entry.symbol)
-		if desired_type == int:
-			return target.glyph_count
-		elif desired_type == str:
-			return '{' + str(target) + '}'
-		else:
-			raise ValueError('Invalid desired_type. Must be int or str')
-
-	if callable(entry):
-		return desired_type(entry(func))
-
-	raise ValueError(f'Invalid glyph code entry of type {type(entry)}: {entry}')
-
 
 class Function(Expression):
 	string_code = [lambda self: self.symbol, arg]
@@ -168,13 +127,6 @@ class Function(Expression):
 			return self.algebra_rule @ {var: arg for var, arg in zip(self.algebra_rule_variables, arg_expressions)}
 		else:
 			return NotImplemented
-
-
-f = Function('f', 1)
-
-g = Function('g', 1)
-
-h = Function('h', 1)
 
 
 class ApplyFunction(BinaryOperation):
@@ -281,7 +233,6 @@ class ApplyFunction(BinaryOperation):
 		return Equation(self, self.expand_on_args(**kwargs))
 
 
-
 class Composition(BinaryOperation):
 	symbol = '\\circ'
 	symbol_glyph_length = 1
@@ -292,7 +243,48 @@ class Composition(BinaryOperation):
 		super().__init__(*children, **kwargs)
 
 
+def get_value_from_code_entry(expression, entry, desired_type):
+	if isinstance(entry, desired_type):
+		return entry
+
+	if isinstance(expression, Function):
+		func = expression
+	elif isinstance(expression, ApplyFunction):
+		func = expression.func
+		arg = expression.arg
+	else:
+		raise ValueError('Function or ApplyFunction expected')
+
+	if isinstance(entry, Variable):
+		if entry.symbol.startswith('child'):
+			if entry.symbol == 'child':
+				target = func.children[0]
+			else:
+				func_child_number = int(entry.symbol.split()[-1])
+				target = func.children[func_child_number]
+		elif entry.symbol.startswith('arg'):
+			if isinstance(expression, Function):
+				return desired_type()
+			if entry.symbol == 'arg':
+				target = arg
+			else:
+				arg_child_number = int(entry.symbol.split()[-1])
+				target = func.children[arg_child_number]
+		else:
+			raise ValueError('Invalid code variable: ' + entry.symbol)
+		if desired_type == int:
+			return target.glyph_count
+		elif desired_type == str:
+			return '{' + str(target) + '}'
+		else:
+			raise ValueError('Invalid desired_type. Must be int or str')
+
+	if callable(entry):
+		return desired_type(entry(func))
+
+	raise ValueError(f'Invalid glyph code entry of type {type(entry)}: {entry}')
 
 
-
-
+f = Function('f', 1)
+g = Function('g', 1)
+h = Function('h', 1)
