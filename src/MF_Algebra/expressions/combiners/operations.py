@@ -42,21 +42,14 @@ class Sub(BinaryOperation):
 		return self.children[0].is_negative()
 
 class Mul(BinaryOperation):
-	mode = 'config'
 	eval_op = staticmethod(lambda x, y: x * y)
-	
-	def auto_determine_mode(self):
-		from ..numbers.number import Number
-		if all(isinstance(child, Number) for child in list(map(Smarten, self.children))):
-			return 'dot'
-		else:
-			return 'juxtapose'
+	def __init__(self, *args, mode='config', **kwargs):
+		self.mode = algebra_config['multiplication_mode'] if mode == 'config' else mode
+		super().__init__(*args, **kwargs)
 
 	@property
 	def symbol(self):
 		mode = self.mode
-		if mode == 'config':
-			mode = algebra_config['multiplication_mode']
 		if mode == 'auto':
 			mode = self.auto_determine_mode()
 		symbol_dict = {
@@ -84,6 +77,13 @@ class Mul(BinaryOperation):
 		else:
 			raise ValueError(f"Invalid multiplication mode: {mode}. Mode must be among {list(glyph_length_dict.keys())}")
 
+	def auto_determine_mode(self):
+		from ..numbers.number import Number
+		if all(isinstance(child, Number) for child in list(map(Smarten, self.children))):
+			return 'dot'
+		else:
+			return 'juxtapose'
+
 	def auto_parentheses(self): # should be more intelligent based on mode
 		for child in self.children:
 			if isinstance(child, (Add, Sub)) or child.is_negative():
@@ -96,7 +96,9 @@ class Mul(BinaryOperation):
 
 class Div(BinaryOperation):
 	eval_op = staticmethod(lambda x, y: x / y)
-	mode = 'fraction'
+	def __init__(self, *args, mode='fraction', **kwargs):
+		self.mode = mode
+		super().__init__(*args, **kwargs)
 
 	@property
 	def symbol(self):
