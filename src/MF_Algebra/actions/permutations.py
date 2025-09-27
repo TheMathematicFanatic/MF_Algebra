@@ -31,11 +31,32 @@ class Permutation:
 	def __invert__(self):
 		return Permutation(*[self.inverse_call(n) for n in range(len(self))])
 
+	@classmethod
+	def from_cycles(cls, *cycles):
+		order = []
+		all_values_present = {n for cycle in cycles for n in cycle}
+		max_val = max(all_values_present)
+		for i in range(max_val+1):
+			if i in all_values_present:
+				for cycle in cycles:
+					if i in cycle:
+						index = cycle.index(i)
+						index += 1
+						value = cycle[index % len(cycle)]
+						order.append(value)
+						break
+			else:
+				order.append(i)
+			i += 1
+		return cls(*order)
+
+	def __repr__(self):
+		return 'Permutation' + str(self.order)
 
 
 
 class permute_children_(Action):
-	def __init__(self, permutation=Permutation(1,0), mode='arc', arc_size=0.75*PI, **kwargs):
+	def __init__(self, permutation, mode='arc', arc_size=0.75*PI, **kwargs):
 		self.permutation = permutation
 		self.mode = mode
 		self.arc_size = arc_size
@@ -45,7 +66,7 @@ class permute_children_(Action):
 	def get_output_expression(self, input_expression=None):
 		input_expression.children = [
 			input_expression.children[self.permutation(i)]
-			for i in range(input_expression.children)
+			for i in range(len(input_expression.children))
 		]
 		return input_expression
 
@@ -70,6 +91,7 @@ class permute_children_(Action):
 		if isinstance(input_expression, Combiner):
 			addressmap.append(['+', '+', kwarg_dict])
 
+		return addressmap
 
 
 class swap_children_(permute_children_):

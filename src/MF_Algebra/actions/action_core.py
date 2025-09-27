@@ -4,6 +4,7 @@ from MF_Tools.dual_compatibility import Write, FadeIn, FadeOut
 from ..utils import MF_Base
 from functools import wraps
 
+
 class Action(MF_Base):
 	def __init__(self,
 		introducer=Write,
@@ -14,65 +15,12 @@ class Action(MF_Base):
 		self.remover = remover
 		self.preaddress = preaddress
 
+
+	### Static Expressions ###
+
 	def get_output_expression(self, input_expression):
   		# define in subclasses
 		raise NotImplementedError
-
-	def get_addressmap(self, input_expression, **kwargs):
-		# define in subclasses
-		raise NotImplementedError
-
-	def get_animation(self, **kwargs):
-		def animation(input_exp, output_exp=None):
-			if output_exp is None:
-				output_exp = self.get_output_expression(input_exp)
-			return TransformByAddressMap(
-			input_exp,
-			output_exp,
-			*self.get_addressmap(input_exp),
-			default_introducer=self.introducer,
-			default_remover=self.remover,
-			**kwargs
-			)
-		return animation
-
-	def __call__(self, expr1, expr2=None, **kwargs):
-		return self.get_animation(**kwargs)(expr1, expr2)
-
-	def __or__(self, other):
-		from .parallel import ParallelAction
-		if isinstance(other, ParallelAction):
-			return ParallelAction(self, *other.actions)
-		elif isinstance(other, Action):
-			return ParallelAction(self, other)
-		else:
-			raise ValueError("Can only use | with other ParallelAction or Action")
-
-	def __repr__(self):
-		max_length = 50
-		string = type(self).__name__ + "(" + self.preaddress + ")"
-		if len(string) > max_length:
-			string = string[:max_length-3] + '...'
-		return string
-
-	def both(self, number_of_sides=2):
-		# Intended to turn an action on an expression into an action done to both sides of an equation.
-		# Can be passed a number to apply to more than 2 sides for, say, a triple equation or inequality.
-		return self.pread(*[str(i) for i in range(number_of_sides)])
-
-	def pread(self, *addresses):
-		if len(addresses) == 0:
-			return self
-		elif len(addresses) == 1:
-			self.preaddress = addresses[0] + self.preaddress
-			return self
-		else:
-			from .parallel import ParallelAction
-			return ParallelAction(*[self.copy().pread(ad) for ad in addresses])
-
-	def __le__(self, expr):
-		assert isinstance(expr, Expression), "Can only apply expression >= action"
-		return self.get_output_expression(expr)
 
 	@staticmethod
 	def preaddressfunc(func):
@@ -86,6 +34,17 @@ class Action(MF_Base):
 			output_expression.reset_parentheses()
 			return output_expression
 		return wrapper
+
+	def __le__(self, expr):
+		assert isinstance(expr, Expression), "Can only apply expression >= action"
+		return self.get_output_expression(expr)
+
+
+	### Addressmap ###
+
+	def get_addressmap(self, input_expression, **kwargs):
+		# define in subclasses
+		raise NotImplementedError
 
 	@staticmethod
 	def preaddressmap(getmap):
@@ -129,6 +88,67 @@ class Action(MF_Base):
 				addressmap = list(getmap(action, expr, *args, **kwargs))
 				in_expr, out_expr = expr, action.get_output_expression(expr)
 		return wrapper
+
+
+	### Animating ###
+
+	def get_animation(self, **kwargs):
+		def animation(input_exp, output_exp=None):
+			if output_exp is None:
+				output_exp = self.get_output_expression(input_exp)
+			return TransformByAddressMap(
+				input_exp,
+				output_exp,
+				*self.get_addressmap(input_exp),
+				default_introducer=self.introducer,
+				default_remover=self.remover,
+				**kwargs
+			)
+		return animation
+
+	def __call__(self, expr1, expr2=None, **kwargs):
+		return self.get_animation(**kwargs)(expr1, expr2)
+
+
+	### Modifiers ###
+
+	def both(self, number_of_sides=2):
+		# Intended to turn an action on an expression into an action done to both sides of an equation.
+		# Can be passed a number to apply to more than 2 sides for, say, a triple equation or inequality.
+		return self.pread(*[str(i) for i in range(number_of_sides)])
+
+	def pread(self, *addresses):
+		if len(addresses) == 0:
+			return self
+		elif len(addresses) == 1:
+			self.preaddress = addresses[0] + self.preaddress
+			return self
+		else:
+			from .parallel import ParallelAction
+			return ParallelAction(*[self.copy().pread(ad) for ad in addresses])
+
+
+	### Combinations ###
+
+	def __or__(self, other):
+		from .parallel import ParallelAction
+		if isinstance(other, ParallelAction):
+			return ParallelAction(self, *other.actions)
+		elif isinstance(other, Action):
+			return ParallelAction(self, other)
+		else:
+			raise ValueError("Can only use | with other ParallelAction or Action")
+
+
+	### Utilities ###
+
+	def __repr__(self):
+		max_length = 50
+		string = type(self).__name__ + "(" + self.preaddress + ")"
+		if len(string) > max_length:
+			string = string[:max_length-3] + '...'
+		return string
+
 
 
 class IncompatibleExpression(Exception):

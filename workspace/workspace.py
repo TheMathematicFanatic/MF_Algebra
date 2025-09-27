@@ -583,3 +583,25 @@ class Derivative(Scene):
 
 
 
+
+
+class MapleSyrup(Scene):
+	def construct(self):
+		A = Square().scale(3)
+		B = Text("Hello Maple Syrup!")
+		self.wait()
+		self.play(Write(B), GrowFromCenter(A), run_time=3)
+		self.embed()
+
+
+
+
+class SwapTest(Scene):
+	def construct(self):
+		A = x**2 + y**2
+		S = swap_children_()
+		B = A >= S
+		self.embed()
+
+
+
