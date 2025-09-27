@@ -1,69 +1,10 @@
-# actions.py
 from ..expressions.expression_core import Expression
 from .animations import TransformByAddressMap
 from MF_Tools.dual_compatibility import Write, FadeIn, FadeOut
-from ..utils import Smarten
+from ..utils import MF_Base
 from functools import wraps
-from copy import deepcopy
 
-
-class Action:
-	"""
-		Transforms Expressions into other Expressions,
-		both as static objects and also with an animation.
-
-		An action is defined by two main things:
-		the get_output_expression method, which controls how it acts on static expressions,
-		and the get_addressmap method, which controls how it acts as an animation.
-		Both set attributes of the corresponding name and return them.
-
-		It may also have a preaddress parameter/attribute which will determine the subexpression
-		address at which the action is applied, and a few other attributes which may adjust some
-		specifics.
-
-		self.input_expression is set to None during __init__. It is critical that actions
-		can exist prior to being given expressions, so that they can be combined together.
-		When an input expression is received, this attribute is set, and the method
-		.get_output_expression is called, setting self.output_expression.
-		This is all that is required for static actions, no animations.
-
-		Now, to create the animation between these expressions:
-
-		get_addressmap is also unique to each action, and returns something like
-		[
-			["00", "01"],
-			["01", "00", {"path_arc":PI/2}],
-			[FadeIn, "1"],
-			["1", FadeOut]
-		]
-		which contains all the expression-agnostic information about the animation.
-		Often this will simply define and return this list with no computation.
-
-		get_glyphmap combines the input_expression, output_expression, and addressmap
-		to create a list like
-		[
-			([0,1,2], [5,6]),
-			([3,4,5], [1,2,3], {"path_arc":PI/2}),
-			(FadeIn, [8,9]),
-			([6], FadeOut)
-		]
-		which tells which glyphs of the mobjects to send to which others, and how.
-
-		get_animation then simply parses this glyphmap list to create a list of
-		animations, probably to be passed to AnimationGroup, like
-		[
-			ReplacementTransform(A[0][0,1,2], B[0][5,6]),
-			ReplacementTransform(A[0][3,4,5], B[0][1,2,3], path_arc=PI/2),
-			FadeIn(B[0][8,9]),
-			FadeOut(A[0][6]),
-			...
-		]
-		or something like that, the syntax is partially made up. The ... is
-		ReplacementTransforms of all the individual glyphs not mentioned in the glyphmap,
-		whose lengths have to exactly match.
-
-		Broadly speaking, that's that!
-	"""
+class Action(MF_Base):
 	def __init__(self,
 		introducer=Write,
 		remover=FadeOut,
@@ -94,7 +35,7 @@ class Action:
 			**kwargs
 			)
 		return animation
-	
+
 	def __call__(self, expr1, expr2=None, **kwargs):
 		return self.get_animation(**kwargs)(expr1, expr2)
 
@@ -106,40 +47,19 @@ class Action:
 			return ParallelAction(self, other)
 		else:
 			raise ValueError("Can only use | with other ParallelAction or Action")
-	
-	def __rshift__(self, other):
-		other = Smarten(other)
-		from ..expressions.expression_core import Expression
-		from ..timelines.timeline_core import Timeline
-		if isinstance(other, Expression):
-			timeline = Timeline()
-			timeline.add_action_to_end(self).add_expression_to_end(other)
-			return timeline
-		elif isinstance(other, Action):
-			timeline = Timeline()
-			timeline.add_action_to_end(self).add_action_to_end(other)
-			return timeline
-		else:
-			return NotImplemented
 
-	def __rrshift__(self, other):
-		return Smarten(other).__rshift__(self)
-	
 	def __repr__(self):
 		max_length = 50
 		string = type(self).__name__ + "(" + self.preaddress + ")"
 		if len(string) > max_length:
 			string = string[:max_length-3] + '...'
 		return string
-	
-	def copy(self):
-		return deepcopy(self)
-	
+
 	def both(self, number_of_sides=2):
 		# Intended to turn an action on an expression into an action done to both sides of an equation.
 		# Can be passed a number to apply to more than 2 sides for, say, a triple equation or inequality.
 		return self.pread(*[str(i) for i in range(number_of_sides)])
-	
+
 	def pread(self, *addresses):
 		if len(addresses) == 0:
 			return self
@@ -147,14 +67,10 @@ class Action:
 			self.preaddress = addresses[0] + self.preaddress
 			return self
 		else:
-			actions = []
-			for ad in addresses:
-				action = self.copy().pread(ad)
-				actions.append(action)
 			from .parallel import ParallelAction
-			return ParallelAction(*actions)
+			return ParallelAction(*[self.copy().pread(ad) for ad in addresses])
 
-	def __leq__(self, expr):
+	def __le__(self, expr):
 		assert isinstance(expr, Expression), "Can only apply expression >= action"
 		return self.get_output_expression(expr)
 
@@ -217,14 +133,3 @@ class Action:
 
 class IncompatibleExpression(Exception):
 	pass
-
-
-
-
-
-  
-
-
-
-
- 

@@ -8,14 +8,26 @@ from MF_Tools.dual_compatibility import (
 	Scene
 )
 import numpy as np
+from abc import ABC
+from copy import deepcopy
 from tabulate import tabulate
 
 
+class MF_Base(ABC):
+	def copy(self):
+		return deepcopy(self)
+
+	def __rshift__(self, other):
+		other = Smarten(other)
+		return combine_to_timeline(self, other)
+
+	def __rrshift__(self, other):
+		other = Smarten(other)
+		return other.__rshift__(self)
+
+
 def Smarten(input):
-	from .expressions.expression_core import Expression
-	from .actions.action_core import Action
-	from .timelines.timeline_core import Timeline
-	if isinstance(input, (Expression, Action, Timeline)):
+	if isinstance(input, MF_Base):
 		return input.copy()
 
 	from .expressions.numbers.integer import Integer
@@ -40,6 +52,28 @@ def Smarten(input):
 	raise NotImplementedError(f"Unsupported type {type(input)}")
 
 
+def combine_to_timeline(A, B):
+	from .expressions.expression_core import Expression
+	from .actions.action_core import Action
+	from .timelines.timeline_core import Timeline
+	type_combo_to_timeline_func = {
+		# (TypeofA, TypeofB) : function of A,B which returns the desired Timeline object
+		(Expression, Expression) : lambda A,B: Timeline().add_expression_to_start(A).add_expression_to_end(B),
+		(Expression, Action) : lambda A,B: Timeline().add_expression_to_start(A).add_action_to_end(B),
+		(Action, Expression) : lambda A,B: Timeline().add_action_to_start(A).add_expression_to_end(B),
+		(Action, Action) : lambda A,B: Timeline().add_action_to_start(A).add_action_to_end(B),
+		(Expression, Timeline) : lambda A,B: B.add_expression_to_start(A),
+		(Action, Timeline) : lambda A,B: B.add_action_to_start(A),
+		(Timeline, Expression) : lambda A,B: A.add_expression_to_end(B),
+		(Timeline, Action) : lambda A,B: A.add_action_to_end(B),
+		(Timeline, Timeline) : lambda A,B: A.combine_timelines(B)
+	}
+	for (type1, type2), func in type_combo_to_timeline_func.items():
+		if isinstance(A, type1) and isinstance(B, type2):
+			return func(A, B)
+	raise NotImplementedError(f"Unsupported combination of types {type(A)} and {type(B)}")
+
+
 def add_spaces_around_brackets(input_string): #GPT
 	result = []
 	i = 0
@@ -59,7 +93,6 @@ def add_spaces_around_brackets(input_string): #GPT
 	# Join the list into a single string and remove any extra spaces
 	spaced_string = ''.join(result).split()
 	return ' '.join(spaced_string)
-
 
 
 def print_info(expression, tablefmt='rst'):
@@ -98,8 +131,6 @@ def print_info(expression, tablefmt='rst'):
 		tablefmt=tablefmt
 	)
 	print(table)
-
-
 
 
 def match_expressions(template, expression):
@@ -248,45 +279,3 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 		])
 	return VGroup(Nodes, Edges)
 
-
-"""
-import MF_Algebra as MF
-import sympy as sp
-def expression_to_sympy(expr):
-	expr = Smarten(expr)
-	if isinstance(expr, MF.expressions.numbers.Number):
-		if isinstance(expr, MF.expressions.numbers.Integer):
-			return sp.Integer(expr.n)
-		elif isinstance(expr, MF.expressions.numbers.Real):
-			return sp.Float(expr.n)
-		elif isinstance(expr, MF.expressions.numbers.Rational):
-			return sp.Rational(expr.n, expr.d)
-		else:
-			raise NotImplementedError(f"Unsupported type {type(expr)}")
-	elif isinstance(expr, MF.expressions.variables.Variable):
-		return sp.Symbol(expr.symbol)
-	elif isinstance(expr, MF.expressions.operations.Operation):
-		if isinstance(expr, MF.expressions.operations.Add):
-			return sp.Add(*map(expression_to_sympy, expr.children))
-		elif isinstance(expr, MF.expressions.operations.Sub):
-			return sp.Add(expression_to_sympy(expr.children[0]), -expression_to_sympy(expr.children[1]))
-		elif isinstance(expr, MF.expressions.operations.Mul):
-			return sp.Mul(*map(expression_to_sympy, expr.children))
-		elif isinstance(expr, MF.expressions.operations.Div):
-			return sp.Mul(expression_to_sympy(expr.children[0]), sp.Pow(expression_to_sympy(expr.children[1]), -1))
-		elif isinstance(expr, MF.expressions.operations.Pow):
-			return sp.Pow(expression_to_sympy(expr.children[0]), expression_to_sympy(expr.children[1]))
-		elif isinstance(expr, MF.expressions.operations.Negative):
-			return sp.Mul(-1, expression_to_sympy(expr.children[0]))
-		else:
-			raise NotImplementedError(f"Unsupported type {type(expr)}")
-	elif isinstance(expr, MF.expressions.sequences.Sequence):
-		raise NotImplementedError("Sequences not yet supported")
-	elif isinstance(expr, MF.expressions.functions.Function):
-		raise NotImplementedError("Functions not yet supported")
-	elif isinstance(expr, MF.expressions.relations.Relation):
-		raise NotImplementedError("Relations not yet supported")
-	else:
-		raise NotImplementedError(f"Unsupported type {type(expr)}")
-
-"""

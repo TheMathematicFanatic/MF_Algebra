@@ -1,7 +1,5 @@
-# expressions.py
 from MF_Tools.dual_compatibility import dc_Tex, MANIM_TYPE, VGroup
-from ..utils import Smarten, add_spaces_around_brackets
-from copy import deepcopy
+from ..utils import MF_Base, Smarten, add_spaces_around_brackets
 from functools import wraps
 
 
@@ -17,7 +15,7 @@ algebra_config = {
 }
 
 
-class Expression:
+class Expression(MF_Base):
 	def __init__(self, *children, parentheses=False, **kwargs):
 		self.children = list(map(Smarten,children))
 		self.parentheses = parentheses
@@ -72,7 +70,7 @@ class Expression:
 		if self._glyph_count is None:
 			self.init_glyph_count()
 		return self._glyph_count
-	
+
 	def init_glyph_count(self):
 		if algebra_config['fast_glyph_count']:
 			try:
@@ -84,12 +82,12 @@ class Expression:
 				pass
 		gc = self.get_glyph_count_from_mob()
 		self._glyph_count = gc
-	
+
 	def get_glyph_count(self):
 		# Guesses the number of glyphs in the expression, from a formula for the subclass.
 		# Override in subclasses
 		raise NotImplementedError
-	
+
 	def get_glyph_count_from_mob(self):	
 		if MANIM_TYPE == 'GL':
 			parent = self.mob
@@ -158,7 +156,7 @@ class Expression:
 		end = self.glyph_count
 		start = end - self.paren_length()
 		return list(range(start, end))
-	
+
 	def get_exp_glyphs_without_parentheses(self):
 		start = 0
 		end = self.glyph_count
@@ -183,13 +181,13 @@ class Expression:
 			for child_address in self.children[n].get_all_addresses():
 				addresses.append(str(n)+child_address)
 		return sorted(list(set(addresses)))
-	
+
 	def get_all_nonleaf_addresses(self):
 		return sorted(list(set(a[:-1] for a in self.get_all_addresses() if a != "")))
-	
+
 	def get_all_leaf_addresses(self):
 		return sorted(list(set(self.get_all_addresses()) - set(self.get_all_nonleaf_addresses())))
-	
+
 	def get_all_twig_addresses(self):
 		return sorted(list(set(a[:-1] for a in self.get_all_leaf_addresses() if a != "")))
 
@@ -199,7 +197,7 @@ class Expression:
 			if condition(self.get_subex(address)):
 				result |= {address}
 		return sorted(list(result))
-	
+
 	def get_all_addresses_of_type(self, expression_type):
 		return self.get_all_addresses_with_condition(lambda subex: isinstance(subex, expression_type))
 
@@ -230,13 +228,20 @@ class Expression:
 
 	def get_all_subexpressions_of_type(self, expression_type):
 		return self.get_all_subexpressions_with_condition(lambda subex: isinstance(subex, expression_type))
-	
-	def get_all_variables(self):
-		return self.get_all_subexpressions_with_condition(lambda subex: subex.is_variable())
 
 	def get_all_numbers(self):
 		from .numbers.number import Number
 		return self.get_all_subexpressions_of_type(Number)
+
+	def get_all_variables(self):
+		# Doing it this way so as to catch subscripted variables and not their parent
+		results = set()
+		for child in self.children:
+			if child.is_variable():
+				results |= {child}
+			else:
+				results |= child.get_all_variables()
+		return results
 
 
 	### Operations ###
@@ -288,7 +293,7 @@ class Expression:
 	def __and__(self, other):
 		from .combiners.relations import Equation
 		return Equation(self, other)
-	
+
 	def __rand__(self, other):
 		from .combiners.relations import Equation
 		return Equation(other, self)
@@ -296,36 +301,10 @@ class Expression:
 	def __or__(self, other):
 		from .combiners.relations import Equation
 		return Equation(self, other)
-	
+
 	def __ror__(self, other):
 		from .combiners.relations import Equation
 		return Equation(other, self)
-
-	def __rshift__(self, other):
-		other = Smarten(other)
-		from ..actions.action_core import Action
-		from ..timelines.timeline_core import Timeline
-		timeline = Timeline()
-		if isinstance(other, Expression):
-			timeline.add_expression_to_end(self).add_expression_to_end(other)
-		elif isinstance(other, Action):
-			timeline.add_expression_to_end(self).add_action_to_end(other)
-		else:
-			return NotImplemented
-		return timeline
-
-	def __rrshift__(self, other):
-		return Smarten(other).__rshift__(self)
-
-	def __matmul__(self, other):
-		if isinstance(other, dict):
-			return self.substitute(other)
-		other = Smarten(other)
-		if self.is_function() and other.is_function():
-			from .functions.functions import Composition
-			return Composition(self, other)
-		else:
-			return NotImplemented
 
 	def __lt__(self, other):
 		from .combiners.relations import LessThan
@@ -341,12 +320,19 @@ class Expression:
 
 	def __ge__(self, other):
 		other = Smarten(other)
-		from ..actions.action_core import Action
 		if isinstance(other, Expression):
 			from .combiners.relations import GreaterThanOrEqualTo
 			return GreaterThanOrEqualTo(self, other)
-		elif isinstance(other, Action):
-			return other.get_output_expression(self)
+		else:
+			return NotImplemented
+
+	def __matmul__(self, other):
+		if isinstance(other, dict):
+			return self.substitute(other)
+		other = Smarten(other)
+		if self.is_function() and other.is_function():
+			from .functions.functions import Composition
+			return Composition(self, other)
 		else:
 			return NotImplemented
 
@@ -376,7 +362,7 @@ class Expression:
 		for child in self.children:
 			child.auto_parentheses()
 		return self
-	
+
 	def reset_parentheses(self):
 		self.clear_all_parentheses()
 		self.auto_parentheses()
@@ -392,7 +378,7 @@ class Expression:
 		num_paren_glyphs = yes_paren.glyph_count - no_paren.glyph_count
 		assert num_paren_glyphs > 0 and num_paren_glyphs % 2 == 0
 		return num_paren_glyphs // 2
-	
+
 	@staticmethod
 	def parenthesize_latex(str_func):
 		# To decorate most subclasses' __str__ methods
@@ -510,11 +496,7 @@ class Expression:
 				return subex.color		
 
 
-
 	### Utilities ###
-	
-	def copy(self):
-		return deepcopy(self)
 
 	def __repr__(self):
 		max_length = 50
@@ -522,7 +504,7 @@ class Expression:
 		if len(string) > max_length:
 			string = string[:max_length-3] + '...'
 		return string
-	
+
 	def repr_string(self):
 		return self.__class__.__str__.__wrapped__(self) # Can be overriden in subclasses with an annoying latex string
 
