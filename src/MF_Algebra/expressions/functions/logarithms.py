@@ -8,22 +8,26 @@ import math
 class Log(Function):
 	def __init__(self, base, allow_nickname = True, **kwargs):
 		kwargs.setdefault('parentheses_mode', 'strong')
+		self.allow_nickname = allow_nickname
 		super().__init__(
 			children = [base],
 			**kwargs
         )
 
-		if allow_nickname and self.base.is_identical_to(ten):
+		self.init_caches()
+
+	def init_caches(self):
+		super().init_caches()
+		if self.allow_nickname and self.base.is_identical_to(ten):
 			self.nicknamed = True
-		elif allow_nickname and self.base.is_identical_to(e):
+		elif self.allow_nickname and self.base.is_identical_to(e):
 			self.nicknamed = 'ln'
 		else:
 			self.nicknamed = False
 
-		def python_rule(x):
-			base = self.base.compute()
-			return math.log(x, base)
-		self.python_rule = python_rule
+	def python_rule(self, x):
+		base = self.base.compute()
+		return math.log(x, base)
 
 	@property
 	def base(self):

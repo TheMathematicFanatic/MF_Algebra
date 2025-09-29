@@ -118,6 +118,7 @@ class Action(MF_Base):
 		return self.pread(*[str(i) for i in range(number_of_sides)])
 
 	def pread(self, *addresses):
+		self = self.copy()
 		if len(addresses) == 0:
 			return self
 		elif len(addresses) == 1:
@@ -125,7 +126,7 @@ class Action(MF_Base):
 			return self
 		else:
 			from .parallel import ParallelAction
-			return ParallelAction(*[self.copy().pread(ad) for ad in addresses])
+			return ParallelAction(*[self.pread(ad) for ad in addresses])
 
 
 	### Combinations ###

@@ -42,16 +42,14 @@ class substitute_(Action):
 		if self.mode == "transform":
 			for i,ad in enumerate(target_addresses):
 				addressmap.append([ad, ad, {"delay": self.lag*i}])
-			return addressmap
 		elif self.mode == "swirl":
 			for i,ad in enumerate(target_addresses):
 				addressmap.append([ad, ad, {"path_arc": self.arc_size, "delay": self.lag*i}])
-			return addressmap
 		elif self.mode == "fade":
 			for i,ad in enumerate(target_addresses):
 				addressmap.append([ad, FadeOut, {"shift": self.fade_shift, "delay": self.lag*i}])
 				addressmap.append([FadeIn, ad, {"shift": self.fade_shift, "delay": self.lag*i}])
-			return addressmap
+		return addressmap
 		
 	def __repr__(self):
 		return type(self).__name__ + "(" + str(self.sub_dict) + (',' + self.preaddress if self.preaddress else '') + ")"

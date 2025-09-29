@@ -5,3 +5,4 @@ __description__ = 'Manim plugin which aims to make it much easier to meaningfull
 from .expressions import *
 from .actions import *
 from .timelines import *
+from .utils import print_info

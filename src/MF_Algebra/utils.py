@@ -49,6 +49,15 @@ def Smarten(input):
 	if input is ...:
 		return dots
 
+	from decimal import Decimal
+	if isinstance(input, Decimal):
+		return Smarten(float(input))
+
+	from fractions import Fraction
+	from .expressions.numbers.rational import Rational
+	if isinstance(input, Fraction):
+		return Rational(input.numerator, input.denominator)
+
 	raise NotImplementedError(f"Unsupported type {type(input)}")
 
 

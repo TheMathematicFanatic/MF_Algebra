@@ -5,6 +5,7 @@ from ..numbers.integer import two
 
 class Rad(Function):
 	def __init__(self, index, allow_nickname = True, **kwargs):
+		self.allow_nickname = allow_nickname
 		super().__init__(
 			symbol = '\\sqrt',
 			children = [index],
@@ -12,15 +13,18 @@ class Rad(Function):
 			**kwargs
         )
 
-		if allow_nickname and self.index.is_identical_to(two):
+		self.init_caches()
+
+	def init_caches(self):
+		super().init_caches()
+		if self.allow_nickname and self.index.is_identical_to(two):
 			self.nicknamed = True
 		else:
 			self.nicknamed = False
 
-		def python_rule(x, self = self):
-			index = self.index.compute()
-			return x**(1/index)
-		self.python_rule = python_rule
+	def python_rule(self, x):
+		index = self.index.compute()
+		return x**(1/index)
 
 	@property
 	def index(self):
@@ -50,11 +54,11 @@ class Rad(Function):
 		else:
 			raise NotImplementedError
 	
-	def expand_on_args(self, arg, mode='rational_exponent'):
-		if mode == 'rational_exponent':
-			return arg ** (1 / self.index)
-		else:
-			raise NotImplementedError
+	# def expand_on_args(self, arg, mode='rational_exponent'):
+	# 	if mode == 'rational_exponent':
+	# 		return arg ** (1 / self.index)
+	# 	else:
+	# 		raise NotImplementedError
 
 
 sqrt = Rad(2)

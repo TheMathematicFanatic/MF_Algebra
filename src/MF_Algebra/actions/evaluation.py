@@ -1,4 +1,4 @@
-from .action_core import Action
+from .action_core import Action, IncompatibleExpression
 from ..expressions.combiners.operations import Operation
 
 
@@ -11,7 +11,7 @@ class evaluate_(Action):
 	def get_output_expression(self, input_expression=None):
 		if isinstance(input_expression, Operation):
 			return input_expression.evaluate()
-		raise ValueError
+		raise IncompatibleExpression
 
 	@Action.autoparenmap
 	@Action.preaddressmap

@@ -604,4 +604,39 @@ class SwapTest(Scene):
 		self.embed()
 
 
+class RadGlyphTest(Scene):
+	def construct(self):
+		R = Rad(x)(4*x-f(x))
+		R.get_glyphs_at_address('00')
+		R.set_color_by_subex({x:RED, f:BLUE})
+		self.add(R.mob)
+		self.embed()
+
+
+
+
+
+
+
+
+
+
+
+class SolvingPowerEquations(Scene):
+	def construct(self):
+		A = x**9 + 6**y | 3/(z**2+10)
+		S = Solve(auto_scale=1.8, auto_color={x:RED, y:BLUE, z:GREEN})
+		S = A >> S
+		for v in x,y,z:
+			S.set_solve_for(v)
+			S.play_all(self)
+		self.embed()
+
+
+class EvaluatingFunctions(Scene):
+	def construct(self):
+		E = Evaluate()
+		E = E >> Sum(n,0,5)(Log(n+2)(three**two+four**two))
+		E = E >> E.get_expression(-1).expand_on_args()
+		self.embed()
 

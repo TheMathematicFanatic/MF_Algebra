@@ -10,8 +10,8 @@ arg0 = arg_num(0)
 arg1 = arg_num(1)
 arg2 = arg_num(2)
 
-child = Variable('child')
 child_num = lambda n: Variable(f'child {n}')
+child = child_num(0)
 c0 = child_num(0)
 c1 = child_num(1)
 c2 = child_num(2)
@@ -47,7 +47,8 @@ class Function(Expression):
 	):
 		self.symbol = symbol #string
 		self.symbol_glyph_length = symbol_glyph_length #int
-		self.python_rule = python_rule #callable
+		if python_rule is not None:
+			self.python_rule = python_rule #callable
 		self.algebra_rule_variables = algebra_rule_variables
 		self.algebra_rule = algebra_rule
 		self.parentheses_mode = parentheses_mode
@@ -89,14 +90,17 @@ class Function(Expression):
 	}
 
 	def get_all_child_glyphs(self):
-		return sorted(sum(self.get_glyphs_at_addigit(addigit) for addigit in range(len(self.children))))
+		glyphs = []
+		for addigit in range(len(self.children)):
+			glyphs += self.get_glyphs_at_addigit(addigit)
+		return sorted(glyphs)
 
 	def get_main_func_glyphs(self):
-		return sorted(list(set(self.get_all_func_glyphs() - set(self.get_all_child_glyphs()))))
+		return sorted(list(set(self.get_all_func_glyphs()) - set(self.get_all_child_glyphs())))
 
 	def get_all_func_glyphs(self): # Needs glyph_code rework...
 		# The trouble is we need the glyph counts for the argument(s) in case there are after them like n!
-		return list(range(0, self.symbol_glyph_length))
+		return list(range(0, self.glyph_count))
 
 	def is_function(self):
 		return True
@@ -128,6 +132,12 @@ class Function(Expression):
 		else:
 			return NotImplemented
 
+	def evaluate(self, *arg_expressions):
+		# Override for special values like trig
+		computed_args = [arg.compute() for arg in arg_expressions]
+		computed_value = self.compute_on_args(*computed_args)
+		return Smarten(computed_value)
+
 
 class ApplyFunction(BinaryOperation):
 	symbol = ''
@@ -138,11 +148,8 @@ class ApplyFunction(BinaryOperation):
 		super().__init__(*children, **kwargs)
 
 	def compute(self):
-		if isinstance(self.arg, Sequence):
-			args = [child.compute() for child in self.arg.children]
-		else:
-			args = [self.arg.compute()]
-		return self.func.compute_on_args(*args)
+		computed_args = [arg.compute() for arg in self.args_list]
+		return self.func.compute_on_args(*computed_args)
 
 	@property
 	def func(self):
@@ -151,6 +158,13 @@ class ApplyFunction(BinaryOperation):
 	@property
 	def arg(self):
 		return self.children[1]
+
+	@property
+	def args_list(self):
+		if isinstance(self.arg, Sequence):
+			return [*self.arg.children]
+		else:
+			return [self.arg]
 
 	@Expression.parenthesize_latex
 	def __str__(self):
@@ -221,12 +235,14 @@ class ApplyFunction(BinaryOperation):
 		# Maybe not in very bold circumstances, but this will do for now
 		return False
 
-	def expand_on_args(self, **kwargs):
-		if isinstance(self.arg, Sequence):
-			args = [*self.arg.children]
-		else:
-			args = [self.arg]
-		return self.func.expand_on_args(*args, **kwargs)
+	def expand_on_args(self):
+		return self.func.expand_on_args(*self.args_list)
+
+	def evaluate(self):
+		result = self.expand_on_args()
+		if result is NotImplemented:
+			result = self.func.evaluate(*self.args_list)
+		return result
 
 	def equation_from_args(self, **kwargs):
 		from ..combiners.relations import Equation
@@ -257,11 +273,8 @@ def get_value_from_code_entry(expression, entry, desired_type):
 
 	if isinstance(entry, Variable):
 		if entry.symbol.startswith('child'):
-			if entry.symbol == 'child':
-				target = func.children[0]
-			else:
-				func_child_number = int(entry.symbol.split()[-1])
-				target = func.children[func_child_number]
+			func_child_number = int(entry.symbol.split()[-1])
+			target = func.children[func_child_number]
 		elif entry.symbol.startswith('arg'):
 			if isinstance(expression, Function):
 				return desired_type()
