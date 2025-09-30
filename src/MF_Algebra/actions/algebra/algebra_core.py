@@ -1,19 +1,22 @@
-from ..action_core import Action
-from ...utils import match_expressions
+from ..action_core import Action, IncompatibleExpression
+from ...expressions.variables import Variable
+from ...expressions.functions import Function
+from ...utils import Smarten
 
 
 class AlgebraicAction(Action):
-	def __init__(self, template1, template2, var_kwarg_dict={}, extra_addressmaps=[], **kwargs):
+	def __init__(self, template1, template2, var_condition_dict={}, var_kwarg_dict={}, extra_addressmaps=[], **kwargs):
 		super().__init__(**kwargs)
-		self.template1 = template1
-		self.template2 = template2
+		self.template1 = Smarten(template1)
+		self.template2 = Smarten(template2)
+		self.var_condition_dict = var_condition_dict #{c: lambda exp: isinstance(exp, Number)}
 		self.var_kwarg_dict = var_kwarg_dict #{a:{"path_arc":PI}}
 		self.extra_addressmaps = extra_addressmaps
 		self.addressmap = None
 
 	@Action.preaddressfunc
 	def get_output_expression(self, input_expression=None):
-		var_dict = match_expressions(self.template1, input_expression)
+		var_dict = match_expressions(self.template1, input_expression, self.var_condition_dict)
 		return self.template2.substitute(var_dict)
 
 	@Action.autoparenmap
@@ -61,7 +64,56 @@ class AlgebraicAction(Action):
 
 
 
+def match_expressions(template, expression, condition_dict={}):
+	"""
+		This function will either return a ValueError if the expression
+		simply does not match the structure of the template, such as a missing
+		operand or a plus in place of a times, or if they do match it will return
+		a dictionary of who's who. For example,
+		
+		template:      (a*b)**n
+		expression:    (4*x)**(3+y)
+		return value:  {a:4, b:x, n:3+y}
 
+		template:      n + x**5
+		expression:    12 + x**3
+		return value:  ValueError("Structures do not match at address 11, 5 vs 3")
+		
+		template:      x**n*x**m
+		expression:    2**2*3**3
+		return value:  ValueError("Conflicting matches for x: 2 and 3")
+
+		Obviously this has to be recursive, but gee I am feeling a bit challenged atm...
+		...
+		Ok I think I've done it!
+	"""
+	# Leaf case
+	if not template.children:
+		condition = condition_dict.get(template, lambda exp: True)
+		if not condition(expression):
+			raise IncompatibleExpression(f"The subexpression {expression} is trying to match with {template}, but does not meet its given condition")
+		if isinstance(template, Variable):
+			return {template: expression}
+		if isinstance(template, Function) and expression.is_function():
+			return {template: expression}
+		if template.is_identical_to(expression):
+			return {}
+		raise IncompatibleExpression("Expressions do not match")
+	
+	# Node case
+	var_dict = {}
+	if not isinstance(expression, type(template)):
+		raise IncompatibleExpression("Expressions do not match type")
+	if not len(template.children) == len(expression.children):
+		raise IncompatibleExpression("Expressions do not match children length")
+	for tc,ec in zip(template.children, expression.children):
+		child_dict = match_expressions(tc, ec, condition_dict)
+		matching_keys = child_dict.keys() & var_dict.keys()
+		if any(not child_dict[key].is_identical_to(var_dict[key]) for key in matching_keys):
+			raise IncompatibleExpression("Conflicting matches for " + str(matching_keys))
+		var_dict.update(child_dict)
+
+	return var_dict
 
 
 

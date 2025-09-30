@@ -502,6 +502,9 @@ class Expression(MF_Base):
 
 	### Utilities ###
 
+	def hash_key(self):
+		return (self.__class__, tuple(self.children))
+
 	def __repr__(self):
 		max_length = 50
 		string = type(self).__name__ + "(" + self.repr_string() + ")"

@@ -23,6 +23,9 @@ class Variable(Expression):
 	def compute(self):
 		raise ValueError(f"Expression contains a variable {self.symbol}.")
 
+	def hash_key(self):
+		return (self.__class__, tuple(self.children), self.symbol)
+
 
 
 a = Variable('a', 1)
