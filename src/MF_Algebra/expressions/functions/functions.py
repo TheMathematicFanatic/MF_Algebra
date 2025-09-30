@@ -138,6 +138,9 @@ class Function(Expression):
 		computed_value = self.compute_on_args(*computed_args)
 		return Smarten(computed_value)
 
+	def hash_key(self):
+		return (self.__class__, tuple(self.children), self.symbol)
+
 
 class ApplyFunction(BinaryOperation):
 	symbol = ''

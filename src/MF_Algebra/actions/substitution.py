@@ -29,7 +29,8 @@ class substitute_(Action):
 		if self.maintain_color:
 			for from_subex, to_subex in self.sub_dict.items():
 				color = input_expression.get_color_of_subex(from_subex)
-				result.set_color_by_subex({to_subex: color})
+				addresses = input_expression.get_addresses_of_subex(from_subex)
+				result[*addresses].set_color(color)
 		return result
 
 	@Action.autoparenmap

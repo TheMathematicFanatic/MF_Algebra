@@ -640,3 +640,13 @@ class EvaluatingFunctions(Scene):
 		E = E >> E.get_expression(-1).expand_on_args()
 		self.embed()
 
+
+class MultSymbolTest(Scene):
+	def construct(self):
+		A = 3*x
+		str(A)
+		B = A @ {x:2}
+		str(B)
+		self.embed()
+
+

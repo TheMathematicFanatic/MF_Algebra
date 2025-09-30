@@ -24,9 +24,7 @@ class Evaluate(AutoTimeline):
 				action = evaluate_(preaddress=twig)
 				action.get_output_expression(last_exp)
 				return action
-			except ValueError:
-				# This should mean that a subexpression cannot be computed due to the presence of a variable.
-				# Perhaps we should make a custom Exception class for this so as not to accidentally catch others.
+			except IncompatibleExpression:
 				pass
 		return None
 
@@ -60,7 +58,7 @@ class Solve(AutoTimeline):
 				result = (Evaluate(last_exp)).decide_next_action(0)
 				if result is not None:
 					return result
-			except:
+			except IncompatibleExpression:
 				pass
 
 		if current_address == '1':
@@ -75,7 +73,7 @@ class Solve(AutoTimeline):
 					next_exp = maneuver.get_output_expression(last_exp)
 					new_address = next_exp.get_addresses_of_subex(self.solve_for)[0]
 					successful_outputs.append((maneuver, new_address))
-				except:
+				except IncompatibleExpression:
 					pass
 			
 			if len(successful_outputs) == 0:

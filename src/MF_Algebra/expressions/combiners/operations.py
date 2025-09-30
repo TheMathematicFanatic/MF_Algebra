@@ -39,10 +39,18 @@ class Sub(BinaryOperation):
 class Mul(BinaryOperation):
 	eval_op = staticmethod(lambda x, y: x * y)
 	def __init__(self, *args, mode='config', **kwargs):
+		self._mode = mode
 		super().__init__(*args, **kwargs)
-		self.mode = algebra_config['multiplication_mode'] if mode == 'config' else mode
-		if self.mode == 'auto':
-			self.mode = self.auto_determine_mode()
+
+	@property
+	def mode(self):
+		if self._mode == 'config':
+			mode = algebra_config['multiplication_mode']
+		else:
+			mode = self._mode
+		if mode == 'auto':
+			mode = self.auto_determine_mode()
+		return mode
 
 	@property
 	def symbol(self):
@@ -70,7 +78,7 @@ class Mul(BinaryOperation):
 
 	def auto_determine_mode(self):
 		from ..numbers.number import Number
-		if all(isinstance(child, Number) for child in list(map(Smarten, self.children))):
+		if all(isinstance(child, Number) for child in self.children):
 			return 'dot'
 		else:
 			return 'juxtapose'

@@ -14,10 +14,8 @@ class Log(Function):
 			**kwargs
         )
 
-		self.init_caches()
-
-	def init_caches(self):
-		super().init_caches()
+	def reset_caches(self):
+		super().reset_caches()
 		if self.allow_nickname and self.base.is_identical_to(ten):
 			self.nicknamed = True
 		elif self.allow_nickname and self.base.is_identical_to(e):

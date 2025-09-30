@@ -13,10 +13,8 @@ class Rad(Function):
 			**kwargs
         )
 
-		self.init_caches()
-
-	def init_caches(self):
-		super().init_caches()
+	def reset_caches(self):
+		super().reset_caches()
 		if self.allow_nickname and self.index.is_identical_to(two):
 			self.nicknamed = True
 		else:

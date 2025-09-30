@@ -21,9 +21,9 @@ class Expression(MF_Base):
 		self.parentheses = parentheses
 		if algebra_config["auto_parentheses"]:
 			self.auto_parentheses()
-		self.init_caches()
+		self.reset_caches()
 
-	def init_caches(self):
+	def reset_caches(self):
 		self._mob = None
 		self._glyph_count = None
 
@@ -415,7 +415,7 @@ class Expression(MF_Base):
 		result = self.copy()
 		new_child = result.children[index].substitute_at_address(subex, address[1:])
 		result.children[index] = new_child
-		result.init_caches()
+		result.reset_caches()
 		return result
 
 	def substitute_at_addresses(self, subex, addresses):
