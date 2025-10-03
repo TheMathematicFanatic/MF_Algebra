@@ -32,7 +32,7 @@ class AlgebraicAction(Action):
 			return {var: template.get_addresses_of_subex(var) for var in template.get_all_variables()}
 		self.template1_address_dict = get_var_ad_dict(self.template1)
 		self.template2_address_dict = get_var_ad_dict(self.template2)
-		variables = self.template1_address_dict.keys() | self.template2_address_dict.keys()
+		variables = self.get_all_variables()
 		for var in variables:
 			kwargs = self.var_kwarg_dict.get(var, {})
 			if len(self.template1_address_dict[var]) == 1:
@@ -58,8 +58,12 @@ class AlgebraicAction(Action):
 
 	def reverse(self):
 		# swaps input and output templates
-		self.template1, self.template2 = self.template2, self.template1
-		return self
+		result = self.copy()
+		result.template1, result.template2 = result.template2, result.template1
+		return result
+
+	def get_all_variables(self):
+		return self.template1.get_all_variables() | self.template2.get_all_variables()
 
 
 

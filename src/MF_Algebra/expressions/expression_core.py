@@ -185,15 +185,6 @@ class Expression(MF_Base):
 				addresses.append(str(n)+child_address)
 		return sorted(list(set(addresses)))
 
-	def get_all_nonleaf_addresses(self):
-		return sorted(list(set(a[:-1] for a in self.get_all_addresses() if a != "")))
-
-	def get_all_leaf_addresses(self):
-		return sorted(list(set(self.get_all_addresses()) - set(self.get_all_nonleaf_addresses())))
-
-	def get_all_twig_addresses(self):
-		return sorted(list(set(a[:-1] for a in self.get_all_leaf_addresses() if a != "")))
-
 	def get_all_addresses_with_condition(self, condition):
 		result = set()
 		for address in self.get_all_addresses():
@@ -201,11 +192,25 @@ class Expression(MF_Base):
 				result |= {address}
 		return sorted(list(result))
 
+	def get_all_leaf_addresses(self):
+		return self.get_all_addresses_with_condition(
+			lambda subex: not subex.children
+		)
+
+	def get_all_twig_addresses(self):
+		return self.get_all_addresses_with_condition(
+			lambda subex: subex.children and not any(child.children for child in subex.children)
+		)
+
 	def get_all_addresses_of_type(self, expression_type):
-		return self.get_all_addresses_with_condition(lambda subex: isinstance(subex, expression_type))
+		return self.get_all_addresses_with_condition(
+			lambda subex: isinstance(subex, expression_type)
+		)
 
 	def get_addresses_of_subex(self, target_subex):
-		return self.get_all_addresses_with_condition(lambda subex: subex.is_identical_to(target_subex))
+		return self.get_all_addresses_with_condition(
+			lambda subex: subex.is_identical_to(target_subex)
+		)
 
 
 	### Subexpressions ###

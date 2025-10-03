@@ -650,3 +650,17 @@ class MultSymbolTest(Scene):
 		self.embed()
 
 
+class JadenPEMDAS(Scene):
+	def construct(self):
+		A = Div(Add(-5,1),2,mode='inline')**2-abs_value(-7)
+		E = A >> Evaluate(auto_scale=2)
+		E.get_vgroup().set_color(BLACK)
+		E.play_all(self)
+		self.embed()
+
+
+class MathGuy(Scene):
+	def construct(self):
+		A = x-3 | 1
+		S = Solve(auto_scale=2)
+		self.embed()

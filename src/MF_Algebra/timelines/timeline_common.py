@@ -1,6 +1,7 @@
 from .timeline_core import *
 from .timeline_variants import *
 from ..expressions.variables import Variable
+from ..actions.evaluation import evaluate_
 
 
 class Evaluate(AutoTimeline):
@@ -13,18 +14,13 @@ class Evaluate(AutoTimeline):
 
 	def decide_next_action(self, index: int):
 		last_exp = self.get_expression(index)
-		leaves = last_exp.get_all_leaf_addresses()
-		if leaves == ['']:
-			return None
-		leaves.sort(key=len, reverse=True)
-		for leaf in leaves:
+		twigs = last_exp.get_all_twig_addresses()
+		for twig in twigs:
 			try:
-				from ..actions.evaluation import evaluate_
-				twig = leaf[:-1]
-				action = evaluate_(preaddress=twig)
+				action = evaluate_().pread(twig)
 				action.get_output_expression(last_exp)
 				return action
-			except IncompatibleExpression:
+			except (ValueError, IncompatibleExpression):
 				pass
 		return None
 

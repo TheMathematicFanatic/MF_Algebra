@@ -9,9 +9,10 @@ class evaluate_(Action):
 
 	@Action.preaddressfunc
 	def get_output_expression(self, input_expression=None):
-		if isinstance(input_expression, Operation):
+		try:
 			return input_expression.evaluate()
-		raise IncompatibleExpression
+		except:
+			raise IncompatibleExpression
 
 	@Action.autoparenmap
 	@Action.preaddressmap
