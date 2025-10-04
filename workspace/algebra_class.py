@@ -18,16 +18,16 @@ class CheckIdentity(Scene):
 	def restart(self, identity: AlgebraicAction):
 		self.clear()
 		self.identity = identity
-		self.timeline = self.identity.template1 >> Timeline()
-		self.timeline.play_all(self)
+		self.timeline = self.identity.template1 >> Timeline(auto_scale=2)
 		for _ in range(1):
 			self.timeline >>= self.identity
 			self.timeline >>= self.identity.reverse()
 		self.timeline >>= equals_(self.identity.template2)
+		self.timeline.get_vgroup().move_to(UP)
 		self.timeline.play_all(self)
 
 	def check_values(self, var_dict=None):
-		evaluate = Evaluate(self.timeline.get_expression(-1).copy())
+		evaluate = Evaluate(self.timeline.get_expression(-1).copy().reset_caches(), auto_scale=2)
 		if var_dict is None:
 			var_dict = {var: random.randint(0,9) for var in self.identity.get_all_variables()}
 		evaluate >>= substitute_(var_dict, lag=0.2, mode='swirl', maintain_color=True)

@@ -26,6 +26,7 @@ class Expression(MF_Base):
 	def reset_caches(self):
 		self._mob = None
 		self._glyph_count = None
+		return self
 
 
 	### Mobject ###

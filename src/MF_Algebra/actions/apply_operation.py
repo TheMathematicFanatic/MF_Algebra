@@ -42,6 +42,9 @@ class apply_operation_(Action):
 		else:
 			raise ValueError(f'Invalid side: {self.side}. Must be left or right.')
 
+	def __repr__(self):
+		return type(self).__name__ + '(\'' + str(self.preaddress) + '\', ' + str(self.other) + ')'
+
 
 class add_(apply_operation_):
 	OpClass = Add

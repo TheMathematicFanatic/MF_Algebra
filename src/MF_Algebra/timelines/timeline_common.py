@@ -2,6 +2,7 @@ from .timeline_core import *
 from .timeline_variants import *
 from ..expressions.variables import Variable
 from ..actions.evaluation import evaluate_
+from ..expressions.combiners.relations import Relation
 
 
 class Evaluate(AutoTimeline):
@@ -14,14 +15,15 @@ class Evaluate(AutoTimeline):
 
 	def decide_next_action(self, index: int):
 		last_exp = self.get_expression(index)
-		twigs = last_exp.get_all_twig_addresses()
-		for twig in twigs:
-			try:
-				action = evaluate_().pread(twig)
-				action.get_output_expression(last_exp)
-				return action
-			except (ValueError, IncompatibleExpression):
-				pass
+		twig_ads = last_exp.get_all_twig_addresses()
+		for twig_ad in twig_ads:
+			if not isinstance(last_exp.get_subex(twig_ad), Relation):
+				try:
+					action = evaluate_().pread(twig_ad)
+					action.get_output_expression(last_exp)
+					return action
+				except (ValueError, IncompatibleExpression):
+					pass
 		return None
 
 

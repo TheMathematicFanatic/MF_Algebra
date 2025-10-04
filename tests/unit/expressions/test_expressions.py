@@ -191,13 +191,15 @@ def test_get_all_addresses(exp, addresses):
 
 	('add', add, ['']),
 
-	('compound', A, ['', '0', '1']),
+	('compound', A, ['0', '1']),
 
-	('function', func, ['', '1'])
+	('compound2', B, ['10', '11']),
+
+	('function', func, ['1'])
 
 ])
-def test_get_all_nonleaf_addresses(exp, addresses):
-	assert exp.get_all_nonleaf_addresses() == addresses
+def test_get_all_twig_addresses(exp, addresses):
+	assert exp.get_all_twig_addresses() == addresses
 
 
 
