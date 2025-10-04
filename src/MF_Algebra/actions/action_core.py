@@ -1,6 +1,6 @@
 from ..expressions.expression_core import Expression
 from .animations import TransformByAddressMap
-from MF_Tools.dual_compatibility import Write, FadeIn, FadeOut
+from MF_Tools.dual_compatibility import Write, FadeIn, FadeOut, TransformMatchingTex
 from ..utils import MF_Base
 from functools import wraps
 
@@ -96,7 +96,7 @@ class Action(MF_Base):
 		def animation(input_exp, output_exp=None):
 			if output_exp is None:
 				output_exp = self.get_output_expression(input_exp)
-			return TransformByAddressMap(
+			TBAM = TransformByAddressMap(
 				input_exp,
 				output_exp,
 				*self.get_addressmap(input_exp),
@@ -104,6 +104,14 @@ class Action(MF_Base):
 				default_remover=self.remover,
 				**kwargs
 			)
+			if not TBAM.show_indices:
+				return TBAM
+			else:
+				print('Warning: Action produced an invalid glyphmap. Falling back to TransformMatchingTex')
+				print('Action: ', self)
+				print('Input: ', input_exp)
+				print('Output: ', output_exp)
+				return TransformMatchingTex(input_exp.mob, output_exp.mob, **kwargs)
 		return animation
 
 	def __call__(self, expr1, expr2=None, **kwargs):
