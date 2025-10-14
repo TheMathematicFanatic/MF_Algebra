@@ -64,7 +64,7 @@ class pow_(apply_operation_):
 class equals_(apply_operation_):
 	OpClass = Equation
 
-class apply_func(apply_operation_):
+class apply_func_(apply_operation_):
 	OpClass = ApplyFunction
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, side='left', **kwargs)
