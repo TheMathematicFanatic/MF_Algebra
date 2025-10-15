@@ -29,7 +29,7 @@ class Evaluate(AutoTimeline):
 
 
 class Solve(AutoTimeline):
-	def __init__(self, solve_for=Variable('x'), first_expression=None, preferred_side=None, auto_evaluate=True, **kwargs):
+	def __init__(self, solve_for=None, first_expression=None, preferred_side=None, auto_evaluate=True, **kwargs):
 		super().__init__(**kwargs)
 		if first_expression is not None:
 			self.add_expression_to_start(first_expression)
@@ -47,6 +47,8 @@ class Solve(AutoTimeline):
 	
 	def decide_next_action(self, index:int):
 		last_exp = self.get_expression(index)
+		if self.solve_for is None:
+			self.solve_for = last_exp.get_all_variables().pop()
 		current_addresses = last_exp.get_addresses_of_subex(self.solve_for)
 		assert len(current_addresses)==1, f"I don't know what to do if variable appears {len(current_addresses)} times"
 		current_address = current_addresses[0]

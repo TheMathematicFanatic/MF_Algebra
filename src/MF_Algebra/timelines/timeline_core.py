@@ -128,10 +128,9 @@ class Timeline(MF_Base):
 			self.current_exp_index = 0
 		if self.mob not in scene.mobjects:
 			scene.play(Write(self.mob))
-			scene.wait(wait_between)
 		while self.current_exp_index < len(self.steps)-1:
 			self.play_next(scene=scene)
-			scene.wait(wait_between)
+			scene.wait(wait_between if self.current_exp_index < len(self.steps)-1 else 0)
 
 	def shift_past_steps(self, scene, expA, expB):
 		mobA_radius = expA.mob.get_critical_point(self.past_steps_direction) - expA.mob.get_center()
@@ -155,4 +154,26 @@ class Timeline(MF_Base):
 
 	@property
 	def mob(self):
-		return self.steps[self.current_exp_index][0].mob
+		return self.exp.mob
+
+	@property
+	def exp(self):
+		return self.expressions[self.current_exp_index]
+
+	@property
+	def expressions(self):
+		return [exp for exp,act in self.steps]
+
+	@property
+	def actions(self):
+		return [act for exp,act in self.steps]
+
+	def reset(self):
+		self.current_exp_index = 0
+
+	def undo_last_action(self):
+		if self.actions[-1] is not None:
+			self.steps[-1] = [self.steps[-1][0], None]
+		else:
+			self.steps.pop()
+			self.undo_last_action()

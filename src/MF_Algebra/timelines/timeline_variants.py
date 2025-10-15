@@ -32,8 +32,9 @@ class AutoTimeline(Timeline):
 class CombinedRuleTimeline(AutoTimeline):
     def __init__(self, *timelines, **kwargs):
         self.constituents = [timeline if isinstance(timeline, type) else timeline.__class__ for timeline in timelines]
-        for timeline in self.constituents:
-            timeline.__init__(self, **kwargs)
+        # for timeline in self.constituents:
+        #     timeline.__init__(self, **kwargs)
+        super().__init__(**kwargs)
     
     def decide_next_action(self, index: int) -> Action:
         for timeline in self.constituents:
