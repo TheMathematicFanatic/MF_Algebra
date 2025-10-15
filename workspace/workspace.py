@@ -664,3 +664,68 @@ class MathGuy(Scene):
 		A = x-3 | 1
 		S = Solve(auto_scale=2)
 		self.embed()
+
+
+class Simplifying(Scene):
+	def construct(self):
+		A = x**2 + y**2
+		T = Timeline()
+		T >>= A
+		self.add(T.mob)
+		aL = add_zero_L().pread('10')
+		aLr = add_zero_L().pread('10').reverse()
+		T >>= aLr
+		T >>= aL
+		self.embed()
+
+
+
+class Culmination(Scene):
+	def construct(self):
+		S = Solve(auto_scale=2)
+		S >>= x+4 | 10
+		S >> add_(5).both()
+		S >> div_(2).both()
+		S >> pow_(2).both()
+		S >> substitute_into_(1/(1-x)).both()
+		S.play_all(self)
+		self.embed()
+
+
+class Culmination2(Scene):
+	def construct(self):
+		question1 = 'What is your name?'
+		Question1 = TexText(question1)
+		self.play(Write(Question1))
+		name = input(question1 + '     ')
+		var = Variable(name)
+
+		question2 = 'What is your favorite number?'
+		Question2 = TexText(question2)
+		self.play(FadeOut(Question1, run_time=0.25), Write(Question2))
+		num = input(question2 + '     ')
+		num = Smarten(eval(num))
+		self.play(FadeOut(Question2))
+
+		S = Solve(auto_scale=2) >> Equation(var, num)
+		self.play(Write(S.mob))
+		S >> add_(1).both() >> add_(10).both() >> sub_(1).both()
+		S.play_all(self)
+		S >> mul_(2).both() >> mul_(5).both() >> div_(10).both()
+		S.play_all(self)
+		S.suspend() >> pow_(2).both() >> AlgebraicAction(a**2, a*a).both() >> AlgebraicAction(a*a, a**2).pread('0')
+		S.play_all(self)
+		S.resume()
+		S.suspend() >> div_(1, side='left').both() >> evaluate_().pread('1')
+		S >> div_(1, side='left').both() >> AlgebraicAction(1/(1/a), a).pread('0')
+		S.play_all(self)
+		S.resume()
+		S >> pow_(3, side='left').both()
+		S.suspend() >> mul_(0).both() >> mul_zero_R().both()
+		S.play_all(self)
+		S.resume() >> add_(5).both() >> pow_(3).both()
+		S.play_all(self)
+		S.suspend() >> var >> substitute_({var:num}, mode='swirl', run_time=3)
+		S.play_all(self)	
+		self.embed()
+
