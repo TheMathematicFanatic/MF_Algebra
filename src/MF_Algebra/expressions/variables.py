@@ -31,20 +31,26 @@ class Variable(Expression):
 a = Variable('a', 1)
 b = Variable('b', 1)
 c = Variable('c', 1)
-
+# d = Variable('d', 1) # Differential
+# e = Variable('e', 1) # Real
+# f = Variable('f', 1) # Function
+# g = Variable('g', 1) # Function
+# h = Variable('h', 1) # Function
+# i = Variable('i', 1) # Complex
+j = Variable('j', 1)
 k = Variable('k', 1)
+l = Variable('l', 1)
 m = Variable('m', 1)
 n = Variable('n', 1)
-
+o = Variable('o', 1)
 p = Variable('p', 1)
 q = Variable('q', 1)
 r = Variable('r', 1)
-
 s = Variable('s', 1)
 t = Variable('t', 1)
 u = Variable('u', 1)
 v = Variable('v', 1)
-
+w = Variable('w', 1)
 x = Variable('x', 1)
 y = Variable('y', 1)
 z = Variable('z', 1)
