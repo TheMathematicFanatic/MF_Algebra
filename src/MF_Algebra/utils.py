@@ -47,7 +47,8 @@ def Smarten(input):
 
 	from .expressions.numbers.real import Real
 	if isinstance(input, float):
-		if input.is_integer():
+		from math import isclose
+		if isclose(input, round(input)):
 			return Integer(int(input))
 		else:
 			return Real(input)

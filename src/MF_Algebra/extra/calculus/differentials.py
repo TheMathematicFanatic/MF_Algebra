@@ -1,4 +1,4 @@
-from ...expressions.functions.functions import Function
+from ...expressions.functions.functions import Function, arg
 from ...expressions.variables import x, y, z, r, theta, s, t, u, v
 
 
@@ -26,3 +26,9 @@ dv = d(v)
 
 def dd(var):
     return d/d(var)
+
+
+class PrimeDiff(DifferentialOperator):
+	string_code = [arg, '^\\prime']
+	glyph_code = [arg, 1]
+

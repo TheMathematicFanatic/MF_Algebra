@@ -3,7 +3,7 @@ from .action_core import Action
 
 class ParallelAction(Action):
     def __init__(self, *actions, **kwargs):
-        self.actions = actions
+        self.actions = list(actions)
         super().__init__(**kwargs)
     
     @Action.preaddressfunc

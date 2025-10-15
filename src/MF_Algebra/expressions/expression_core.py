@@ -200,7 +200,10 @@ class Expression(MF_Base):
 
 	def get_all_twig_addresses(self):
 		return self.get_all_addresses_with_condition(
-			lambda subex: subex.children and not any(child.children for child in subex.children)
+			lambda subex: subex.children and all(
+				not child.children or child.is_function()
+				for child in subex.children
+			)
 		)
 
 	def get_all_addresses_of_type(self, expression_type):
@@ -421,7 +424,7 @@ class Expression(MF_Base):
 		result = self.copy()
 		new_child = result.children[index].substitute_at_address(subex, address[1:])
 		result.children[index] = new_child
-		result.reset_caches()
+		Expression.__init__(result, *result.children)
 		return result
 
 	def substitute_at_addresses(self, subex, addresses):

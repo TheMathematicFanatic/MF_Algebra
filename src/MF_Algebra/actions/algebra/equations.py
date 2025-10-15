@@ -162,3 +162,16 @@ class alg_pow_L(EquationManeuver):
 			['10f', FadeOut, {'run_time':0.5}]
 		)
 		return self
+
+
+
+class alg_neg_R(EquationManeuver):
+	def __init__(self, **kwargs):
+		super().__init__(
+			-a & b,
+			a & -b,
+			**kwargs
+		)
+		self.addressmap = (
+			['0-', '1-', {'path_arc':PI}],
+		)

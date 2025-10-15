@@ -2,17 +2,22 @@ from ..action_core import Action, IncompatibleExpression
 from ...expressions.variables import Variable
 from ...expressions.functions import Function
 from ...utils import Smarten
+from MF_Tools.dual_compatibility import Write, FadeIn, FadeOut
+from copy import deepcopy
 
 
 class AlgebraicAction(Action):
-	def __init__(self, template1, template2, var_condition_dict={}, var_kwarg_dict={}, extra_addressmaps=[], **kwargs):
+	def __init__(self, template1=None, template2=None, var_condition_dict={}, var_kwarg_dict={}, extra_addressmaps=[], **kwargs):
 		super().__init__(**kwargs)
-		self.template1 = Smarten(template1)
-		self.template2 = Smarten(template2)
+		if template1 is not None:
+			self.template1 = Smarten(template1)
+		if template2 is not None:
+			self.template2 = Smarten(template2)
 		self.var_condition_dict = var_condition_dict #{c: lambda exp: isinstance(exp, Number)}
 		self.var_kwarg_dict = var_kwarg_dict #{a:{"path_arc":PI}}
 		self.extra_addressmaps = extra_addressmaps
-		self.addressmap = None
+		if not hasattr(self, 'addressmap'):
+			self.addressmap = None
 
 	@Action.preaddressfunc
 	def get_output_expression(self, input_expression=None):
@@ -60,6 +65,18 @@ class AlgebraicAction(Action):
 		# swaps input and output templates
 		result = self.copy()
 		result.template1, result.template2 = result.template2, result.template1
+		if result.addressmap is None:
+			return result
+		new_addressmap = deepcopy(result.addressmap)
+		for entry in new_addressmap:
+			entry[0], entry[1] = entry[1], entry[0]
+			if len(entry) == 3 and 'path_arc' in entry[2].keys():
+				entry[2]['path_arc'] = -entry[2]['path_arc']
+			if entry[0] is FadeOut:
+				entry[0] = self.introducer
+			if entry[1] in (FadeIn, Write):
+				entry[1] = self.remover
+		result.addressmap = new_addressmap
 		return result
 
 	def get_all_variables(self):
