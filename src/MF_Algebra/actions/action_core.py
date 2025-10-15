@@ -96,21 +96,24 @@ class Action(MF_Base):
 		def animation(input_exp, output_exp=None):
 			if output_exp is None:
 				output_exp = self.get_output_expression(input_exp)
-			TBAM = TransformByAddressMap(
-				input_exp,
-				output_exp,
-				*self.get_addressmap(input_exp),
-				default_introducer=self.introducer,
-				default_remover=self.remover,
-				**kwargs
-			)
+			def get_TBAM(input_exp, output_exp):
+				return TransformByAddressMap(
+					input_exp,
+					output_exp,
+					*self.get_addressmap(input_exp),
+					default_introducer=self.introducer,
+					default_remover=self.remover,
+					**kwargs
+				)
+			TBAM = get_TBAM(input_exp.copy(), output_exp.copy())
 			if not TBAM.show_indices:
-				return TBAM
+				return get_TBAM(input_exp, output_exp)
 			else:
 				print('Warning: Action produced an invalid glyphmap. Falling back to TransformMatchingTex')
 				print('Action: ', self)
 				print('Input: ', input_exp)
 				print('Output: ', output_exp)
+				print('Addressmap: ', self.get_addressmap(input_exp))
 				return TransformMatchingTex(input_exp.mob, output_exp.mob, **kwargs)
 		return animation
 
