@@ -1,5 +1,4 @@
 from .action_core import *
-from .algebra import *
 from .animations import *
 from .variants import *
 from .parallel import *

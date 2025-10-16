@@ -1,4 +1,4 @@
-from ...expressions.numbers.real import Real
+from ..expressions.numbers.real import Real
 import numpy as np
 
 

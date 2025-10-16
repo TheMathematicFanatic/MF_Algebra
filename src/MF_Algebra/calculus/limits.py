@@ -1,6 +1,6 @@
-from ...expressions.combiners.combiners import Combiner, Superscript
-from ...expressions.functions.functions import Function, c0, arg
-from ...expressions.variables import Variable
+from ..expressions.combiners.combiners import Combiner, Superscript
+from ..expressions.functions.functions import Function, c0, arg
+from ..expressions.variables import Variable
 
 
 class Approaches(Combiner):

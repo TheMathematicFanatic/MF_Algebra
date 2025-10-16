@@ -1,7 +1,7 @@
-from ..action_core import Action, IncompatibleExpression
-from ...expressions.variables import Variable
-from ...expressions.functions import Function
-from ...utils import Smarten
+from ..actions.action_core import Action, IncompatibleExpression
+from ..expressions.variables import Variable
+from ..expressions.functions import Function
+from ..utils import Smarten
 from MF_Tools.dual_compatibility import Write, FadeIn, FadeOut
 from copy import deepcopy
 

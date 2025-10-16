@@ -1,5 +1,5 @@
-from ..action_core import Action
-from ...expressions.combiners.operations import Add, Sub, Mul, Div, Pow
+from ..actions.action_core import Action
+from ..expressions.combiners.operations import Add, Sub, Mul, Div, Pow
 
 
 class distribute_(Action):

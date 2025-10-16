@@ -1,5 +1,5 @@
-from ...expressions.functions.functions import Function, arg
-from ...expressions.variables import x, y, z, r, theta, s, t, u, v
+from ..expressions.functions.functions import Function, arg
+from ..expressions.variables import x, y, z, r, theta, s, t, u, v
 
 
 class DifferentialOperator(Function):

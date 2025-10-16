@@ -1,5 +1,5 @@
 from .algebra_core import AlgebraicAction
-from ...expressions.variables import a
+from ..expressions.variables import a
 from MF_Tools.dual_compatibility import FadeIn, FadeOut, Write
 
 

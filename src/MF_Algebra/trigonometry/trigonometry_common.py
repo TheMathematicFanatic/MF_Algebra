@@ -1,5 +1,5 @@
-from ...expressions.functions.functions import *
-from ...expressions.variables import Variable
+from ..expressions.functions.functions import *
+from ..expressions.variables import Variable
 import numpy as np
 
 

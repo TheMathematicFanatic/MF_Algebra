@@ -1,9 +1,10 @@
-from ...actions import AlgebraicAction, IncompatibleExpression
-from ...timelines import AutoTimeline
-from ...expressions.variables import a, b, c
-from ...expressions.functions import f, g
+from ..actions import IncompatibleExpression
+from ..algebra import AlgebraicAction
+from ..timelines import AutoTimeline
+from ..expressions.variables import a, b, c
+from ..expressions.functions import f, g
 from .differentials import d, DifferentialOperator
-from ...expressions.numbers.number import Number
+from ..expressions.numbers.number import Number
 
 
 class DifferentialAction(AlgebraicAction):

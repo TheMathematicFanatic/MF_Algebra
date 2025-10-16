@@ -1,5 +1,5 @@
-from ...expressions.functions.functions import Function, c0, c1, arg
-from ...expressions.combiners.relations import Equation
+from ..expressions.functions.functions import Function, c0, c1, arg
+from ..expressions.combiners.relations import Equation
 
 
 

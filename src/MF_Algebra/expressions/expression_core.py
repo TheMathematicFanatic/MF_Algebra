@@ -247,6 +247,8 @@ class Expression(MF_Base):
 
 	def get_all_variables(self):
 		# Doing it this way so as to catch subscripted variables and not their parent
+		if self.is_variable():
+			return {self}
 		results = set()
 		for child in self.children:
 			if child.is_variable():

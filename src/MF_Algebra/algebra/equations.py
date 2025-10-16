@@ -1,6 +1,8 @@
 from .algebra_core import AlgebraicAction
-from ..permutations import swap_children_
-from ...expressions.variables import a,b,c
+from ..actions.permutations import swap_children_
+from ..expressions.variables import a,b,c
+from ..expressions.functions.radicals import Rad
+from ..expressions.functions.logarithms import Log
 from MF_Tools.dual_compatibility import FadeIn, FadeOut, Write, PI
 
 
@@ -120,7 +122,6 @@ class alg_mul_L(EquationManeuver):
 		return self
 
 
-from ...expressions.functions.radicals import Rad
 class alg_pow_R(EquationManeuver):
 	def __init__(self, **kwargs):
 		super().__init__(
@@ -142,7 +143,6 @@ class alg_pow_R(EquationManeuver):
 		return self
 
 
-from ...expressions.functions.logarithms import Log
 class alg_pow_L(EquationManeuver):
 	def __init__(self, **kwargs):
 		super().__init__(

@@ -1,5 +1,5 @@
 from .algebra_core import AlgebraicAction
-from ...expressions.variables import a,b
+from ..expressions.variables import a,b
 
 
 class difference_of_squares_(AlgebraicAction):
