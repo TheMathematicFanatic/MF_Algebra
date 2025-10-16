@@ -1,6 +1,6 @@
 from ..expressions import *
 from ..actions import *
-from MF_Tools.dual_compatibility import TransformMatchingTex, UP, smooth
+from MF_Tools.dual_compatibility import TransformMatchingTex, UP, smooth, Scene
 
 
 class Timeline(MF_Base):
@@ -177,3 +177,33 @@ class Timeline(MF_Base):
 		else:
 			self.steps.pop()
 			self.undo_last_action()
+
+	def reset_caches(self):
+		for i,exp in enumerate(self.expressions):
+			exp.reset_caches()
+			self.set_expression(exp, i)
+
+
+class TimelineScene(Scene):
+	def __init__(self, *args, **kwargs):
+		self.timeline = Timeline()
+		super().__init__(*args, **kwargs)
+
+	def add_and_play(self, action):
+		self.timeline >> action
+		self.timeline.play_all(self)
+
+	def __and__(self, action):
+		self.add_and_play(action)
+		return self
+
+	def suspend(self):
+		self.timeline.suspend()
+
+	def resume(self):
+		self.timeline.resume()
+
+
+
+
+

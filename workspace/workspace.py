@@ -10,12 +10,12 @@ from MF_Algebra import *
 class Interactive(Scene):
 	def construct(self):
 		A = x**2 + y**2
-		s = swap_children_()
-		s0 = swap_children_(preaddress="0")
-		s1 = swap_children_(preaddress="1")
-		d = div_(z)
-		d0 = div_(z, preaddress="0")
-		d1 = div_(z, preaddress="1")
+		SwapTest = swap_children_()
+		swap0 = swap_children_(preaddress="0")
+		swap1 = swap_children_(preaddress="1")
+		div = div_(z)
+		div0 = div_(z, preaddress="0")
+		div1 = div_(z, preaddress="1")
 		self.add(A.mob)
 		self.embed()
 
@@ -447,7 +447,6 @@ class SolveTriangle(Scene):
 
 class TestFunction(Scene):
 	def construct(self):
-		from MF_Algebra.extra.trigonometry import sin
 		F = 3*sin(x/2)
 		self.add(F.mob)
 		self.embed()
@@ -489,7 +488,7 @@ class PlayingAround(Scene):
 		self.embed()
 
 
-from MF_Algebra.extra.trigonometry import *
+
 class TrigTest(Scene):
 	def construct(self):
 		A = (sin(x) + cos(pi/2-x)) / tan(x)
@@ -571,7 +570,6 @@ class LogRules(Scene):
 		S.play_all(self)
 
 
-from MF_Algebra.extra.calculus import *
 class Derivative(Scene):
 	def construct(self):
 		algebra_config['multiplication_mode'] = 'dot'
@@ -727,5 +725,15 @@ class Culmination2(Scene):
 		S.play_all(self)
 		S.suspend() >> var >> substitute_({var:num}, mode='swirl', run_time=3)
 		S.play_all(self)	
+		self.embed()
+
+algebra_config['multiplication_mode'] = 'dot'
+class TimelineSceneTest(TimelineScene):
+	def construct(self):
+		global algebra_config
+		algebra_config['auto_color'] = {x:RED, y:BLUE}
+		# ?? Why does this not work... pretty annoying
+		self.timeline = Solve(auto_color={x:RED, y:BLUE, z:GREEN}, auto_scale=2)
+		self & (3*x-4 | 30)
 		self.embed()
 
