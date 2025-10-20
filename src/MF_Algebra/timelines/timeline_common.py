@@ -50,7 +50,9 @@ class Solve(AutoTimeline):
 		if self.solve_for is None:
 			self.solve_for = last_exp.get_all_variables().pop()
 		current_addresses = last_exp.get_addresses_of_subex(self.solve_for)
-		assert len(current_addresses)==1, f"I don't know what to do if variable appears {len(current_addresses)} times"
+		if len(current_addresses) != 1:
+			print(f"Solve: I don't know what to do if variable appears {len(current_addresses)} times")
+			return None
 		current_address = current_addresses[0]
 
 		if self.auto_evaluate:

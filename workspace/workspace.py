@@ -737,3 +737,16 @@ class TimelineSceneTest(TimelineScene):
 		self & (3*x-4 | 30)
 		self.embed()
 
+
+class Relativity(TimelineScene):
+	def construct(self):
+		m1 = Variable("m'", 2)
+		self.timeline = Solve(solve_for=m1, auto_color={v:GREEN, c:BLUE_E})
+		self & (m1 | gamma * m)
+		self & substitute_({gamma: 1/sqrt(1-v**2/c**2)})
+		self.timeline.set_solve_for(v/c)
+		self.timeline.play_all(self)
+		self & AlgebraicAction(a**c/b**c, (a/b)**c).pread('0')
+		self.timeline.set_solve_for(v)
+		self.timeline.play_all(self)
+ 
