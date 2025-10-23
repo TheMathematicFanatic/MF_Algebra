@@ -1,2 +1,4 @@
 from .trigonometry_core import *
-from .trigonometry_common import *
+from .powers import *
+from .inverses import *
+from .unit_circle import *
