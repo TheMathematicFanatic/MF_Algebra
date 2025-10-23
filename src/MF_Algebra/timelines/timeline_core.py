@@ -168,8 +168,11 @@ class Timeline(MF_Base):
 	def actions(self):
 		return [act for exp,act in self.steps]
 
-	def reset(self):
+	def reset(self, reset_caches=True):
 		self.current_exp_index = 0
+		if reset_caches:
+			for exp in self.expressions:
+				exp.reset_caches()
 
 	def undo_last_action(self):
 		if self.actions[-1] is not None:

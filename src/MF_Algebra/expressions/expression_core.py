@@ -257,6 +257,14 @@ class Expression(MF_Base):
 				results |= child.get_all_variables()
 		return results
 
+	@property
+	def left(self):
+		return self.children[0]
+
+	@property
+	def right(self):
+		return self.children[1]
+
 
 	### Operations ###
 
@@ -362,7 +370,7 @@ class Expression(MF_Base):
 				self._glyph_count += 2 * change * self.paren_length()
 			else:
 				# Otherwise just clear the cache
-				self._glyph_count = None
+				self.reset_caches()
 			self.parentheses = parentheses
 		return self
 
@@ -550,6 +558,13 @@ class Expression(MF_Base):
 
 	def evaluate(self):
 		return Smarten(self.compute())
+
+	def reciprocal(self):
+		from .combiners.operations import Div
+		if isinstance(self, Div):
+			return Div(*self.children[::-1])
+		else:
+			return Div(1, self)
 
 	@property
 	def sympy(self):

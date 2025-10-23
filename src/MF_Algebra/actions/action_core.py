@@ -20,7 +20,7 @@ class Action(MF_Base):
 
 	def get_output_expression(self, input_expression):
   		# define in subclasses
-		raise NotImplementedError
+		return None
 
 	@staticmethod
 	def preaddressfunc(func):
@@ -44,7 +44,7 @@ class Action(MF_Base):
 
 	def get_addressmap(self, input_expression, **kwargs):
 		# define in subclasses
-		raise NotImplementedError
+		return [['', '']]
 
 	@staticmethod
 	def preaddressmap(getmap):
@@ -165,3 +165,6 @@ class Action(MF_Base):
 
 class IncompatibleExpression(Exception):
 	pass
+
+
+
