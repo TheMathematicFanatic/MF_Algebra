@@ -750,3 +750,62 @@ class Relativity(TimelineScene):
 		self.timeline.set_solve_for(v)
 		self.timeline.play_all(self)
  
+
+class LimitRational(Scene):
+	def construct(self):
+		num_roots = [-1,-9]
+		den_roots = [-1,-5,-8]
+		lim_value = inf
+
+		def factor_from_root(a):
+			if a == 0:
+				return x
+			elif a > 0:
+				return x-a
+			elif a < 0:
+				return x+abs(a)
+
+		def get_term(coef, degree, var):
+			coef = abs(coef)
+			if degree == 0:
+				return coef
+			if coef == 1 and degree == 1:
+				return var
+			elif degree == 1:
+				return coef*var
+			elif coef == 1:
+				return var**degree
+			else:
+				return coef*var**degree
+
+		def expanded_from_roots(*roots):
+			from sympy import Poly, prod
+			from sympy.abc import y
+			coefficients = Poly(prod(y - r for r in roots), y).all_coeffs()
+			coefficients = [int(c) for c in coefficients]
+			degree = len(coefficients) - 1
+			expanded = get_term(coefficients[0], degree, x)
+			for i in range(1, len(coefficients)):
+				if coefficients[i] > 0:
+					expanded += get_term(coefficients[i], degree-i, x)
+				elif coefficients[i] < 0:
+					expanded -= get_term(abs(coefficients[i]), degree-i, x)
+			return expanded
+
+		numerator_factored = Mul(*[factor_from_root(a) for a in num_roots])
+		numerator_expanded = expanded_from_roots(*num_roots)
+		denominator_factored = Mul(*[factor_from_root(a) for a in den_roots])
+		denominator_expanded = expanded_from_roots(*den_roots)
+
+		rational = numerator_expanded / denominator_expanded
+		lim = Limit(x, lim_value)
+		E = Evaluate(mode='all at once')
+		E >> rational
+		E >> apply_func_(lim)
+		E >> equals_(rational)
+		E >> substitute_({x:lim.destination}, mode='fade').pread('1')
+		# self.embed(False)
+		# E.expressions[-1].right.decimal_places = 10
+		E.play_all(self)
+		self.wait()
+		self.embed()
