@@ -525,7 +525,7 @@ class Expression(MF_Base):
 		return (self.__class__, tuple(self.children))
 
 	def __repr__(self):
-		max_length = 50
+		max_length = 1e6
 		string = type(self).__name__ + "(" + self.repr_string() + ")"
 		if len(string) > max_length:
 			string = string[:max_length-3] + '...'
@@ -573,5 +573,30 @@ class Expression(MF_Base):
 
 
 
-class Address(str):
-	pass
+class Address:
+	def __init__(self, *address_parts):
+		if len(address_parts) == 1:
+			arg = address_parts[0]
+			if isinstance(arg, (str, list, tuple)):
+				self.addigits = list(arg)
+			elif isinstance(arg, int):
+				self.addigits = [arg]
+			elif isinstance(arg, Address):
+				self.addigits = arg.addigits
+			else:
+				raise ValueError(f"Invalid address: {arg}")
+		else:
+			self.addigits = list(address_parts)
+
+	def __getitem__(self, index):
+		return self.addigits[index]
+
+	def __len__(self):
+		return len(self.addigits)
+
+	def __repr__(self):
+		return f"Address({self.addigits})"
+
+	@classmethod
+	def from_ints(cls, *ints):
+		return cls(*[str(i) for i in ints])
