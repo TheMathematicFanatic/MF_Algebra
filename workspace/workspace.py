@@ -809,3 +809,70 @@ class LimitRational(Scene):
 		E.play_all(self)
 		self.wait()
 		self.embed()
+
+
+class InteractiveSceneTest(InteractiveScene):
+	def construct(self):
+		T = Solve(auto_color={x:RED, y:BLUE, z:GREEN}, auto_scale=2)
+		T >>= (3*x-4 | 30)
+		self.embed()
+
+
+
+class SeriesTest(Scene):
+	def construct(self):
+		self.set_series(4/(1+n**2))
+		self.embed()
+
+	def set_series(self, *args, **kwargs):
+		self.clear()
+		self.series = Series(*args, **kwargs)
+		self.play(Write(self.series.mob))
+
+	def show_terms(self):
+		S = self.series
+		terms_timeline = Evaluate(mode='all at once')
+		S_with_terms = Equation(S, S.expand_on_args())
+		terms_timeline >> S
+		self.play(terms_timeline.mob.animate.move_to(S_with_terms['0']))
+		terms_timeline >> equals_(S.expand_on_args())
+		terms_timeline.play_all(self)
+		self.wait()
+		self.play(
+			FadeOut(terms_timeline.exp['=1']),
+			ReplacementTransform(terms_timeline.exp['0'], S.mob.center())
+		)
+
+	def divergence_test(self):
+		S = self.series
+		n = self.series.variable
+		lim_timeline = Evaluate()
+		lim_timeline >> S.term >> apply_func_(Limit(n, inf))
+		lim_timeline >> equals_(S.term) >> substitute_({n:inf}).pread('1')
+		lim_timeline.get_vgroup().shift(1.5*DOWN)
+
+		self.play(
+			S.mob.animate.shift(1.5*UP),
+			ReplacementTransform(S['1_'].copy(), lim_timeline.mob)
+		)
+		lim_timeline.play_all(self, wait_between=0.5)
+		result = lim_timeline.exp.right
+		if isinstance(result, Number):
+			if result.compute() == 0:
+				color = GOLD
+				result = TexText('Inconclusive...').set_color(color)
+			else:
+				color = RED_D
+				result = TexText('Diverges!').set_color(color)
+			self.wait()
+			self.play(
+				lim_timeline.mob.animate.set_color(color),
+				S.mob.animate.set_color(color),
+				Write(result)
+			)
+		else:
+			pass
+		self.wait()
+		self.play(FadeOut(result), FadeOut(lim_timeline.mob), S.mob.animate.set_color(WHITE).center())
+
+

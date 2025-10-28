@@ -62,6 +62,7 @@ theta = Variable('\\theta', 1)
 phi = Variable('\\phi', 1)
 
 dots = Variable('\\ldots', 3)
+cdots = Variable('\\cdots', 3)
 
 x1 = Subscript(x,1)
 x2 = Subscript(x,2)
