@@ -876,3 +876,12 @@ class SeriesTest(Scene):
 		self.play(FadeOut(result), FadeOut(lim_timeline.mob), S.mob.animate.set_color(WHITE).center())
 
 
+from MF_Algebra import *
+
+class LimScene(Scene):
+	def construct(self):
+		eq = Variable('L') | sqrt(h**2 + (f(x) - f(x+h))**2)
+		lim = Limit(h,0)
+		T = Timeline(auto_color={x:RED, h:PURPLE, f:BLUE, h**2:ORANGE}) >> eq >> apply_func_(lim).pread('1')
+		T >> substitute_({x:15}, mode='swirl', maintain_color=True)
+		T.play_all(self)

@@ -62,8 +62,10 @@ class Action(MF_Base):
 		return wrapper
 
 	@staticmethod
-	def autoparenmap(getmap, mode='stupid'):
-		if mode=='stupid':
+	def autoparenmap(getmap, mode='none'):
+		if mode == 'none':
+			return getmap
+		if mode == 'stupid':
 			@wraps(getmap)
 			def wrapper(action, expr, *args, **kwargs):
 				addressmap = list(getmap(action, expr, *args, **kwargs))
@@ -82,7 +84,7 @@ class Action(MF_Base):
 							entry[1] = entry[1] + '_'
 				return addressmap
 
-		if mode=='smart':
+		if mode == 'smart':
 			@wraps(getmap)
 			def wrapper(action, expr, *args, **kwargs):
 				addressmap = list(getmap(action, expr, *args, **kwargs))
