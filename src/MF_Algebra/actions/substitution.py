@@ -1,6 +1,7 @@
 from .action_core import Action
 from ..expressions.expression_core import Expression
 from MF_Tools.dual_compatibility import PI, DOWN, FadeIn, FadeOut
+from ..utils import Smarten
 
 
 
@@ -30,6 +31,9 @@ class substitute_(Action):
 			for from_subex, to_subex in self.sub_dict.items():
 				color = input_expression.get_color_of_subex(from_subex)
 				addresses = input_expression.get_addresses_of_subex(from_subex)
+				for i,ad in enumerate(addresses):
+					if input_expression.get_subex(ad).parentheses and not Smarten(to_subex).parentheses:
+						addresses[i] += '_'
 				result[*addresses].set_color(color)
 		return result
 
