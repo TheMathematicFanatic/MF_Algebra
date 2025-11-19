@@ -62,7 +62,7 @@ class Action(MF_Base):
 		return wrapper
 
 	@staticmethod
-	def autoparenmap(getmap, mode='none'):
+	def autoparenmap(getmap, mode='stupid'):
 		if mode == 'none':
 			return getmap
 		if mode == 'stupid':
@@ -107,11 +107,13 @@ class Action(MF_Base):
 					default_remover=self.remover,
 					**kwargs
 				)
-			TBAM = get_TBAM(input_exp.copy(), output_exp.copy())
-			if not TBAM.show_indices:
+			try:
+				TBAM = get_TBAM(input_exp.copy(), output_exp.copy())
+				assert not TBAM.show_indices, f'Invalid Glyphmap: {TBAM.glyphmap}'
 				return get_TBAM(input_exp, output_exp)
-			else:
+			except Exception as E:
 				print('Warning: Action produced an invalid glyphmap. Falling back to TransformMatchingTex')
+				print('Exception: ', E)
 				print('Action: ', self)
 				print('Input: ', input_exp)
 				print('Output: ', output_exp)
