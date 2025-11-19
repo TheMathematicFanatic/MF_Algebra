@@ -168,7 +168,7 @@ class UnaryOperation(Expression, Operation):
 
 	@Expression.parenthesize_latex
 	def __str__(self):
-		return self.symbol + str(self.children[0])
+		return self.symbol + '{' + str(self.children[0]) + '}'
 	
 	def compute(self):
 		return self.eval_op(self.children[0].compute())
