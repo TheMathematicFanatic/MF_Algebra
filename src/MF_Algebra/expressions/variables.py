@@ -74,3 +74,23 @@ z1 = Subscript(z,1)
 z2 = Subscript(z,2)
 z3 = Subscript(z,3)
 
+
+class Variables:
+	# Nothing but a container so that you can make multiple variables at a time
+	# A,B,C = Variables('ABC')
+	# mu,chi,psi = Variables('\\mu', '\\chi', '\\psi')
+	# You can set the glyph lengths in a list but it's really not a big deal if you don't.
+	def __init__(self, *strings, symbol_glyph_length_list=None):
+		if len(strings) == 1:
+			self.strings = list(strings[0])
+		else:
+			self.strings = list(strings)
+		self.symbol_glyph_length_list = symbol_glyph_length_list
+
+	def __iter__(self):
+		if self.symbol_glyph_length_list:
+			assert len(self.strings) == len(self.symbol_glyph_length_list)
+			return (Variable(s, l) for s, l in zip(self.strings, self.symbol_glyph_length_list))
+		else:
+			return (Variable(s) for s in self.strings)
+
