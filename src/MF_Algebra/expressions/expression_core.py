@@ -82,7 +82,7 @@ class Expression(MF_Base):
 				assert isinstance(gc, int)
 				self._glyph_count = gc
 				return
-			except (NotImplementedError, AssertionError, AttributeError):
+			except (NotImplementedError, AssertionError, AttributeError, ValueError):
 				pass
 		gc = self.get_glyph_count_from_mob()
 		self._glyph_count = gc
@@ -257,6 +257,14 @@ class Expression(MF_Base):
 				results |= child.get_all_variables()
 		return results
 
+	@property
+	def left(self):
+		return self.children[0]
+
+	@property
+	def right(self):
+		return self.children[1]
+
 
 	### Operations ###
 
@@ -362,7 +370,7 @@ class Expression(MF_Base):
 				self._glyph_count += 2 * change * self.paren_length()
 			else:
 				# Otherwise just clear the cache
-				self._glyph_count = None
+				self.reset_caches()
 			self.parentheses = parentheses
 		return self
 
@@ -517,7 +525,7 @@ class Expression(MF_Base):
 		return (self.__class__, tuple(self.children))
 
 	def __repr__(self):
-		max_length = 50
+		max_length = 1e6
 		string = type(self).__name__ + "(" + self.repr_string() + ")"
 		if len(string) > max_length:
 			string = string[:max_length-3] + '...'
@@ -551,12 +559,39 @@ class Expression(MF_Base):
 	def evaluate(self):
 		return Smarten(self.compute())
 
-	@property
-	def sympy(self):
-		from sympy.parsing.latex import parse_latex
-		return parse_latex(str(self))
+	def reciprocal(self):
+		from .combiners.operations import Div
+		if isinstance(self, Div):
+			return Div(*self.children[::-1])
+		else:
+			return Div(1, self)
 
 
 
-class Address(str):
-	pass
+class Address:
+	def __init__(self, *address_parts):
+		if len(address_parts) == 1:
+			arg = address_parts[0]
+			if isinstance(arg, (str, list, tuple)):
+				self.addigits = list(arg)
+			elif isinstance(arg, int):
+				self.addigits = [arg]
+			elif isinstance(arg, Address):
+				self.addigits = arg.addigits
+			else:
+				raise ValueError(f"Invalid address: {arg}")
+		else:
+			self.addigits = list(address_parts)
+
+	def __getitem__(self, index):
+		return self.addigits[index]
+
+	def __len__(self):
+		return len(self.addigits)
+
+	def __repr__(self):
+		return f"Address({self.addigits})"
+
+	@classmethod
+	def from_ints(cls, *ints):
+		return cls(*[str(i) for i in ints])

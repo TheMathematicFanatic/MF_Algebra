@@ -7,7 +7,7 @@ from copy import deepcopy
 
 
 class AlgebraicAction(Action):
-	def __init__(self, template1=None, template2=None, var_condition_dict={}, var_kwarg_dict={}, extra_addressmaps=[], **kwargs):
+	def __init__(self, template1=None, template2=None, *extra_addressmaps, var_condition_dict={}, var_kwarg_dict={}, **kwargs):
 		super().__init__(**kwargs)
 		if template1 is not None:
 			self.template1 = Smarten(template1)
@@ -40,19 +40,21 @@ class AlgebraicAction(Action):
 		variables = self.get_all_variables()
 		for var in variables:
 			kwargs = self.var_kwarg_dict.get(var, {})
-			if len(self.template1_address_dict[var]) == 1:
+			template1_addresses = self.template1_address_dict.get(var, [])
+			template2_addresses = self.template2_address_dict.get(var, [])
+			if len(template1_addresses) == 1:
 				addressmap += [
-					[self.template1_address_dict[var][0], t2ad, kwargs]
-					for t2ad in self.template2_address_dict[var]
+					[template1_addresses[0], t2ad, kwargs]
+					for t2ad in template2_addresses
 				]
-			elif len(self.template2_address_dict[var]) == 1:
+			elif len(template2_addresses) == 1:
 				addressmap += [
-					[t1ad, self.template2_address_dict[var][0], kwargs]
-					for t1ad in self.template1_address_dict[var]
+					[t1ad, template2_addresses[0], kwargs]
+					for t1ad in template1_addresses
 				]
 			else:
 				raise ValueError("I don't know what to do when a variable appears more than once on both sides. Please set addressmap manually.")
-		addressmap += self.extra_addressmaps
+		addressmap += list(self.extra_addressmaps)
 		return addressmap
 
 	def __repr__(self):

@@ -16,7 +16,7 @@ class Combiner(Expression):
 	@Expression.parenthesize_latex
 	def __str__(self, *args, **kwargs):
 		joiner = self.left_spacing + self.symbol + self.right_spacing
-		return joiner.join(["{" + str(child) + "}" for child in self.children])
+		return joiner.join(['{' + str(child) + '}' for child in self.children])
 
 	def set_spacing(self, left_spacing, right_spacing):
 		self.left_spacing = left_spacing

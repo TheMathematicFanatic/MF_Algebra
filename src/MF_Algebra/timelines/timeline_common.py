@@ -13,26 +13,41 @@ class Evaluate(AutoTimeline):
 		if first_expression is not None:
 			self.add_expression_to_start(first_expression)
 
-	def decide_next_action(self, index: int):
-		last_exp = self.get_expression(index)
-		twig_ads = last_exp.get_all_twig_addresses()
-		for twig_ad in twig_ads:
-			if not isinstance(last_exp.get_subex(twig_ad), Relation):
+	def decide_next_action(self, index: int, mode=None):
+		if mode is not None:
+			self.mode = mode
+		if self.mode == 'one at a time':
+			last_exp = self.get_expression(index)
+			twig_ads = last_exp.get_all_twig_addresses()
+			for twig_ad in twig_ads:
+				if not isinstance(last_exp.get_subex(twig_ad), Relation):
+					try:
+						action = evaluate_().pread(twig_ad)
+						action.get_output_expression(last_exp)
+						return action
+					except (ValueError, IncompatibleExpression):
+						pass
+			return None
+		if self.mode == 'all at once':
+			last_exp = self.get_expression(index)
+			twig_ads = last_exp.get_all_twig_addresses()
+			acceptable_twig_ads = []
+			for twig_ad in twig_ads:
 				try:
 					action = evaluate_().pread(twig_ad)
 					action.get_output_expression(last_exp)
-					return action
+					acceptable_twig_ads.append(twig_ad)
 				except (ValueError, IncompatibleExpression):
 					pass
-		return None
+			if len(acceptable_twig_ads) == 0:
+				return None
+			return evaluate_().pread(*acceptable_twig_ads)
 
 
 
 class Solve(AutoTimeline):
 	def __init__(self, solve_for=None, first_expression=None, preferred_side=None, auto_evaluate=True, **kwargs):
 		super().__init__(**kwargs)
-		if first_expression is not None:
-			self.add_expression_to_start(first_expression)
 		self.solve_for = solve_for
 		self.auto_evaluate = auto_evaluate
 		self.all_actions_to_try = []
@@ -44,7 +59,9 @@ class Solve(AutoTimeline):
 				maneuver_().flip(),
 				maneuver_().reverse_flip()
 			]
-	
+		if first_expression is not None:
+			self.add_expression_to_start(first_expression)
+
 	def decide_next_action(self, index:int):
 		last_exp = self.get_expression(index)
 		if self.solve_for is None:

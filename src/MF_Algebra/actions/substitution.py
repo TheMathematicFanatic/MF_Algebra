@@ -1,6 +1,7 @@
 from .action_core import Action
 from ..expressions.expression_core import Expression
 from MF_Tools.dual_compatibility import PI, DOWN, FadeIn, FadeOut
+from ..utils import Smarten
 
 
 
@@ -30,6 +31,9 @@ class substitute_(Action):
 			for from_subex, to_subex in self.sub_dict.items():
 				color = input_expression.get_color_of_subex(from_subex)
 				addresses = input_expression.get_addresses_of_subex(from_subex)
+				for i,ad in enumerate(addresses):
+					if input_expression.get_subex(ad).parentheses and not Smarten(to_subex).parentheses:
+						addresses[i] += '_'
 				result[*addresses].set_color(color)
 		return result
 
@@ -50,6 +54,22 @@ class substitute_(Action):
 			for i,ad in enumerate(target_addresses):
 				addressmap.append([ad, FadeOut, {"shift": self.fade_shift, "delay": self.lag*i}])
 				addressmap.append([FadeIn, ad, {"shift": self.fade_shift, "delay": self.lag*i}])
+
+		# Horrible bandaid for the problem of multiplication symbols changing and ruining the addressmap
+		# I am certain that there is a general and elegant way to do this, along with parentheses changes,
+		# and other such aesthetic matters which don't change the tree, but I still haven't figured it out.
+		from ..expressions.combiners.operations import Mul
+		input_expression = input_expression.copy()
+		output_expression = self.get_output_expression(input_expression.copy())
+		for ad in output_expression.get_all_addresses():
+			in_subex = input_expression.get_subex(ad)
+			out_subex = output_expression.get_subex(ad)
+			if isinstance(in_subex, Mul) and isinstance(out_subex, Mul):
+				if in_subex.symbol == '' and out_subex.symbol != '':
+					addressmap.append([ad, ad+'*'])
+				if in_subex.symbol != '' and out_subex.symbol == '':
+					addressmap.append([ad+'*', ad])
+
 		return addressmap
 		
 	def __repr__(self):

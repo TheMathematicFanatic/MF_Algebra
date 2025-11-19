@@ -36,8 +36,8 @@ class BigOperator(Function):
 				arg @ {self.variable : i} if substitute else arg
 				for i in range(min, min+max_num_terms)
 			]
-			from ..variables import dots
-			terms.append(dots)
+			from ..variables import cdots
+			terms.append(cdots)
 		else:
 			terms = [
 				arg @ {self.variable : i} if substitute else arg

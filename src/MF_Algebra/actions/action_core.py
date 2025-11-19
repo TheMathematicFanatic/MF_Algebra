@@ -20,7 +20,7 @@ class Action(MF_Base):
 
 	def get_output_expression(self, input_expression):
   		# define in subclasses
-		raise NotImplementedError
+		return None
 
 	@staticmethod
 	def preaddressfunc(func):
@@ -44,7 +44,7 @@ class Action(MF_Base):
 
 	def get_addressmap(self, input_expression, **kwargs):
 		# define in subclasses
-		raise NotImplementedError
+		return [['', '']]
 
 	@staticmethod
 	def preaddressmap(getmap):
@@ -63,7 +63,9 @@ class Action(MF_Base):
 
 	@staticmethod
 	def autoparenmap(getmap, mode='stupid'):
-		if mode=='stupid':
+		if mode == 'none':
+			return getmap
+		if mode == 'stupid':
 			@wraps(getmap)
 			def wrapper(action, expr, *args, **kwargs):
 				addressmap = list(getmap(action, expr, *args, **kwargs))
@@ -82,7 +84,7 @@ class Action(MF_Base):
 							entry[1] = entry[1] + '_'
 				return addressmap
 
-		if mode=='smart':
+		if mode == 'smart':
 			@wraps(getmap)
 			def wrapper(action, expr, *args, **kwargs):
 				addressmap = list(getmap(action, expr, *args, **kwargs))
@@ -105,11 +107,13 @@ class Action(MF_Base):
 					default_remover=self.remover,
 					**kwargs
 				)
-			TBAM = get_TBAM(input_exp.copy(), output_exp.copy())
-			if not TBAM.show_indices:
+			try:
+				TBAM = get_TBAM(input_exp.copy(), output_exp.copy())
+				assert not TBAM.show_indices, f'Invalid Glyphmap: {TBAM.glyphmap}'
 				return get_TBAM(input_exp, output_exp)
-			else:
+			except Exception as E:
 				print('Warning: Action produced an invalid glyphmap. Falling back to TransformMatchingTex')
+				print('Exception: ', E)
 				print('Action: ', self)
 				print('Input: ', input_exp)
 				print('Output: ', output_exp)
@@ -165,3 +169,6 @@ class Action(MF_Base):
 
 class IncompatibleExpression(Exception):
 	pass
+
+
+

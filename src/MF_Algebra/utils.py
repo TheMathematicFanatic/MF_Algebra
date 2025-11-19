@@ -41,24 +41,29 @@ def Smarten(input):
 	if isinstance(input, MF_Base):
 		return input.copy()
 
-	from .expressions.numbers.integer import Integer
 	if isinstance(input, int):
+		from .expressions.numbers.integer import Integer
 		return Integer(input)
 
-	from .expressions.numbers.real import Real
 	if isinstance(input, float):
+		if input == np.inf:
+			from .calculus.infinity import inf
+			return inf
+		if input == np.nan:
+			return None
 		from math import isclose
 		if isclose(input, round(input)):
+			from .expressions.numbers.integer import Integer
 			return Integer(int(input))
-		else:
-			return Real(input)
+		from .expressions.numbers.real import Real
+		return Real(input)
 
-	from .expressions.numbers.complex import Complex
 	if isinstance(input, complex):
+		from .expressions.numbers.complex import Complex
 		return Complex(input)
 
-	from .expressions.variables import dots
 	if input is ...:
+		from .expressions.variables import dots
 		return dots
 
 	from decimal import Decimal
@@ -66,8 +71,8 @@ def Smarten(input):
 		return Smarten(float(input))
 
 	from fractions import Fraction
-	from .expressions.numbers.rational import Rational
 	if isinstance(input, Fraction):
+		from .expressions.numbers.rational import Rational
 		return Rational(input.numerator, input.denominator)
 
 	raise NotImplementedError(f"Unsupported type {type(input)}")
@@ -251,3 +256,14 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 		])
 	return VGroup(Nodes, Edges)
 
+
+def to_sympy(exp):
+	from sympy.parsing.latex import parse_latex
+	latex = str(exp)
+	sympy_expr = parse_latex(latex)
+
+	# Special case substitution needed so that e is interpreted as the constant and not a variable
+	from sympy import E, symbols
+	sympy_expr = sympy_expr.subs(symbols('e'), E)
+
+	return sympy_expr

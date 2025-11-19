@@ -750,3 +750,217 @@ class Relativity(TimelineScene):
 		self.timeline.set_solve_for(v)
 		self.timeline.play_all(self)
  
+
+class LimitRational(Scene):
+	def construct(self):
+		num_roots = [-1,-9]
+		den_roots = [-1,-5,-8]
+		lim_value = inf
+
+		def factor_from_root(a):
+			if a == 0:
+				return x
+			elif a > 0:
+				return x-a
+			elif a < 0:
+				return x+abs(a)
+
+		def get_term(coef, degree, var):
+			coef = abs(coef)
+			if degree == 0:
+				return coef
+			if coef == 1 and degree == 1:
+				return var
+			elif degree == 1:
+				return coef*var
+			elif coef == 1:
+				return var**degree
+			else:
+				return coef*var**degree
+
+		def expanded_from_roots(*roots):
+			from sympy import Poly, prod
+			from sympy.abc import y
+			coefficients = Poly(prod(y - r for r in roots), y).all_coeffs()
+			coefficients = [int(c) for c in coefficients]
+			degree = len(coefficients) - 1
+			expanded = get_term(coefficients[0], degree, x)
+			for i in range(1, len(coefficients)):
+				if coefficients[i] > 0:
+					expanded += get_term(coefficients[i], degree-i, x)
+				elif coefficients[i] < 0:
+					expanded -= get_term(abs(coefficients[i]), degree-i, x)
+			return expanded
+
+		numerator_factored = Mul(*[factor_from_root(a) for a in num_roots])
+		numerator_expanded = expanded_from_roots(*num_roots)
+		denominator_factored = Mul(*[factor_from_root(a) for a in den_roots])
+		denominator_expanded = expanded_from_roots(*den_roots)
+
+		rational = numerator_expanded / denominator_expanded
+		lim = Limit(x, lim_value)
+		E = Evaluate(mode='all at once')
+		E >> rational
+		E >> apply_func_(lim)
+		E >> equals_(rational)
+		E >> substitute_({x:lim.destination}, mode='fade').pread('1')
+		# self.embed(False)
+		# E.expressions[-1].right.decimal_places = 10
+		E.play_all(self)
+		self.wait()
+		self.embed()
+
+
+class InteractiveSceneTest(InteractiveScene):
+	def construct(self):
+		T = Solve(auto_color={x:RED, y:BLUE, z:GREEN}, auto_scale=2)
+		T >>= (3*x-4 | 30)
+		self.embed()
+
+
+
+class SeriesTest(Scene):
+	def construct(self):
+		self.set_series(4/(1+n**2))
+		self.embed()
+
+	def set_series(self, *args, **kwargs):
+		self.clear()
+		self.series = Series(*args, **kwargs)
+		self.play(Write(self.series.mob))
+
+	def show_terms(self):
+		S = self.series
+		terms_timeline = Evaluate(mode='all at once')
+		S_with_terms = Equation(S, S.expand_on_args())
+		terms_timeline >> S
+		self.play(terms_timeline.mob.animate.move_to(S_with_terms['0']))
+		terms_timeline >> equals_(S.expand_on_args())
+		terms_timeline.play_all(self)
+		self.wait()
+		self.play(
+			FadeOut(terms_timeline.exp['=1']),
+			ReplacementTransform(terms_timeline.exp['0'], S.mob.center())
+		)
+
+	def divergence_test(self):
+		S = self.series
+		n = self.series.variable
+		lim_timeline = Evaluate()
+		lim_timeline >> S.term >> apply_func_(Limit(n, inf))
+		lim_timeline >> equals_(S.term) >> substitute_({n:inf}).pread('1')
+		lim_timeline.get_vgroup().shift(1.5*DOWN)
+
+		self.play(
+			S.mob.animate.shift(1.5*UP),
+			ReplacementTransform(S['1_'].copy(), lim_timeline.mob)
+		)
+		lim_timeline.play_all(self, wait_between=0.5)
+		result = lim_timeline.exp.right
+		if isinstance(result, Number):
+			if result.compute() == 0:
+				color = GOLD
+				result = TexText('Inconclusive...').set_color(color)
+			else:
+				color = RED_D
+				result = TexText('Diverges!').set_color(color)
+			self.wait()
+			self.play(
+				lim_timeline.mob.animate.set_color(color),
+				S.mob.animate.set_color(color),
+				Write(result)
+			)
+		else:
+			pass
+		self.wait()
+		self.play(FadeOut(result), FadeOut(lim_timeline.mob), S.mob.animate.set_color(WHITE).center())
+
+
+class LimScene(Scene):
+	def construct(self):
+		eq = Variable('L') | sqrt(h**2 + (f(x) - f(x+h))**2)
+		lim = Limit(h,0)
+		T = Timeline(auto_color={x:RED, h:PURPLE, f:BLUE, h**2:ORANGE}) >> eq >> apply_func_(lim).pread('1')
+		T >> substitute_({x:15}, mode='swirl', maintain_color=True)
+		T.play_all(self)
+
+
+class SolveSimple(Scene):
+	def construct(self):
+		eqs = [
+			3*x+5 | 14,
+			6*w-4 | 12,
+		]
+
+algebra_config['multiplication_mode'] = 'auto'
+algebra_config['always_color'] = {
+	x:RED_D, y:BLUE_D, z:GREEN_D,
+	a:RED_B, b:GREEN_D, c:BLUE_E,
+	n:GOLD, m:BLUE_B, w:PURPLE, p:PINK,
+	d: GREY_C,
+	dx:RED_B, dy:BLUE_B, dz:GREEN_B,
+}
+class Differentiation(Scene):
+	def construct(self, expression = x**3-5/z):
+		D = Differentiate(auto_scale=2)
+		D >>= expression
+		D >> apply_func_(d)
+		# D >> substitute_({a:3})
+		# D.play_all(self)
+		self.add(D.get_vgroup().arrange(DOWN, buff=1))
+		self.embed()
+
+	def reset(self, expression):
+		self.clear()
+		self.construct(expression)
+
+# Differentiation().construct()
+
+
+class SimplifyTesting(Scene):
+	def construct(self):
+		for SR_ in SimplificationRule.__subclasses__():
+			name = Tex(str(SR_().template1) + ' \\to ' + str(SR_().template2))
+			A = e**(x**2+y**2)
+			input_expression = SR_().template1.substitute({a:A})
+			T = input_expression >> SR_()
+			self.play(
+				Write(T.mob),
+				FadeIn(name.to_edge(DOWN))
+			)
+			self.wait()
+			T.play_all(self)
+			self.play(*[FadeOut(mob) for mob in self.mobjects])
+
+
+class DivideOrDistribute(Scene):
+	def construct(self):
+		eq = 3*(x+5) | 21
+		distribute = AlgebraicAction(
+			a*(b+c) | x,
+			a*b + a*c | x,
+			[[],'01*'],
+			var_kwarg_dict={a:{'path_arc':-TAU/3}}
+		)  # Couldn't figure out the preaddressing bug so I just included the RHS in the template lmao
+		T1 = Solve().suspend()
+		T1 >> eq >> distribute #.pread('0')
+		T1.resume()
+
+		frame = self.camera.frame
+		frame.shift(DOWN*2)
+
+		self.play(Write(T1.mob))
+		self.wait()
+		T1.play_all(self)
+		
+		T2 = Solve() >> eq
+		self.play(ReplacementTransform(T1.mob, T2.mob))
+		self.wait()
+		T2.play_all(self)
+
+		# distribute = GlyphMapAction(
+		# 	([0], [0], {'path_arc':-PI/2}),
+		# 	([0], [3], {'path_arc':-PI/2}),
+		# 	([1,5], [], {'run_time':0.5}),
+		# 	([], [4], {'run_time':0.5, 'delay':0.5}),
+		# )
