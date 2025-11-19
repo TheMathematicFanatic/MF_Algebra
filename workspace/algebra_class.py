@@ -116,7 +116,7 @@ algebra_config['always_color'] = {
 
 class EquationGame(Scene):
 	def construct(self):
-		self.mode = 'programmed'
+		self.mode = 'random'
 		self.init_game(10)
 		self.await_input()
 		self.embed()
@@ -135,11 +135,31 @@ class EquationGame(Scene):
 		solution = input('What is the mystery number?    ')
 		if solution == 'quit':
 			return
-		solution = eval(solution)
-		solution = Smarten(solution)
-		self.guess_solution(solution)
+		if solution == 'solve':
+			self.solve_equation()
+			return
+		try:
+			solution = eval(solution)
+			solution = Smarten(solution)
+			self.guess_solution(solution)
+		except SyntaxError:
+			print('Invalid Syntax, try again!')
 		if recurse and self.point_value < self.points_to_win:
 			self.await_input(recurse=recurse)
+		
+	def solve_equation(self, test=True):
+		self.clear()
+		timeline = Solve()
+		timeline >>= self.equation
+		self.add(timeline.mob)
+		timeline.play_all(self)
+		self.wait()
+		self.play(FadeOut(timeline.mob))
+		self.play(Write(self.equation.mob))
+		if test:
+			self.guess_solution(
+				timeline.get_expression(-1).children[1]
+			)
 
 	def reset_equation(self, equation=None, index=None):
 		if hasattr(self, 'timeline'):
@@ -151,7 +171,7 @@ class EquationGame(Scene):
 			if self.mode == 'programmed':
 				self.equation = programmed_equations[index]
 			elif self.mode == 'random':
-				self.equation = random_equation()
+				self.equation = random_equation(1 if index < 8  else 2)
 			else: 
 				print('Unknown mode: ', self.mode, '. Must be programmed or random.')
 		self.timeline = Evaluate(auto_scale=2)
@@ -180,24 +200,60 @@ class EquationGame(Scene):
 		if self.point_value >= self.points_to_win:
 			self.you_win()
 
-	def you_win(self):
-		self.play(*[
-			circ.animate.move_to(2.5*Vcis(TAU/self.points_to_win * i)).scale(1.1)
-			for i,circ in enumerate(self.point_indicators)
-		])
-		always_rotate(self.point_indicators)
-		self.wait()
-		self.play(Write(TexText('You Win!')))
-		self.wait(10)
-		self.embed()
+	# def you_win(self):
+	# 	self.play(*[
+	# 		circ.animate.move_to(2.5*Vcis(TAU/self.points_to_win * i)).scale(1.1)
+	# 		for i,circ in enumerate(self.point_indicators)
+	# 	])
+	# 	always_rotate(self.point_indicators)
+	# 	self.wait()
+	# 	self.play(Write(TexText('You Win!')))
+	# 	self.wait(10)
+	# 	self.embed()
 
-def random_equation(depth=2):
-	import random
-	var = random.choice([
-		a,b,c,n,m,p,q,x,y,z
-	])
+	def you_win(self):
+		self.play(*[FadeOut(mob) for mob in self.mobjects])
+		square = Square3D()
+		bottom = square.copy().shift(IN)
+		top = square.copy().shift(OUT)
+		square.rotate(PI/2, UP)
+		right = square.copy().shift(RIGHT)
+		left = square.copy().shift(LEFT)
+		square.rotate(PI/2, OUT)
+		up = square.copy().shift(UP)
+		down = square.copy().shift(DOWN)
+		Box = SGroup(bottom, right, left, up, down)
+		Box.apply_depth_test()
+		self.add(Box)
+
+		bomb = Sphere().set_color(BLUE_D)
+		fuse = Cylinder(radius=0.1).shift(OUT).set_color(WHITE)
+		Bomb = SGroup(bomb, fuse)
+		Bomb.scale(0.25)
+		Bomb.apply_depth_test()
+		self.add(Bomb)
+		
+		self.play(FadeIn(Bomb))
+		frame = self.camera.frame
+		self.play(frame.animate.reorient(30, 45, 0))
+		you_win = Text("You're blown up!POOP POOP DEAD AND KILD")
+		self.wait(3)
+		self.play(
+			FadeIn(you_win, run_time=0.5),
+			Bomb.animate.scale(2000)
+		)
+		self.wait(3)
+		self.play(Bomb.animate.scale(1/300), Box.animate.scale(5))
+		frame.add_ambient_rotation(3*DEG)
+		self.embed()
+		
+
+def random_equation(depth=1):
+	# import random
+	random.seed()
+	var = random.choice(list(algebra_config['always_color'].keys()))
 	exp = var
-	def one_more_layer(exp, OpClassList = [Add,Sub,Mul,Div,Pow]):
+	def one_more_layer(exp, OpClassList = [Add,Sub,Mul]):
 		OpClass = random.choice(OpClassList)
 		side = random.choice(['left', 'right'])
 		other = random.choice(range(0,21))
@@ -207,17 +263,32 @@ def random_equation(depth=2):
 			return OpClass(other, exp)
 	for i in range(depth):
 		exp = one_more_layer(exp)
-	solution = random.choice(range(-20,21))
+	solution = random.choice(range(0,21))
 	other = exp.copy().substitute({var:solution}).compute()
 	exp = Equation(exp, other)
 	return exp
 
+from MF_Tools import *
+class RiemannSum(Scene):
+	def construct(self):
+		func = Function('f', algebra_rule=e**x+1.5)
+		a = VT(-2)
+		b = VT(2)
+		n = VT(4)
+		graph_color = GREEN_D
+		graph_area_color = GREEN_B
+		rect_color = BLUE
 
+		ax = Axes()
+		func_graph = ax.get_graph(func.lambdify)
+		func_eq = func.equation
 
+		self.play(
+			FadeIn(ax),
+			ShowCreation(func_graph),
+			#Write(func_eq.mob.to_corner(UR))
+		)
+		self.embed()
 
-
-
-exec
-
-eval
+	
 
