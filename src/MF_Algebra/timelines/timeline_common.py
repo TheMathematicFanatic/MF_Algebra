@@ -13,7 +13,9 @@ class Evaluate(AutoTimeline):
 		if first_expression is not None:
 			self.add_expression_to_start(first_expression)
 
-	def decide_next_action(self, index: int):
+	def decide_next_action(self, index: int, mode=None):
+		if mode is not None:
+			self.mode = mode
 		if self.mode == 'one at a time':
 			last_exp = self.get_expression(index)
 			twig_ads = last_exp.get_all_twig_addresses()
@@ -46,8 +48,6 @@ class Evaluate(AutoTimeline):
 class Solve(AutoTimeline):
 	def __init__(self, solve_for=None, first_expression=None, preferred_side=None, auto_evaluate=True, **kwargs):
 		super().__init__(**kwargs)
-		if first_expression is not None:
-			self.add_expression_to_start(first_expression)
 		self.solve_for = solve_for
 		self.auto_evaluate = auto_evaluate
 		self.all_actions_to_try = []
@@ -59,6 +59,8 @@ class Solve(AutoTimeline):
 				maneuver_().flip(),
 				maneuver_().reverse_flip()
 			]
+		if first_expression is not None:
+			self.add_expression_to_start(first_expression)
 
 	def decide_next_action(self, index:int):
 		last_exp = self.get_expression(index)
