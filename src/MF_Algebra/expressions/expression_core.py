@@ -566,11 +566,6 @@ class Expression(MF_Base):
 		else:
 			return Div(1, self)
 
-	@property
-	def sympy(self):
-		from sympy.parsing.latex import parse_latex
-		return parse_latex(str(self))
-
 
 
 class Address:

@@ -256,3 +256,14 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 		])
 	return VGroup(Nodes, Edges)
 
+
+def to_sympy(exp):
+	from sympy.parsing.latex import parse_latex
+	latex = str(exp)
+	sympy_expr = parse_latex(latex)
+
+	# Special case substitution needed so that e is interpreted as the constant and not a variable
+	from sympy import E, symbols
+	sympy_expr = sympy_expr.subs(symbols('e'), E)
+
+	return sympy_expr

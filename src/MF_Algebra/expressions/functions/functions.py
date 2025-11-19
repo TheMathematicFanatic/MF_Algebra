@@ -141,6 +141,21 @@ class Function(Expression):
 	def hash_key(self):
 		return (self.__class__, tuple(self.children), self.symbol)
 
+	@property
+	def equation(self, **kwargs):
+		from ..combiners.relations import Equation
+		return Equation(self(*self.algebra_rule_variables), self.algebra_rule)
+
+	@property
+	def lambdify(self):
+		assert self.algebra_rule is not None, 'This function has no algebra rule'
+		from ...utils import to_sympy
+		from sympy import lambdify
+		sympy_vars = [to_sympy(v) for v in self.algebra_rule_variables]
+		sympy_rule = to_sympy(self.algebra_rule)
+		return lambdify(sympy_vars, sympy_rule, 'math')
+
+
 
 class ApplyFunction(BinaryOperation):
 	symbol = ''
