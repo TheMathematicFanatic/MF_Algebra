@@ -39,7 +39,7 @@ class Function(Expression):
 		symbol = None,
 		symbol_glyph_length = None,
 		python_rule = None,
-		algebra_rule_variables = [],
+		algebra_rule_variables = None,
 		algebra_rule = None,
 		parentheses_mode = 'always',
 		children = [],
@@ -49,8 +49,12 @@ class Function(Expression):
 		self.symbol_glyph_length = symbol_glyph_length #int
 		if python_rule is not None:
 			self.python_rule = python_rule #callable
-		self.algebra_rule_variables = algebra_rule_variables
-		self.algebra_rule = algebra_rule
+		if algebra_rule is not None:
+			self.algebra_rule = algebra_rule
+			if algebra_rule_variables is not None:
+				self.algebra_rule_variables = algebra_rule_variables
+			else:
+				self.algebra_rule_variables = algebra_rule.get_all_variables()
 		self.parentheses_mode = parentheses_mode
 		super().__init__(*children, **kwargs)
 
@@ -271,6 +275,8 @@ class Composition(BinaryOperation):
 	symbol = '\\circ'
 	symbol_glyph_length = 1
 	eval_op = staticmethod(lambda x,y: Expression.__call__(x,y)) # ???
+	string_code = [c0, lambda self: self.symbol, c1]
+	glyph_code = [c0, lambda self: self.symbol_glyph_length, c1]
 	def __init__(self, *children, **kwargs):
 		assert len(children) == 2
 		assert children[0].is_function() and children[1].is_function()
