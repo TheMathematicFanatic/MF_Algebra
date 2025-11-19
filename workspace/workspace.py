@@ -876,8 +876,6 @@ class SeriesTest(Scene):
 		self.play(FadeOut(result), FadeOut(lim_timeline.mob), S.mob.animate.set_color(WHITE).center())
 
 
-from MF_Algebra import *
-
 class LimScene(Scene):
 	def construct(self):
 		eq = Variable('L') | sqrt(h**2 + (f(x) - f(x+h))**2)
@@ -885,3 +883,84 @@ class LimScene(Scene):
 		T = Timeline(auto_color={x:RED, h:PURPLE, f:BLUE, h**2:ORANGE}) >> eq >> apply_func_(lim).pread('1')
 		T >> substitute_({x:15}, mode='swirl', maintain_color=True)
 		T.play_all(self)
+
+
+class SolveSimple(Scene):
+	def construct(self):
+		eqs = [
+			3*x+5 | 14,
+			6*w-4 | 12,
+		]
+
+algebra_config['multiplication_mode'] = 'auto'
+algebra_config['always_color'] = {
+	x:RED_D, y:BLUE_D, z:GREEN_D,
+	a:RED_B, b:GREEN_D, c:BLUE_E,
+	n:GOLD, m:BLUE_B, w:PURPLE, p:PINK,
+	d: GREY_C,
+	dx:RED_B, dy:BLUE_B, dz:GREEN_B,
+}
+class Differentiation(Scene):
+	def construct(self, expression = x**3-5/z):
+		D = Differentiate(auto_scale=2)
+		D >>= expression
+		D >> apply_func_(d)
+		# D >> substitute_({a:3})
+		# D.play_all(self)
+		self.add(D.get_vgroup().arrange(DOWN, buff=1))
+		self.embed()
+
+	def reset(self, expression):
+		self.clear()
+		self.construct(expression)
+
+# Differentiation().construct()
+
+
+class SimplifyTesting(Scene):
+	def construct(self):
+		for SR_ in SimplificationRule.__subclasses__():
+			name = Tex(str(SR_().template1) + ' \\to ' + str(SR_().template2))
+			A = e**(x**2+y**2)
+			input_expression = SR_().template1.substitute({a:A})
+			T = input_expression >> SR_()
+			self.play(
+				Write(T.mob),
+				FadeIn(name.to_edge(DOWN))
+			)
+			self.wait()
+			T.play_all(self)
+			self.play(*[FadeOut(mob) for mob in self.mobjects])
+
+
+class DivideOrDistribute(Scene):
+	def construct(self):
+		eq = 3*(x+5) | 21
+		distribute = AlgebraicAction(
+			a*(b+c) | x,
+			a*b + a*c | x,
+			[[],'01*'],
+			var_kwarg_dict={a:{'path_arc':-TAU/3}}
+		)  # Couldn't figure out the preaddressing bug so I just included the RHS in the template lmao
+		T1 = Solve().suspend()
+		T1 >> eq >> distribute #.pread('0')
+		T1.resume()
+
+		frame = self.camera.frame
+		frame.shift(DOWN*2)
+
+		self.play(Write(T1.mob))
+		self.wait()
+		T1.play_all(self)
+		
+		T2 = Solve() >> eq
+		self.play(ReplacementTransform(T1.mob, T2.mob))
+		self.wait()
+		T2.play_all(self)
+
+		# distribute = GlyphMapAction(
+		# 	([0], [0], {'path_arc':-PI/2}),
+		# 	([0], [3], {'path_arc':-PI/2}),
+		# 	([1,5], [], {'run_time':0.5}),
+		# 	([], [4], {'run_time':0.5, 'delay':0.5}),
+		# )
