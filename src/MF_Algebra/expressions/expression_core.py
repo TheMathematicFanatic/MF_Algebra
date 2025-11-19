@@ -82,7 +82,7 @@ class Expression(MF_Base):
 				assert isinstance(gc, int)
 				self._glyph_count = gc
 				return
-			except (NotImplementedError, AssertionError, AttributeError):
+			except (NotImplementedError, AssertionError, AttributeError, ValueError):
 				pass
 		gc = self.get_glyph_count_from_mob()
 		self._glyph_count = gc
