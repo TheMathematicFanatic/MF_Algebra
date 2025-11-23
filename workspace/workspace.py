@@ -964,3 +964,53 @@ class DivideOrDistribute(Scene):
 		# 	([1,5], [], {'run_time':0.5}),
 		# 	([], [4], {'run_time':0.5, 'delay':0.5}),
 		# )
+
+algebra_config['multiplication_mode'] = 'dot'
+class FracPowerEquation(Scene):
+	def construct(self):
+		eq = (x+1)**(two/three) | 4
+		T = eq >> pow_(three/two).both()
+		alg = AlgebraicAction(
+			(a**b)**c | x,
+			a**(b*c) | x,
+		)
+		T >> alg >> evaluate_().pread('01', '1')
+		T >> pow_one_R().pread('0')
+		T >> alg_add_R() >> evaluate_().pread('1')
+		for exp in T.expressions:
+			exp.auto_parentheses()
+		#T.play_all(self)
+		self.embed()
+
+algebra_config['multiplication_mode'] = 'auto'
+algebra_config['always_color'][x] = GREEN
+class MediumEquation(Scene):
+	def construct(self):
+		eq = 9 - 25/(x+2) | 4
+		T = Solve(x, eq)
+		T.play_all(self, 0.25)
+		self.play(CircleIndicate(T.mob))
+		self.embed()
+
+
+class HardEquation(Scene):
+	def construct(self):
+		eq = 12 - sqrt(cbrt(27/(9/(2*x-6))) + 3) | 9
+		T = Solve(x, eq)
+		T.align_on_equals()
+		T.play_all(self, 0.5)
+
+
+
+
+
+
+
+
+
+
+class HardEquation2(Scene):
+	def construct(self):
+		eq = 10 - cbrt(8/(3+8/(5*x+7))) | 8
+		T = Solve(x, eq).align_on_equals(0.5)
+		T.play_all(self, 0.5)

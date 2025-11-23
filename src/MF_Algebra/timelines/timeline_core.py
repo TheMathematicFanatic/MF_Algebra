@@ -186,6 +186,13 @@ class Timeline(MF_Base):
 			exp.reset_caches()
 			self.set_expression(exp, i)
 
+	def align_on_equals(self, strength=1):
+		self.get_vgroup()
+		equals_positions = [exp['='].get_center() for exp in self.expressions]
+		avg = np.mean(np.stack(equals_positions), axis=0)
+		for exp, pos in zip(self.expressions, equals_positions):
+			exp.mob.shift(strength*(avg - pos))
+		return self
 
 class TimelineScene(Scene):
 	def __init__(self, *args, **kwargs):
