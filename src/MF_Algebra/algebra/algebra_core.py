@@ -7,17 +7,30 @@ from copy import deepcopy
 
 
 class AlgebraicAction(Action):
-	def __init__(self, template1=None, template2=None, *extra_addressmaps, var_condition_dict={}, var_kwarg_dict={}, **kwargs):
+	template1 = None
+	template2 = None
+	addressmap = []
+	var_condition_dict = {} # {c: lambda exp: isinstance(exp, Number)}
+	var_kwarg_dict = {} # {a:{"path_arc":PI}}
+	auto_addressmap = False
+
+	def __init__(self,
+		template1=None,
+		template2=None,
+		*extra_addressmaps,
+		var_condition_dict={},
+		var_kwarg_dict={},
+		auto_addressmap=False,
+		**kwargs
+	):
 		super().__init__(**kwargs)
-		if template1 is not None:
-			self.template1 = Smarten(template1)
-		if template2 is not None:
-			self.template2 = Smarten(template2)
-		self.var_condition_dict = var_condition_dict #{c: lambda exp: isinstance(exp, Number)}
-		self.var_kwarg_dict = var_kwarg_dict #{a:{"path_arc":PI}}
-		self.extra_addressmaps = extra_addressmaps
-		if not hasattr(self, 'addressmap'):
-			self.addressmap = None
+		self.template1 = Smarten(self.template1 or template1)
+		self.template2 = Smarten(self.template2 or template2)
+		self.addressmap = self.addressmap or list(extra_addressmaps)
+		self.var_condition_dict = self.var_condition_dict or var_condition_dict
+		self.var_kwarg_dict = self.var_kwarg_dict or var_kwarg_dict
+		self.auto_addressmap = self.auto_addressmap or auto_addressmap
+
 
 	@Action.preaddressfunc
 	def get_output_expression(self, input_expression=None):
@@ -27,12 +40,7 @@ class AlgebraicAction(Action):
 	@Action.autoparenmap
 	@Action.preaddressmap
 	def get_addressmap(self, input_expression=None):
-		# Best overwritten in subclasses, but this gets the job done sometimes.
-		# Actually, I think most subclasses will have a static addressmap, so I'll add this line at the start.
-		if self.addressmap is not None:
-			return self.addressmap
-
-		addressmap = []
+		addressmap = self.addressmap or []
 		def get_var_ad_dict(template):
 			return {var: template.get_addresses_of_subex(var) for var in template.get_all_variables()}
 		self.template1_address_dict = get_var_ad_dict(self.template1)
@@ -53,8 +61,7 @@ class AlgebraicAction(Action):
 					for t1ad in template1_addresses
 				]
 			else:
-				raise ValueError("I don't know what to do when a variable appears more than once on both sides. Please set addressmap manually.")
-		addressmap += list(self.extra_addressmaps)
+				raise ValueError("I don't know what to do when a variable appears more than once on both sides. Please turn off auto_addressmap.")
 		return addressmap
 
 	def __repr__(self):

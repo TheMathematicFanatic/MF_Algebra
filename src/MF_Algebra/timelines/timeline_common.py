@@ -6,12 +6,21 @@ from ..expressions.combiners.relations import Relation
 
 
 class Evaluate(AutoTimeline):
-	def __init__(self, first_expression=None, mode="one at a time", number_mode="float", **kwargs):
-		self.mode = mode
-		self.number_mode = number_mode
+	first_expression = None
+	mode = 'one at a time'
+	number_mode = 'float'
+	def __init__(self,
+		first_expression = None,
+		mode = None,
+		number_mode = 'float',
+		**kwargs
+	):
+		self.first_expression = self.first_expression or first_expression
+		self.mode = self.mode or mode
+		self.number_mode = self.number_mode or number_mode
 		super().__init__(**kwargs)
-		if first_expression is not None:
-			self.add_expression_to_start(first_expression)
+		if self.first_expression is not None:
+			self.add_expression_to_start(self.first_expression)
 
 	def decide_next_action(self, index: int, mode=None):
 		if mode is not None:

@@ -7,13 +7,15 @@ from MF_Tools.dual_compatibility import Write
 
 
 class apply_operation_(Action):
-	OpClass = NotImplemented
+	OpClass = None
 	side = 'right'
-	def __init__(self, other, OpClass=None, side=None, introducer=Write, **kwargs):
+	introducer = Write
+
+	def __init__(self, other, OpClass=None, side=None, introducer=None, **kwargs):
 		self.other = Smarten(other)
-		self.OpClass = OpClass or self.OpClass
-		self.side = side or self.side
-		self.introducer = introducer
+		self.OpClass = self.OpClass or OpClass
+		self.side = self.side or side
+		self.introducer = self.introducer or introducer
 		super().__init__(**kwargs)
 
 	@Action.preaddressfunc
@@ -68,4 +70,5 @@ class equals_(apply_operation_):
 
 class apply_func_(apply_operation_):
 	OpClass = ApplyFunction
-	side = 'right'
+	side = 'left'
+
