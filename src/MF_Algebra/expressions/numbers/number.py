@@ -1,9 +1,9 @@
 from ..expression_core import *
-from ..combiners.operations import Div
 import numpy as np
 
 
 class Number(Expression):
+	value_type = None
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
 		self.value = None
@@ -13,6 +13,9 @@ class Number(Expression):
 
 	def __float__(self):
 		return float(self.value)
+	
+	def __int__(self):
+		return int(self.value)
 
 	def hash_key(self):
 		return (self.__class__, tuple(self.children), self.value)

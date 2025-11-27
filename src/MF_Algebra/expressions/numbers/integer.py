@@ -3,6 +3,7 @@ from .number import *
 
 
 class Integer(Number):
+	value_type = int
 	def __init__(self, n, **kwargs):
 		assert isinstance(n, int)
 		super().__init__(**kwargs)

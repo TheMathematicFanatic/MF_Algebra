@@ -3,4 +3,4 @@ from .number import *
 
 
 class Complex(Number):
-	pass
+	value_type = complex

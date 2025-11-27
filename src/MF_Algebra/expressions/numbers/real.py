@@ -1,10 +1,12 @@
 from ..expression_core import *
-from .number import *
+from .number import Number
+import numpy as np
 
 
 class Real(Number):
 	decimal_places = algebra_config['decimal_precision']
 	internal_precision = 10**-8
+	value_type = float
 	def __init__(self, value, symbol=None, symbol_glyph_length=None, decimal_places=None, **kwargs):
 		super().__init__(**kwargs)
 		rounded = round(value, self.decimal_places)
