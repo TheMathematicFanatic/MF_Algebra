@@ -524,6 +524,10 @@ class Expression(MF_Base):
 	def hash_key(self):
 		return (self.__class__, tuple(self.children))
 
+	def is_identical_to(self, other):
+		# Could be removed and always say A == B instead of A.is_identical_to(B)
+		return self.hash_key() == other.hash_key()
+
 	def __repr__(self):
 		max_length = 1e6
 		string = type(self).__name__ + "(" + self.repr_string() + ")"
@@ -536,17 +540,6 @@ class Expression(MF_Base):
 
 	def is_negative(self):
 		return False # catchall if not defined in subclasses
-
-	def is_identical_to(self, other):
-		other = Smarten(other)
-		if type(self) != type(other):
-			return False
-		if len(self.children) != len(other.children):
-			return False
-		for c1, c2 in zip(self.children, other.children):
-			if not c1.is_identical_to(c2):
-				return False
-		return True
 
 	def is_variable(self):
 		from .variables import Variable

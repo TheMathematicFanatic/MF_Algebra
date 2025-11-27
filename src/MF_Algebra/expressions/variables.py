@@ -16,10 +16,6 @@ class Variable(Expression):
 	def __str__(self):
 		return self.symbol
 
-	def is_identical_to(self, other):
-		other = Smarten(other)
-		return super().is_identical_to(other) and self.symbol == other.symbol
-
 	def compute(self):
 		raise ValueError(f"Expression contains a variable {self.symbol}.")
 

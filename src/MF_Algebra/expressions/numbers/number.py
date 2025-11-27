@@ -13,10 +13,6 @@ class Number(Expression):
 
 	def __float__(self):
 		return float(self.value)
-	
-	def is_identical_to(self, other):
-		other = Smarten(other)
-		return super().is_identical_to(other) and self.value == other.value
 
 	def hash_key(self):
 		return (self.__class__, tuple(self.children), self.value)

@@ -26,9 +26,9 @@ class MF_Base(ABC):
 		return other.__rshift__(self)
 
 	def __eq__(self, other):
-		if self.__class__ is not other.__class__:
-			return NotImplemented
-		return self.hash_key() == other.hash_key()
+		other = Smarten(other)
+		if type(self) != type(other):
+			return self.hash_key() == other.hash_key()
 
 	def __hash__(self):
 		return hash(self.hash_key())

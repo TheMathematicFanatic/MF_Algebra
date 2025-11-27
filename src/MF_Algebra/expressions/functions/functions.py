@@ -113,9 +113,6 @@ class Function(Expression):
 
 	def is_function(self):
 		return True
-	
-	def is_identical_to(self, other):
-		return super().is_identical_to(other) and str(self) == str(other)
 
 	def compute(self):
 		raise ValueError('Functions should not be computed directly. It can be computed on its arguments by the ApplyFunction operation.')
