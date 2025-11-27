@@ -4,9 +4,14 @@ from .number import *
 
 class Real(Number):
 	decimal_places = algebra_config['decimal_precision']
+	internal_precision = 10**-8
 	def __init__(self, value, symbol=None, symbol_glyph_length=None, decimal_places=None, **kwargs):
 		super().__init__(**kwargs)
-		self.value = value
+		rounded = round(value, self.decimal_places)
+		if np.abs(value - rounded) < self.internal_precision:
+			self.value = rounded
+		else:
+			self.value = value
 		self.symbol = symbol
 		self.symbol_glyph_length = symbol_glyph_length
 		if decimal_places is not None:
