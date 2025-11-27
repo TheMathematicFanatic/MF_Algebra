@@ -1,4 +1,5 @@
 from ..expression_core import *
+from ..variables import x,y,z
 
 
 class Combiner(Expression):
@@ -75,3 +76,14 @@ class Subscript(Script):
 class Superscript(Script):
 	symbol = '^'
 	symbol_glyph_length = 0
+
+
+x1 = Subscript(x,1)
+x2 = Subscript(x,2)
+x3 = Subscript(x,3)
+y1 = Subscript(y,1)
+y2 = Subscript(y,2)
+y3 = Subscript(y,3)
+z1 = Subscript(z,1)
+z2 = Subscript(z,2)
+z3 = Subscript(z,3)
