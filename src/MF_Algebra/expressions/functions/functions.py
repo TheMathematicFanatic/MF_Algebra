@@ -84,7 +84,7 @@ class Function(Expression):
 		start = 0
 		start += self.parentheses * self.paren_length()
 		for gc in self.glyph_code:
-			if isinstance(gc, Variable) and gc.is_identical_to(child_num(addigit)):
+			if isinstance(gc, Variable) and gc == child_num(addigit):
 				end = start + self.children[addigit].glyph_count
 				return list(range(start, end))
 			else:

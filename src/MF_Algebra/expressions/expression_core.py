@@ -213,7 +213,7 @@ class Expression(MF_Base):
 
 	def get_addresses_of_subex(self, target_subex):
 		return self.get_all_addresses_with_condition(
-			lambda subex: subex.is_identical_to(target_subex)
+			lambda subex: subex == target_subex
 		)
 
 
@@ -523,10 +523,6 @@ class Expression(MF_Base):
 
 	def hash_key(self):
 		return (self.__class__, tuple(self.children))
-
-	def is_identical_to(self, other):
-		# Could be removed and always say A == B instead of A.is_identical_to(B)
-		return self.hash_key() == other.hash_key()
 
 	def __repr__(self):
 		max_length = 1e6

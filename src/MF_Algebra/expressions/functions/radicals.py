@@ -15,7 +15,7 @@ class Rad(Function):
 
 	def reset_caches(self):
 		super().reset_caches()
-		if self.allow_nickname and self.index.is_identical_to(two):
+		if self.allow_nickname and self.index == two:
 			self.nicknamed = True
 		else:
 			self.nicknamed = False

@@ -16,9 +16,9 @@ class Log(Function):
 
 	def reset_caches(self):
 		super().reset_caches()
-		if self.allow_nickname and self.base.is_identical_to(ten):
+		if self.allow_nickname and self.base == ten:
 			self.nicknamed = True
-		elif self.allow_nickname and self.base.is_identical_to(e):
+		elif self.allow_nickname and self.base == e:
 			self.nicknamed = 'ln'
 		else:
 			self.nicknamed = False

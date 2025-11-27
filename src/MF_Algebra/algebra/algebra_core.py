@@ -119,7 +119,7 @@ def match_expressions(template, expression, condition_dict={}):
 			return {template: expression}
 		if isinstance(template, Function) and expression.is_function():
 			return {template: expression}
-		if template.is_identical_to(expression):
+		if template == expression:
 			return {}
 		raise IncompatibleExpression("Expressions do not match")
 	
@@ -132,7 +132,7 @@ def match_expressions(template, expression, condition_dict={}):
 	for tc,ec in zip(template.children, expression.children):
 		child_dict = match_expressions(tc, ec, condition_dict)
 		matching_keys = child_dict.keys() & var_dict.keys()
-		if any(not child_dict[key].is_identical_to(var_dict[key]) for key in matching_keys):
+		if any(not child_dict[key] == var_dict[key] for key in matching_keys):
 			raise IncompatibleExpression("Conflicting matches for " + str(matching_keys))
 		var_dict.update(child_dict)
 

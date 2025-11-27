@@ -223,9 +223,9 @@ def test_get_all_leaf_addresses(exp, addresses):
 
 	('get_vars', A, lambda subex: isinstance(subex, Variable), ['00', '10']),
 
-	('get_twos', A, lambda subex: subex.is_identical_to(2), ['01', '11']),
+	('get_twos', A, lambda subex: subex == 2, ['01', '11']),
 
-	('get_vars_and_twos', B, lambda subex: isinstance(subex, Variable) or subex.is_identical_to(2), ['100', '101', '110', '111']),
+	('get_vars_and_twos', B, lambda subex: isinstance(subex, Variable) or subex == 2, ['100', '101', '110', '111']),
 
 ])
 def test_get_all_addresses_with_condition(exp, condition, addresses):
@@ -295,7 +295,7 @@ def test_get_addresses_of_subex(exp, subex, addresses):
 
 ])
 def test_get_subex(exp, address, subex):
-	assert exp.get_subex(address).is_identical_to(subex)
+	assert exp.get_subex(address) == subex
 
 
 
@@ -303,9 +303,9 @@ def test_get_subex(exp, address, subex):
 
 	('get_vars', A, lambda subex: isinstance(subex, Variable), {x,y}),
 
-	('get_twos', A, lambda subex: subex.is_identical_to(2), {2}),
+	('get_twos', A, lambda subex: subex == 2, {2}),
 
-	('get_vars_and_twos', B, lambda subex: isinstance(subex, Variable) or subex.is_identical_to(2), {x,y,2}),
+	('get_vars_and_twos', B, lambda subex: isinstance(subex, Variable) or subex == 2, {x,y,2}),
 
 	('get_function', (3+func)**2, lambda subex: isinstance(subex, Function), {f}),
 
@@ -314,7 +314,7 @@ def test_get_subex(exp, address, subex):
 ])
 def test_get_all_subexpressions_with_condition(exp, condition, subexes):
 	for subex1 in exp.get_all_subexpressions_with_condition(condition):
-		if not any(subex1.is_identical_to(subex2) for subex2 in subexes):
+		if not any(subex1 == subex2 for subex2 in subexes):
 			assert False
 
 
@@ -336,7 +336,7 @@ def test_get_all_subexpressions_with_condition(exp, condition, subexes):
 ])
 def test_get_all_subexpressions(exp, subexes):
 	for subex1 in exp.get_all_subexpressions():
-		if not any(subex1.is_identical_to(subex2) for subex2 in subexes):
+		if not any(subex1 == subex2 for subex2 in subexes):
 			print(exp)
 			print(subex1)
 			print(subexes)
@@ -363,7 +363,7 @@ def test_get_all_subexpressions(exp, subexes):
 ])
 def test_get_all_subexpressions_of_type(exp, type, subexes):
 	for subex1 in exp.get_all_subexpressions_of_type(type):
-		if not any(subex1.is_identical_to(subex2) for subex2 in subexes):
+		if not any(subex1 == subex2 for subex2 in subexes):
 			assert False
 
 
@@ -383,7 +383,7 @@ def test_get_all_subexpressions_of_type(exp, type, subexes):
 ])
 def test_get_all_variables(exp, subexes):
 	for subex1 in exp.get_all_variables():
-		if not any(subex1.is_identical_to(subex2) for subex2 in subexes):
+		if not any(subex1 == subex2 for subex2 in subexes):
 			assert False
 
 
@@ -510,7 +510,7 @@ def test_auto_parentheses(exp, child_parens):
 def test_substitute_at_address(exp, subex, address, result):
 	print(result.children)
 	print(exp.substitute_at_address(subex, address).children)
-	assert exp.substitute_at_address(subex, address).is_identical_to(result)
+	assert exp.substitute_at_address(subex, address) == result 
 
 
 
@@ -532,7 +532,7 @@ def test_substitute_at_address(exp, subex, address, result):
 
 ])
 def test_substitute_at_addresses(exp, subex, addresses, result):
-	assert exp.substitute_at_addresses(subex, addresses).is_identical_to(result)
+	assert exp.substitute_at_addresses(subex, addresses) == result
 
 
 
@@ -554,8 +554,8 @@ def test_substitute_at_addresses(exp, subex, addresses, result):
 
 ])
 def test_substitute(exp, substitution_dict, result):
-	assert exp.substitute(substitution_dict).is_identical_to(result)
-	assert (exp @ substitution_dict).is_identical_to(result)
+	assert exp.substitute(substitution_dict) == result
+	assert (exp @ substitution_dict) == result
 
 
 
