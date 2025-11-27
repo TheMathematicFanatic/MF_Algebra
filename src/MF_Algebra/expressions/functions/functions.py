@@ -47,16 +47,21 @@ class Function(Expression):
 	):
 		self.symbol = symbol #string
 		self.symbol_glyph_length = symbol_glyph_length #int
-		if python_rule is not None:
-			self.python_rule = python_rule #callable
-		if algebra_rule is not None:
-			self.algebra_rule = algebra_rule
-			if algebra_rule_variables is not None:
-				self.algebra_rule_variables = algebra_rule_variables
-			else:
-				self.algebra_rule_variables = algebra_rule.get_all_variables()
+		self._python_rule = python_rule #callable
+		self.algebra_rule = algebra_rule
+		if algebra_rule_variables is not None:
+			self.algebra_rule_variables = algebra_rule_variables
+		elif algebra_rule is not None:
+			self.algebra_rule_variables = algebra_rule.get_all_variables()
 		self.parentheses_mode = parentheses_mode
 		super().__init__(*children, **kwargs)
+
+	@property
+	def python_rule(self):
+		if self._python_rule:
+			return self._python_rule
+		else:
+			raise NotImplementedError
 
 	@Expression.parenthesize_latex
 	def __str__(self):
@@ -134,7 +139,7 @@ class Function(Expression):
 			assert len(self.algebra_rule_variables) == len(arg_expressions), 'Mismatched number of arguments'
 			return self.algebra_rule @ {var: arg for var, arg in zip(self.algebra_rule_variables, arg_expressions)}
 		else:
-			return NotImplemented
+			raise NotImplementedError
 
 	def evaluate(self, *arg_expressions):
 		# Override for special values like trig
@@ -261,8 +266,9 @@ class ApplyFunction(BinaryOperation):
 		return self.func.expand_on_args(*self.args_list)
 
 	def evaluate(self):
-		result = self.expand_on_args()
-		if result is NotImplemented:
+		try:
+			result = self.expand_on_args()
+		except NotImplementedError:
 			result = self.func.evaluate(*self.args_list)
 		return result
 
