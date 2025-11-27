@@ -741,12 +741,13 @@ class TimelineSceneTest(TimelineScene):
 class Relativity(TimelineScene):
 	def construct(self):
 		m1 = Variable("m'", 2)
-		self.timeline = Solve(solve_for=m1, auto_color={v:GREEN, c:BLUE_E})
+		self.timeline = Solve(auto_color={v:GREEN, c:BLUE_E}).suspend()
 		self & (m1 | gamma * m)
 		self & substitute_({gamma: 1/sqrt(1-v**2/c**2)})
-		self.timeline.set_solve_for(v/c)
+		self.timeline.set_solve_for(v/c).resume()
 		self.timeline.play_all(self)
-		self & AlgebraicAction(a**c/b**c, (a/b)**c).pread('0')
+		# self & AlgebraicAction(a**c/b**c, (a/b)**c).pread('0')
+		self & AlgebraicAction(a**c/b**c | x, (a/b)**c | x)
 		self.timeline.set_solve_for(v)
 		self.timeline.play_all(self)
  
@@ -920,7 +921,7 @@ class Differentiation(Scene):
 class SimplifyTesting(Scene):
 	def construct(self):
 		for SR_ in SimplificationRule.__subclasses__():
-			name = Tex(str(SR_().template1) + ' \\to ' + str(SR_().template2))
+			name = Tex('{'+str(SR_().template1)+'}' + ' \\to ' + '{'+str(SR_().template2)+'}')
 			A = e**(x**2+y**2)
 			input_expression = SR_().template1.substitute({a:A})
 			T = input_expression >> SR_()
@@ -1014,3 +1015,106 @@ class HardEquation2(Scene):
 		eq = 10 - cbrt(8/(3+8/(5*x+7))) | 8
 		T = Solve(x, eq).align_on_equals(0.5)
 		T.play_all(self, 0.5)
+
+
+class DerivativeRuleTesting(Scene):
+	def construct(self):
+		rule = SumRule
+		a_sub = x**2
+		b_sub = 5*x
+		c_sub = 6
+
+		exp = rule.template1
+		exp @= {a:a_sub, b:b_sub, c:c_sub}
+		T = exp >> rule
+		T.play_all(self)
+		self.embed()
+
+
+algebra_config['multiplication_mode'] = 'dot'
+class SarahExponents(Scene):
+	def construct(self):
+		exp = (a**3 * b**-2) / (a**2 * b**-3)
+		alg1 = AlgebraicAction(
+			(w*x)/(y*z),
+			(w/y) * (x/z),
+			['/', '0/', {'run_time':0.75}],
+			['/', '1/', {'run_time':0.75}],
+			['0*', '*'],
+			['1*', '*'],
+		)
+		alg2 = AlgebraicAction(x**a / x**b, x**(a-b))
+		T = Differentiate() >> exp >> alg1 >> alg2.pread('0') >> alg2.pread('1')
+		T.play_all(self)
+
+
+class SarahExponents2(Scene):
+	def construct(self):
+		exp = (three/four)**-four
+		dist_pow = AlgebraicAction((x/y)**z, x**z / y**z)
+		flip_pow = AlgebraicAction(x**-a / y**-b, y**b/x**a, ['01-', [], {'run_time':0.5}], ['11-', [], {'run_time':0.5}])
+		first_way = exp >> dist_pow >> flip_pow >> evaluate_().both()
+
+		flip_inside = AlgebraicAction((a/b)**-c, (b/a)**c, ['1-', []], ['0()', '0()'])
+		second_way = exp >> flip_inside >> dist_pow >> evaluate_().both()
+		
+		first_way.play_all(self)
+		self.play(FadeOut(first_way.mob))
+		second_way.play_all(self)
+		self.embed()
+
+
+from MF_Algebra import *
+from MF_Tools import Vcis
+
+class Hikers(Scene):
+	def construct(self):
+		a,b,c,C = Variables('abcC')
+		cos = Function('\\cos', python_rule=lambda t: np.cos(t*DEGREES))
+		pythagorean = a**2 + b**2 | c**2
+		lawofcos = a**2 + b**2 - 2*a*b*cos(C) | c**2
+		assert pythagorean >= sub_(2*a*b*cos(C)).pread('0')
+		T = Evaluate(auto_color=color_map)
+		T >> lawofcos >> swap_children_() >> alg_pow_R()
+		T >> substitute_({a:hiker1_length, b:hiker2_length, C:angle}, mode='fade', maintain_color=True)
+		
+		
+		color_map = {a:RED,b:GREEN,c:BLUE,C:BLUE_E,cos:GOLD}
+		hiker1_speed = 3.2
+		hiker2_speed = 6
+		angle = 45
+		time = 4
+		
+		hiker1_direction = Vcis(0)
+		hiker2_direction = Vcis(angle)
+		hiker1_length = hiker1_speed*time
+		hiker2_length = hiker2_speed*time
+
+		hiker1_speed_vector = Vector(hiker1_direction*hiker1_speed)
+		hiker1_label = Tex(str(hiker1_speed)).next_to(hiker1_speed_vector, RIGHT)
+		hiker1_vector = VGroup(hiker1_speed_vector, hiker1_label).set_color(color_map[a])
+
+		hiker2_speed_vector = Vector(hiker2_direction*hiker2_speed)
+		hiker2_label = Tex(str(hiker2_speed)).next_to(hiker2_speed_vector, RIGHT)
+		hiker2_vector = VGroup(hiker2_speed_vector, hiker2_label).set_color(color_map[b])
+
+		self.play(ShowCreation(hiker1_vector))
+		self.play(ShowCreation(hiker2_vector))
+
+
+
+
+		self.embed()
+		T.play_all(self, wait_between=0)
+
+
+
+
+
+
+'''
+Economic simulator
+
+each agent just tests its own parameter and tries to balance maximize with testing and knowledge
+'''
+

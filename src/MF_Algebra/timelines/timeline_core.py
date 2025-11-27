@@ -105,6 +105,9 @@ class Timeline(MF_Base):
 		else:
 			Animation = TransformMatchingTex(expA.mob, expB.mob, **kwargs)
 		return Animation
+	
+	def next_animation(self, **kwargs):
+		return self.get_animation(self.current_exp_index, **kwargs)
 
 	def play_animation(self, scene, index, **kwargs):
 		expA = self.get_expression(index)

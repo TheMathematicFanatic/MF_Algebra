@@ -106,6 +106,7 @@ class Solve(AutoTimeline):
 	def set_solve_for(self, var):
 		self.solve_for = var
 		self.resume()
+		return self
 
 
 class EvaluateAndSolve(CombinedRuleTimeline):

@@ -95,10 +95,10 @@ class Action(MF_Base):
 	### Animating ###
 
 	def get_animation(self, **kwargs):
-		def animation(input_exp, output_exp=None):
+		def animation(input_exp, output_exp=None, **kwargs):
 			if output_exp is None:
 				output_exp = self.get_output_expression(input_exp)
-			def get_TBAM(input_exp, output_exp):
+			def get_TBAM(input_exp, output_exp, **kwargs):
 				return TransformByAddressMap(
 					input_exp,
 					output_exp,
