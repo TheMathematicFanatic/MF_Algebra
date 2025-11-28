@@ -3,14 +3,12 @@ from ..expressions.variables import x, y, z, r, theta, s, t, u, v
 
 
 class DifferentialOperator(Function):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+	pass
 
 
 d = DifferentialOperator(
 	symbol = '\\mathrm{d}',
 	symbol_glyph_length = 1,
-	# parentheses_mode = 'var only',
 	parentheses_mode = 'weak'
 )
 

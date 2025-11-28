@@ -1,59 +1,65 @@
 from ..actions import IncompatibleExpression
 from ..algebra import AlgebraicAction
 from ..timelines import AutoTimeline
-from ..expressions.variables import a, b, c, n
+from ..expressions.variables import a,b,n,v,u,v,x
 from ..expressions.functions import f, g
-from .differentials import d, DifferentialOperator
+from .integrals import I, Iab, IntegralOperator, PlugInBounds
+from .differentials import DifferentialOperator, d, du, dv, dx
 from ..expressions.numbers.number import Number
 from ..expressions.functions import ln
 from numpy import pi as PI
 TAU = PI*2
-from ..expressions.variables import Variable
 
 
-class DerivativeRule(AlgebraicAction):
+class IntegralRule(AlgebraicAction):
 	var_condition_dict = {
 		d: lambda exp: isinstance(exp, DifferentialOperator),
+		I: lambda exp: isinstance(exp, IntegralOperator),
 		n: lambda exp: isinstance(exp, Number)
 	}
 
 
-class ConstantMultipleRule_(DerivativeRule):
-	template1 =	d(n*a)
-	template2 =	n*d(a)
+class Int_ConstantMultiple_(IntegralRule):
+	template1 =	I(n*u)
+	template2 =	n*I(u)
 
-class SumRule_(DerivativeRule):
-	template1 =	d(a+b)
-	template2 =	d(a) + d(b)
-	addressmap = [['+', '+']]
+class Int_ConstantMultiple_dx_(Int_ConstantMultiple_):
+	template1 =	I(n*u*dx)
+	template2 =	n*I(u*dx)
 
-class DifferenceRule_(DerivativeRule):
-	template1 =	d(a-b)
-	template2 =	d(a) - d(b)
-	addressmap = [['-', '-']]
+class Int_SumRule_(IntegralRule):
+	template1 =	I(a+v)
+	template2 =	I(a) + I(v)
+	addressmap = [['1+', '+']]
 
-class ProductRule_(DerivativeRule):
-	template1 =	d(a*b)
-	template2 =	b*d(a) + a*d(b)
-	addressmap = [['*', '+'], [[], '0*'], [[], '1*']]
+class Int_SumRule_dx_(IntegralRule):
+	template1 =	I((u+v)*dx)
+	template2 =	I(u*dx) + I(v*dx)
+	addressmap = [['10+', '+']]
 
-class QuotientRule_(DerivativeRule):
-	template1 =	d(a/b)
-	template2 =	(b*d(a) - a*d(b)) / b**2
+class Int_DifferenceRule_(IntegralRule):
+	template1 =	I(a-v)
+	template2 =	I(a) - I(v)
+	addressmap = [['1-', '-']]
 
-class PowerRule_(DerivativeRule):
-	template1 =	d(a**n)
-	template2 =	n * a**(n-1) * d(a)
-	addressmap = [['11', '0110'], [[], '011-1']]
-	var_kwarg_dict = {n:{'path_arc':TAU/3}}
+class Int_DifferenceSumRule_dx_(IntegralRule):
+	template1 =	I((u-v)*dx)
+	template2 =	I(u*dx) - I(v*dx)
+	addressmap = [['10-', '-']]
 
-class ExponentialRule_(DerivativeRule):
-	template1 =	d(n**b)
-	template2 =	ln(n) * n**b * d(b)
-	addressmap = [([], '00f0()')]
-	var_condition_dict = {a: lambda exp: isinstance(exp, Number)}
 
-# class ChainRule(DerivativeRule):
+class IntegrationByParts_(IntegralRule):
+	template1 =	I(u*dv)
+	template2 =	u*v - I(v*du)
+IBP_Indefinite_ = IntegrationByParts_
+
+class IBP_definite_(IntegralRule):
+	template1 = Iab(a,b)(u*dv)
+	template2 = PlugInBounds(a,b)(u*v) - Iab(a,b)(v*du)
+
+
+
+# class ChainRule(IntegralRule):
 	# template1 = d(f(g(a)))
 	# template2 = d(f)(g(a))*d(g(a)))
 # Idk I think this could be just always built in to all other rules
@@ -61,7 +67,7 @@ class ExponentialRule_(DerivativeRule):
 
 from ..algebra.simplify import *
 Simplify_Rules = [rule() for rule in SimplificationRule.__subclasses__()]
-Derivative_Rules = [rule() for rule in DerivativeRule.__subclasses__()]
+Derivative_Rules = [rule() for rule in IntegralRule.__subclasses__()]
 
 class Differentiate(AutoTimeline):
 	def decide_next_action(self, index):

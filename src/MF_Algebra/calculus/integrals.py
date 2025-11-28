@@ -2,8 +2,11 @@ from ..expressions.functions.functions import Function, c0, c1, arg
 from ..expressions.combiners.relations import Equation
 
 
+class IntegralOperator(Function):
+	pass
 
-class DefiniteIntegral(Function):
+
+class DefiniteIntegral(IntegralOperator):
 	string_code = [lambda self: self.symbol, '_', c0, '^', c1, arg]
 	glyph_code = [c1, 1, c0, arg]
 	def __init__(self, start, end, variable=None, show_variable=False, **kwargs):
@@ -30,10 +33,10 @@ class DefiniteIntegral(Function):
 	@property
 	def upper_bound(self):
 		return self.children[1]
+Iab = DefiniteIntegral()
 
 
-
-class IndefiniteIntegral(Function):
+class IndefiniteIntegral(IntegralOperator):
 	def __init__(self, **kwargs):
 		super().__init__(
 			symbol = '\\int',
@@ -41,3 +44,11 @@ class IndefiniteIntegral(Function):
 			parentheses_mode = 'weak',
 			**kwargs
 		)
+Integral = IndefiniteIntegral
+I = Integral()
+
+
+
+class PlugInBounds(Function):
+	string_code = ['\\left.', arg, '\\right\\rvert', '_', c0, '^', c1]
+	glyph_code = [arg, 1, c0, c1]
