@@ -40,35 +40,28 @@ class AlgebraicAction(Action):
 	@Action.autoparenmap
 	@Action.preaddressmap
 	def get_addressmap(self, input_expression=None):
-		addressmap = self.addressmap or []
+		addressmap = [] if self.addressmap is None else list(self.addressmap)
 		def get_var_ad_dict(template):
 			return {var: template.get_addresses_of_subex(var) for var in template.get_all_variables()}
 		self.template1_address_dict = get_var_ad_dict(self.template1)
 		self.template2_address_dict = get_var_ad_dict(self.template2)
-		variables = self.get_all_variables()
-		for var in variables:
-			kwargs = self.var_kwarg_dict.get(var, {})
-			template1_addresses = self.template1_address_dict.get(var, [])
-			template2_addresses = self.template2_address_dict.get(var, [])
-			if len(template1_addresses) == 1:
-				addressmap += [
-					[template1_addresses[0], t2ad, kwargs]
-					for t2ad in template2_addresses
-				]
-			elif len(template2_addresses) == 1:
-				addressmap += [
-					[t1ad, template2_addresses[0], kwargs]
-					for t1ad in template1_addresses
-				]
+		leaves = self.get_all_leaves()
+		for leaf in leaves:
+			kwargs = self.var_kwarg_dict.get(leaf, {})
+			template1_addresses = self.template1_address_dict.get(leaf, [])
+			template2_addresses = self.template2_address_dict.get(leaf, [])
+			if len(template1_addresses) == 1 or len(template2_addresses) == 1:
+				for t1ad, t2ad in zip(template1_addresses, template2_addresses):
+					addressmap += [t1ad, t2ad, kwargs]
 			else:
-				raise ValueError("I don't know what to do when a variable appears more than once on both sides. Please turn off auto_addressmap.")
+				raise ValueError("I don't know what to do when a variable appears more than once in both the before and after. Please turn off auto_addressmap.")
 		return addressmap
 
 	def __repr__(self):
 		return f'AlgebraicAction({self.template1}, {self.template2})'
 	
-	# def get_animation(self, *args, **kwargs):
-	#     return super().get_animation(*args, auto_fade=True, auto_resolve_delay=0.1, **kwargs)
+	def get_animation(self, *args, **kwargs):
+		return super().get_animation(*args, auto_fade=True, auto_resolve_delay=0.1, **kwargs)
 
 	def reverse(self):
 		# swaps input and output templates
@@ -90,6 +83,9 @@ class AlgebraicAction(Action):
 
 	def get_all_variables(self):
 		return self.template1.get_all_variables() | self.template2.get_all_variables()
+
+	def get_all_leaves(self):
+		return self.template1.get_all_leaves() | self.template2.get_all_leaves()
 
 
 
