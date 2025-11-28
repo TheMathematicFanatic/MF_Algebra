@@ -12,7 +12,7 @@ random.seed()
 
 class CheckIdentity(Scene):
 	def construct(self):
-		identity = AlgebraicAction((a+b)**n, a**n + b**n, var_kwarg_dict={n:{"path_arc":PI/2}})
+		identity = AlgebraicAction((a+b)**n, a**n + b**n, var_kwarg_dict={n:{'path_arc':PI/2}})
 		self.restart(identity)
 		self.embed()
 

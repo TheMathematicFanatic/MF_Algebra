@@ -27,7 +27,7 @@ class Real(Number):
 		else: # This needs work... parentheses are an issue.
 			string = self.__str__.__wrapped__(self) # Ok this might do it but still seems a little stupid
 			count = len(string)
-			if string.endswith(r"\ldots"): # Like fr? But it works lol
+			if string.endswith(r"\ldots'): # Like fr? But it works lol
 				count -= 3
 			return count
 
@@ -39,7 +39,7 @@ class Real(Number):
 		if rounded == self.value:
 			return str(rounded)
 		else:
-			return f"{self.value:.{self.decimal_places}f}" + r"\ldots"
+			return f'{self.value:.{self.decimal_places}f}' + r'\ldots'
 
 	def is_negative(self):
 		return self.value < 0
@@ -51,6 +51,6 @@ class Real(Number):
 			return self.value
 
 
-e = Real(np.e, "e")
-pi = Real(np.pi, "\\pi")
-tau = Real(np.pi*2, "\\tau")
+e = Real(np.e, 'e')
+pi = Real(np.pi, '\\pi')
+tau = Real(np.pi*2, '\\tau')

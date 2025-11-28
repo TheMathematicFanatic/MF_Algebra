@@ -19,7 +19,7 @@ class Expression(MF_Base):
 	def __init__(self, *children, parentheses=False, **kwargs):
 		self.children = list(map(Smarten,children))
 		self.parentheses = parentheses
-		if algebra_config["auto_parentheses"]:
+		if algebra_config['auto_parentheses']:
 			self.auto_parentheses()
 		self.reset_caches()
 
@@ -40,7 +40,7 @@ class Expression(MF_Base):
 	def init_mob(self, **kwargs):
 		string = add_spaces_around_brackets(str(self))
 		self._mob = dc_Tex(string, **kwargs)
-		self.set_color_by_subex(algebra_config["always_color"])
+		self.set_color_by_subex(algebra_config['always_color'])
 
 	def __getitem__(self, key):
 		# Returns a VGroup of the glyphs at the given addresses
@@ -180,7 +180,7 @@ class Expression(MF_Base):
 
 	def get_all_addresses(self):
 		# Returns the addresses of all subexpressions
-		addresses = [""]
+		addresses = ['']
 		for n in range(len(self.children)):
 			for child_address in self.children[n].get_all_addresses():
 				addresses.append(str(n)+child_address)
@@ -221,7 +221,7 @@ class Expression(MF_Base):
 
 	def get_subex(self, address_string):
 		# Returns the Expression object corresponding to the subexpression at the given address.
-		if address_string == "":
+		if address_string == '':
 			return self
 		elif int(address_string[0]) < len(self.children):
 			return self.children[int(address_string[0])].get_subex(address_string[1:])
@@ -414,7 +414,7 @@ class Expression(MF_Base):
 		def wrapper(expr, *args, **kwargs):
 			pretex = str_func(expr, *args, **kwargs)
 			if expr.parentheses:
-				pretex = "\\left(" + pretex + "\\right)"
+				pretex = '\\left(' + pretex + '\\right)'
 			return pretex
 		return wrapper
 
@@ -454,9 +454,9 @@ class Expression(MF_Base):
 		dict_with_numbers = list(enumerate(expression_dict.items()))
 		from .variables import Variable
 		for i, (from_subex, to_subex) in dict_with_numbers:
-			result = result.substitute_at_addresses(Variable(f"T_{i}"), result.get_addresses_of_subex(from_subex))
+			result = result.substitute_at_addresses(Variable(f'T_{i}'), result.get_addresses_of_subex(from_subex))
 		for i, (from_subex, to_subex) in dict_with_numbers:
-			result = result.substitute_at_addresses(to_subex, result.get_addresses_of_subex(Variable(f"T_{i}")))
+			result = result.substitute_at_addresses(to_subex, result.get_addresses_of_subex(Variable(f'T_{i}')))
 		return result
 
 
@@ -479,13 +479,13 @@ class Expression(MF_Base):
 
 	### Nesting ###
 	# These do not work yet, regrettably
-	def nest(self, direction="right", recurse=True):
+	def nest(self, direction='right', recurse=True):
 		if len(self.children) <= 2:
 			return self
 		else:
-			if direction == "right":
+			if direction == 'right':
 				return type(self)(self.children[0], type(self)(*self.children[1:]).nest(direction, recurse))
-			elif direction == "left":
+			elif direction == 'left':
 				return type(self)(type(self)(*self.children[:-1]).nest(direction, recurse), self.children[-1])
 			else:
 				raise ValueError(f"Invalid direction: {direction}. Must be right or left.")
@@ -532,7 +532,7 @@ class Expression(MF_Base):
 
 	def __repr__(self):
 		max_length = 1e6
-		string = type(self).__name__ + "(" + self.repr_string() + ")"
+		string = type(self).__name__ + '(' + self.repr_string() + ')'
 		if len(string) > max_length:
 			string = string[:max_length-3] + '...'
 		return string
@@ -585,7 +585,7 @@ class Address:
 		return len(self.addigits)
 
 	def __repr__(self):
-		return f"Address({self.addigits})"
+		return f'Address({self.addigits})'
 
 	@classmethod
 	def from_ints(cls, *ints):

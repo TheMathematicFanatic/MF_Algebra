@@ -166,7 +166,7 @@ class Action(MF_Base):
 
 	def __repr__(self):
 		max_length = 50
-		string = type(self).__name__ + "(" + self.preaddress + ")"
+		string = type(self).__name__ + '(' + self.preaddress + ')'
 		if len(string) > max_length:
 			string = string[:max_length-3] + '...'
 		return string

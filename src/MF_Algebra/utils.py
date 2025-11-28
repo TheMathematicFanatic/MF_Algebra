@@ -128,9 +128,9 @@ def add_spaces_around_brackets(input_string): #GPT
 
 def print_info(expression, tablefmt='rst'):
 	def tree_prefix(address):
-		V, T = "│ ", "├─"
+		V, T = '│ ', '├─'
 		d = len(address)
-		return (V * (d - 1) + T) if d else ""
+		return (V * (d - 1) + T) if d else ''
 
 	def get_all_info(expression, address):
 		def get_info(callable):
@@ -145,7 +145,7 @@ def print_info(expression, tablefmt='rst'):
 			return string
 
 		return {
-			'Type': get_info(lambda Exp, ad: f"{tree_prefix(ad)}{type(Exp.get_subex(ad)).__name__}"),
+			'Type': get_info(lambda Exp, ad: f'{tree_prefix(ad)}{type(Exp.get_subex(ad)).__name__}'),
 			'Address': get_info(lambda Exp, ad: ad),
 			'LaTeX string': get_info(lambda Exp, ad: str(Exp.get_subex(ad))),
 			'glyph_count': get_info(lambda Exp, ad: str(Exp.get_subex(ad).glyph_count)),
@@ -197,21 +197,21 @@ def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, prin
 		type_to_symbol_dict = {
 			Integer: lambda expr: str(expr.n),
 			Real: lambda expr: expr.symbol if expr.symbol else str(expr),
-			Rational: lambda expr: "\\div",
+			Rational: lambda expr: '\\div',
 			Variable: lambda expr: expr.symbol,
-			Add: lambda expr: "+",
-			Sub: lambda expr: "-",
-			Mul: lambda expr: "\\times",
-			Div: lambda expr: "\\div",
-			Pow: lambda expr: "\\hat{}",
-			Negative: lambda expr: "-",
+			Add: lambda expr: '+',
+			Sub: lambda expr: '-',
+			Mul: lambda expr: '\\times',
+			Div: lambda expr: '\\div',
+			Pow: lambda expr: '\\hat{}',
+			Negative: lambda expr: '-',
 			Function: lambda expr: expr.symbol,
-			Sequence: lambda expr: ",",
-			Equation: lambda expr: "=",
-			LessThan: lambda expr: "<",
-			LessThanOrEqualTo: lambda expr: "\\leq",
-			GreaterThan: lambda expr: ">",
-			GreaterThanOrEqualTo: lambda expr: "\\geq",
+			Sequence: lambda expr: ',',
+			Equation: lambda expr: '=',
+			LessThan: lambda expr: '<',
+			LessThanOrEqualTo: lambda expr: '\\leq',
+			GreaterThan: lambda expr: '>',
+			GreaterThanOrEqualTo: lambda expr: '\\geq',
 		}
 		subex = expr.get_subex(address)
 		symbol = type_to_symbol_dict[type(subex)](subex)

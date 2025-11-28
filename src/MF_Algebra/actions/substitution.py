@@ -44,16 +44,16 @@ class substitute_(Action):
 		for var in self.sub_dict:
 			target_addresses += input_expression.get_subex(self.preaddress).get_addresses_of_subex(var)
 		addressmap = []
-		if self.mode == "transform":
+		if self.mode == 'transform':
 			for i,ad in enumerate(target_addresses):
-				addressmap.append([ad, ad, {"delay": self.lag*i}])
-		elif self.mode == "swirl":
+				addressmap.append([ad, ad, {'delay': self.lag*i}])
+		elif self.mode == 'swirl':
 			for i,ad in enumerate(target_addresses):
-				addressmap.append([ad, ad, {"path_arc": self.arc_size, "delay": self.lag*i}])
-		elif self.mode == "fade":
+				addressmap.append([ad, ad, {'path_arc': self.arc_size, 'delay': self.lag*i}])
+		elif self.mode == 'fade':
 			for i,ad in enumerate(target_addresses):
-				addressmap.append([ad, FadeOut, {"shift": self.fade_shift, "delay": self.lag*i}])
-				addressmap.append([FadeIn, ad, {"shift": self.fade_shift, "delay": self.lag*i}])
+				addressmap.append([ad, FadeOut, {'shift': self.fade_shift, 'delay': self.lag*i}])
+				addressmap.append([FadeIn, ad, {'shift': self.fade_shift, 'delay': self.lag*i}])
 
 		# Horrible bandaid for the problem of multiplication symbols changing and ruining the addressmap
 		# I am certain that there is a general and elegant way to do this, along with parentheses changes,
@@ -73,7 +73,7 @@ class substitute_(Action):
 		return addressmap
 		
 	def __repr__(self):
-		return type(self).__name__ + "(" + str(self.sub_dict) + (',' + self.preaddress if self.preaddress else '') + ")"
+		return type(self).__name__ + '(' + str(self.sub_dict) + (',' + self.preaddress if self.preaddress else '') + ')'
 
 
 class substitute_into_(Action):
