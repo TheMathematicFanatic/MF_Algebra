@@ -1,15 +1,13 @@
 from ..actions import IncompatibleExpression
 from ..algebra import AlgebraicAction
 from ..timelines import AutoTimeline
-from ..expressions.variables import a,b,n,v,u,v,x
-from ..expressions.functions import f, g
-from .integrals import I, Iab, IntegralOperator, PlugInBounds
+from ..expressions.variables import Variables, f, g, e, ln, Number
+from .integrals import I, DefiniteIntegral, IntegralOperator, PlugInBounds
 from .differentials import DifferentialOperator, d, du, dv, dx
-from ..expressions.numbers.number import Number
-from ..expressions.functions import ln
 from numpy import pi as PI
 TAU = PI*2
 
+a,b,c,n,u,v,x,C = Variables('abcnuvxC')
 
 class IntegralRule(AlgebraicAction):
 	var_condition_dict = {
@@ -18,6 +16,21 @@ class IntegralRule(AlgebraicAction):
 		n: lambda exp: isinstance(exp, Number)
 	}
 
+class Int_dx_(IntegralRule):
+	template1 = I(d(u))
+	template2 = u
+
+class d_Int_x_(IntegralRule):
+	template1 = d(I(u))
+	template2 = u
+
+class FundThmCalc_1_(IntegralRule):
+	template1 = d(DefiniteIntegral(n,x)(u*d(x)))
+	template2 = u
+
+class FundThmCalc_2_(IntegralRule):
+	template1 = DefiniteIntegral(a,b)(d(u))
+	template2 = PlugInBounds(a,b)(u)
 
 class Int_ConstantMultiple_(IntegralRule):
 	template1 =	I(n*u)
@@ -42,6 +55,13 @@ class Int_DifferenceRule_(IntegralRule):
 	template2 =	I(a) - I(v)
 	addressmap = [['1-', '-']]
 
+class Int_PowerRule_dx_(IntegralRule):
+	template1 = I(x**n*dx)
+	template2 = 1/(n+1)*x**(n+1)
+	var_condition_dict = {
+		n: lambda exp: isinstance(exp, Number) and not exp == -1
+	}
+
 class Int_DifferenceSumRule_dx_(IntegralRule):
 	template1 =	I((u-v)*dx)
 	template2 =	I(u*dx) - I(v*dx)
@@ -51,29 +71,22 @@ class Int_DifferenceSumRule_dx_(IntegralRule):
 class IntegrationByParts_(IntegralRule):
 	template1 =	I(u*dv)
 	template2 =	u*v - I(v*du)
-IBP_Indefinite_ = IntegrationByParts_
+IBP_indefinite_ = IntegrationByParts_
 
 class IBP_definite_(IntegralRule):
-	template1 = Iab(a,b)(u*dv)
-	template2 = PlugInBounds(a,b)(u*v) - Iab(a,b)(v*du)
-
-
-
-# class ChainRule(IntegralRule):
-	# template1 = d(f(g(a)))
-	# template2 = d(f)(g(a))*d(g(a)))
-# Idk I think this could be just always built in to all other rules
+	template1 = DefiniteIntegral(a,b)(u*dv)
+	template2 = PlugInBounds(a,b)(u*v) - DefiniteIntegral(a,b)(v*du)
 
 
 from ..algebra.simplify import *
 Simplify_Rules = [rule() for rule in SimplificationRule.__subclasses__()]
-Derivative_Rules = [rule() for rule in IntegralRule.__subclasses__()]
+Integral_Rules = [rule() for rule in IntegralRule.__subclasses__()]
 
-class Differentiate(AutoTimeline):
+class Integrate(AutoTimeline):
 	def decide_next_action(self, index):
 		last_exp = self.get_expression(-1)
 		for ad in last_exp.get_all_addresses():
-			for ruleset in [Derivative_Rules, Simplify_Rules]:
+			for ruleset in [Integral_Rules, Simplify_Rules]:
 				for rule in ruleset:
 					try:
 						action = rule.copy().pread(ad)

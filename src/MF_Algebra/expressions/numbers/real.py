@@ -27,7 +27,7 @@ class Real(Number):
 		else: # This needs work... parentheses are an issue.
 			string = self.__str__.__wrapped__(self) # Ok this might do it but still seems a little stupid
 			count = len(string)
-			if string.endswith(r"\ldots'): # Like fr? But it works lol
+			if string.endswith(r'\ldots'): # Like fr? But it works lol
 				count -= 3
 			return count
 

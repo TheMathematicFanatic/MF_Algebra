@@ -1,6 +1,14 @@
 from ..expressions.combiners.combiners import Combiner, Superscript
 from ..expressions.functions.functions import Function, c0, arg
 from ..expressions.variables import Variable
+from ..expressions.numbers.real import Real
+import numpy as np
+
+
+class Infinity(Real):
+    def __init__(self, **kwargs):
+        super().__init__(np.inf, '\\infty', **kwargs)
+inf = Infinity()
 
 
 class Approaches(Combiner):

@@ -1,15 +1,12 @@
 from ..actions import IncompatibleExpression
 from ..algebra import AlgebraicAction
 from ..timelines import AutoTimeline
-from ..expressions.variables import a, b, c, n
-from ..expressions.functions import f, g
+from ..expressions import Variables, f, g, e, ln, Number
 from .differentials import d, DifferentialOperator
-from ..expressions.numbers.number import Number
-from ..expressions.functions import ln
 from numpy import pi as PI
 TAU = PI*2
-from ..expressions.variables import Variable
 
+x,y,n = Variables('xyn')
 
 class DerivativeRule(AlgebraicAction):
 	var_condition_dict = {
@@ -19,39 +16,42 @@ class DerivativeRule(AlgebraicAction):
 
 
 class ConstantMultipleRule_(DerivativeRule):
-	template1 =	d(n*a)
-	template2 =	n*d(a)
+	template1 =	d(n*x)
+	template2 =	n*d(x)
 
 class SumRule_(DerivativeRule):
-	template1 =	d(a+b)
-	template2 =	d(a) + d(b)
+	template1 =	d(x+y)
+	template2 =	d(x) + d(y)
 	addressmap = [['+', '+']]
 
 class DifferenceRule_(DerivativeRule):
-	template1 =	d(a-b)
-	template2 =	d(a) - d(b)
+	template1 =	d(x-y)
+	template2 =	d(x) - d(y)
 	addressmap = [['-', '-']]
 
 class ProductRule_(DerivativeRule):
-	template1 =	d(a*b)
-	template2 =	b*d(a) + a*d(b)
+	template1 =	d(x*y)
+	template2 =	y*d(x) + x*d(y)
 	addressmap = [['*', '+'], [[], '0*'], [[], '1*']]
 
 class QuotientRule_(DerivativeRule):
-	template1 =	d(a/b)
-	template2 =	(b*d(a) - a*d(b)) / b**2
+	template1 =	d(x/y)
+	template2 =	(y*d(x) - x*d(y)) / y**2
 
 class PowerRule_(DerivativeRule):
-	template1 =	d(a**n)
-	template2 =	n * a**(n-1) * d(a)
+	template1 =	d(x**n)
+	template2 =	n * x**(n-1) * d(x)
 	addressmap = [['11', '0110'], [[], '011-1']]
 	var_kwarg_dict = {n:{'path_arc':TAU/3}}
 
+class eRule(DerivativeRule):
+	template1 = d(e**x)
+	template2 = e**x*d(x)
+
 class ExponentialRule_(DerivativeRule):
-	template1 =	d(n**b)
-	template2 =	ln(n) * n**b * d(b)
-	addressmap = [([], '00f0()')]
-	var_condition_dict = {a: lambda exp: isinstance(exp, Number)}
+	template1 =	d(n**x)
+	template2 =	ln(n) * n**x * d(x)
+	addressmap = [([], '000')]
 
 # class ChainRule(DerivativeRule):
 	# template1 = d(f(g(a)))

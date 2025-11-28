@@ -33,7 +33,7 @@ class DefiniteIntegral(IntegralOperator):
 	@property
 	def upper_bound(self):
 		return self.children[1]
-Iab = DefiniteIntegral()
+
 
 
 class IndefiniteIntegral(IntegralOperator):
@@ -52,3 +52,33 @@ I = Integral()
 class PlugInBounds(Function):
 	string_code = ['\\left.', arg, '\\right\\rvert', '_', c0, '^', c1]
 	glyph_code = [arg, 1, c0, c1]
+	def __init__(self, lower_bound, upper_bound, variable, show_variable=False):
+		self.variable = variable
+		self.show_variable = show_variable
+		if show_variable:
+			lower_bound = Equation(variable, lower_bound)
+			upper_bound = Equation(variable, upper_bound)
+		else:
+			lower_bound = lower_bound
+			upper_bound = upper_bound
+		super().__init__(
+			children = [lower_bound, upper_bound],
+			parentheses_mode = 'weak'
+		)
+	
+	@property
+	def lower_bound(self):
+		if self.show_variable:
+			return self.get_subex('01')
+		else:
+			return self.get_subex('0')
+
+	@property
+	def upper_bound(self):
+		if self.show_variable:
+			return self.get_subex('11')
+		else:
+			return self.get_subex('1')
+
+	def expand_on_args(self, arg):
+		return arg @ {self.variable:self.upper_bound} - arg @ {self.variable:self.lower_bound}
