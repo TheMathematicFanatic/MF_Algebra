@@ -7,12 +7,10 @@ from MF_Tools.dual_compatibility import FadeIn, FadeOut, Write, PI
 
 
 class EquationManeuver(AlgebraicAction):
-	# Watch out, these cannot be preaddressed currently.
+	# Watch out, I don't think these cannot be preaddressed currently.
 	# But I can't conceive of why you'd want to do that anyway.
 	# Perhaps for a sequence of equations?
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-	
+
 	def reverse(self):
 		# swaps input and output templates
 		self.template1, self.template2 = self.template2, self.template1
@@ -44,28 +42,19 @@ class EquationManeuver(AlgebraicAction):
 		return self.reverse().flip()
 
 
-
 class alg_add_R(EquationManeuver):
-	def __init__(self, **kwargs):
-		super().__init__(
-			a + b & c,
-			a & c - b,
-			**kwargs
-		)
-		self.addressmap = (
-			['01', '11', {'path_arc':PI}],
-			['0+', '1-', {'path_arc':PI}],
-		)
+	template1 = a + b | c
+	template2 = a | c - b
+	addressmap = (
+		['01', '11', {'path_arc':PI}],
+		['0+', '1-', {'path_arc':PI}],
+	)
 
 
 class alg_add_L(EquationManeuver):
-	def __init__(self, **kwargs):
-		super().__init__(
-			a + b & c,
-			b & c - a,
-			**kwargs
-		)
-		self.addressmap = (
+		template1 = a + b | c,
+		template2 = b | c - a,
+		addressmap = (
 			['00', '11', {'path_arc':PI}],
 			['0+', '1-', {'path_arc':PI}]
 		)
@@ -77,17 +66,13 @@ class alg_add_L(EquationManeuver):
 
 
 class alg_mul_R(EquationManeuver):
-	def __init__(self, **kwargs):
-		super().__init__(
-			a * b & c,
-			a & c / b,
-			**kwargs
-		)
-		self.addressmap = (
-			['01', '11', {'path_arc':PI}],
-			['0*', FadeOut, {'run_time':0.5}],
-			[Write, '1/', {'run_time':0.5, 'delay':0.5}]
-		)
+	template1 =	a * b | c
+	template2 = a | c / b
+	addressmap = (
+		['01', '11', {'path_arc':PI}],
+		['0*', FadeOut, {'run_time':0.5}],
+		[Write, '1/', {'run_time':0.5, 'delay':0.5}]
+	)
 	
 	def reverse(self):
 		super().reverse()
@@ -100,17 +85,13 @@ class alg_mul_R(EquationManeuver):
 
 
 class alg_mul_L(EquationManeuver):
-	def __init__(self, **kwargs):
-		super().__init__(
-			a * b & c,
-			b & c / a,
-			**kwargs
-		)
-		self.addressmap = (
-			['00', '11', {'path_arc':PI}],
-			['0*', FadeOut, {'run_time':0.5}],
-			[Write, '1/', {'run_time':0.5, 'delay':0.5}]
-		)
+	template1 = a * b | c
+	template2 = b | c / a
+	addressmap = (
+		['00', '11', {'path_arc':PI}],
+		['0*', FadeOut, {'run_time':0.5}],
+		[Write, '1/', {'run_time':0.5, 'delay':0.5}]
+	)
 
 	def reverse(self):
 		super().reverse()
@@ -123,16 +104,12 @@ class alg_mul_L(EquationManeuver):
 
 
 class alg_pow_R(EquationManeuver):
-	def __init__(self, **kwargs):
-		super().__init__(
-			a**b & c,
-			a & Rad(b)(c),
-			**kwargs
-		)
-		self.addressmap = (
-			['01', '100', {'path_arc':-PI/3}],
-			[Write, '10f', {'delay':0.5, 'run_time':0.5}],
-		)
+	template1 = a**b | c
+	template2 = a | Rad(b)(c)
+	addressmap = (
+		['01', '100', {'path_arc':-PI/3}],
+		[Write, '10f', {'delay':0.5, 'run_time':0.5}],
+	)
 	
 	def reverse(self):
 		super().reverse()
@@ -144,16 +121,12 @@ class alg_pow_R(EquationManeuver):
 
 
 class alg_pow_L(EquationManeuver):
-	def __init__(self, **kwargs):
-		super().__init__(
-			a**b & c,
-			b & Log(a)(c),
-			**kwargs
-		)
-		self.addressmap = (
-			['00', '100', {'path_arc':PI/2}],
-			[Write, '10f', {'delay':0.75, 'run_time':0.75}],
-		)
+	template1 = a**b | c
+	template2 = b | Log(a)(c)
+	addressmap = (
+		['00', '100', {'path_arc':PI/2}],
+		[Write, '10f', {'delay':0.75, 'run_time':0.75}],
+	)
 	
 	def reverse(self):
 		super().reverse()
@@ -166,12 +139,8 @@ class alg_pow_L(EquationManeuver):
 
 
 class alg_neg_R(EquationManeuver):
-	def __init__(self, **kwargs):
-		super().__init__(
-			-a & b,
-			a & -b,
-			**kwargs
-		)
-		self.addressmap = (
-			['0-', '1-', {'path_arc':PI}],
-		)
+	template1 = -a | b
+	template2 = a | -b
+	addressmap = (
+		['0-', '1-', {'path_arc':PI}],
+	)

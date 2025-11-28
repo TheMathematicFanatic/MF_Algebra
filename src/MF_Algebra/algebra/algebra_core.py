@@ -10,9 +10,9 @@ class AlgebraicAction(Action):
 	template1 = None
 	template2 = None
 	addressmap = []
-	var_condition_dict = {} # {c: lambda exp: isinstance(exp, Number)}
-	var_kwarg_dict = {} # {a:{"path_arc":PI}}
 	auto_addressmap = False
+	var_condition_dict = {}       # Example {c: lambda exp: isinstance(exp, Number)}
+	var_kwarg_dict = {}           # Example {a:{'path_arc':PI}}
 
 	def __init__(self,
 		template1=None,
@@ -87,6 +87,10 @@ class AlgebraicAction(Action):
 	def get_all_leaves(self):
 		return self.template1.get_all_leaves() | self.template2.get_all_leaves()
 
+	def get_equation(self):
+		assert self.template1 and self.template2
+		from ..expressions.combiners.relations import Equation
+		return Equation(self.template1, self.template2)
 
 
 

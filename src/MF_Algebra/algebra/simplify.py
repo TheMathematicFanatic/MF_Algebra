@@ -4,11 +4,7 @@ from ..utils import Smarten
 
 
 class SimplificationRule(AlgebraicAction):
-	def __new__(cls, *args, **kwargs):
-		# I think this is redundant now
-		cls.template1 = Smarten(cls.template1)
-		cls.template2 = Smarten(cls.template2)
-		return super().__new__(cls, *args, **kwargs)
+	pass
 
 
 class add_zero_R(SimplificationRule):
