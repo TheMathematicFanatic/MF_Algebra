@@ -3,12 +3,14 @@ from .expression_core import *
 
 class Variable(Expression):
 	def __init__(self, symbol, symbol_glyph_length=None, **kwargs):
-		super().__init__(**kwargs)
 		self.symbol = symbol
 		self.symbol_glyph_length = symbol_glyph_length
+		super().__init__(**kwargs)
 
 	@Expression.parenthesize_glyph_count
 	def get_glyph_count(self):
+		if algebra_config['fast_glyph_count'] and not self.symbol_glyph_length:
+			raise ValueError(f'Fast glyph count mode is on but {self} has no set glyph_length')
 		return self.symbol_glyph_length
 
 	@Expression.parenthesize_latex

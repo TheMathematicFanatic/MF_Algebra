@@ -127,11 +127,6 @@ class Action(MF_Base):
 
 	### Modifiers ###
 
-	def both(self, number_of_sides=2):
-		# Intended to turn an action on an expression into an action done to both sides of an equation.
-		# Can be passed a number to apply to more than 2 sides for, say, a triple equation or inequality.
-		return self.pread(*[str(i) for i in range(number_of_sides)])
-
 	def pread(self, *addresses):
 		self = self.copy()
 		if len(addresses) == 0:
@@ -142,6 +137,17 @@ class Action(MF_Base):
 		else:
 			from .parallel import ParallelAction
 			return ParallelAction(*[self.pread(ad) for ad in addresses])
+
+	def left(self):
+		return self.pread('0')
+
+	def right(self):
+		return self.pread('1')
+
+	def both(self, number_of_children=2):
+		# Intended to turn an action on an expression into an action done to both sides of an equation.
+		# Can be passed a number to apply to more than 2 sides for, say, a triple equation or inequality.
+		return self.pread(*[str(i) for i in range(number_of_children)])
 
 
 	### Combinations ###

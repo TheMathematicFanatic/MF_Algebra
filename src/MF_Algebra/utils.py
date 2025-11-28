@@ -28,6 +28,8 @@ class MF_Base(ABC):
 	def __eq__(self, other):
 		other = Smarten(other)
 		if type(self) != type(other):
+			return False
+		else:
 			return self.hash_key() == other.hash_key()
 
 	def __hash__(self):
@@ -38,6 +40,9 @@ class MF_Base(ABC):
 
 
 def Smarten(input):
+	if input is None:
+		return
+
 	if isinstance(input, MF_Base):
 		return input.copy()
 

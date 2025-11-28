@@ -16,16 +16,16 @@ class Evaluate(AutoTimeline):
 		**kwargs
 	):
 		self.first_expression = self.first_expression or first_expression
-		self.mode = self.mode or mode
+		self.mode = mode or self.mode
 		self.number_mode = self.number_mode or number_mode
 		super().__init__(**kwargs)
 		if self.first_expression is not None:
 			self.add_expression_to_start(self.first_expression)
 
 	def decide_next_action(self, index: int, mode=None):
-		if mode is not None:
-			self.mode = mode
-		if self.mode == 'one at a time':
+		if mode is None:
+			mode = self.mode
+		if mode == 'one at a time':
 			last_exp = self.get_expression(index)
 			twig_ads = last_exp.get_all_twig_addresses()
 			for twig_ad in twig_ads:
@@ -37,7 +37,7 @@ class Evaluate(AutoTimeline):
 					except (ValueError, IncompatibleExpression):
 						pass
 			return None
-		if self.mode == 'all at once':
+		elif mode == 'all at once':
 			last_exp = self.get_expression(index)
 			twig_ads = last_exp.get_all_twig_addresses()
 			acceptable_twig_ads = []
@@ -51,6 +51,8 @@ class Evaluate(AutoTimeline):
 			if len(acceptable_twig_ads) == 0:
 				return None
 			return evaluate_().pread(*acceptable_twig_ads)
+		else:
+			raise ValueError(f'Invalid mode: {mode}')
 
 
 

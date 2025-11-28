@@ -1067,45 +1067,86 @@ class SarahExponents2(Scene):
 from MF_Algebra import *
 from MF_Tools import Vcis
 
+
+
 class Hikers(Scene):
+	# def play(self, *args, **kwargs):
+	# 	super().play(*args, **kwargs)
+	# 	return self
+	
+	# def wait(self, *args, **kwargs):
+	# 	super().play(*args, **kwargs)
+	# 	return self
+
 	def construct(self):
-		a,b,c,C = Variables('abcC')
-		cos = Function('\\cos', python_rule=lambda t: np.cos(t*DEGREES))
-		pythagorean = a**2 + b**2 | c**2
-		lawofcos = a**2 + b**2 - 2*a*b*cos(C) | c**2
-		assert pythagorean >= sub_(2*a*b*cos(C)).pread('0')
-		T = Evaluate(auto_color=color_map)
-		T >> lawofcos >> swap_children_() >> alg_pow_R()
+		C = Variable('C', 1)	
+		cos = Function('\\cos', 3, python_rule=lambda t: np.cos(t*DEGREES))
+
+		T = Evaluate(auto_color=color_map, auto_scale=1, mode='all at once')
+		T >> a**2 + b**2 | c**2 >> sub_(2*a*b*cos(C)).left()
 		T >> substitute_({a:hiker1_length, b:hiker2_length, C:angle}, mode='fade', maintain_color=True)
+		T >> swap_children_() >> alg_pow_R()
+		T.get_vgroup().move_to(2*LEFT+2*UP)
 		
+		color_map = {a:RED, b:GREEN, c:BLUE_D, C:PURPLE_E, cos:GOLD_B}
+		hiker1_speed = 1
+		hiker2_speed = 1
+		hiker1_angle = 0
+		hiker2_angle = 60
+		time = 5
 		
-		color_map = {a:RED,b:GREEN,c:BLUE,C:BLUE_E,cos:GOLD}
-		hiker1_speed = 3.2
-		hiker2_speed = 6
-		angle = 45
-		time = 4
-		
-		hiker1_direction = Vcis(0)
-		hiker2_direction = Vcis(angle)
-		hiker1_length = hiker1_speed*time
-		hiker2_length = hiker2_speed*time
+		angle = hiker2_angle - hiker1_angle
+		hiker1_length = hiker1_speed * time
+		hiker2_length = hiker2_speed * time
 
-		hiker1_speed_vector = Vector(hiker1_direction*hiker1_speed)
-		hiker1_label = Tex(str(hiker1_speed)).next_to(hiker1_speed_vector, RIGHT)
-		hiker1_vector = VGroup(hiker1_speed_vector, hiker1_label).set_color(color_map[a])
+		def get_vector_group(length, direction, label, color, label_angle_diff, label_size=1):
+			vector = Vector(length * Vcis(direction*DEGREES))
+			label = Tex(label).scale(label_size).next_to(vector.get_center(), Vcis((direction+label_angle_diff)*DEGREES))
+			return VGroup(vector, label).set_color(color)
+		def get_ar_vector_group(*args, **kwargs):
+			return always_redraw(lambda: get_vector_group(*args, **kwargs))
 
-		hiker2_speed_vector = Vector(hiker2_direction*hiker2_speed)
-		hiker2_label = Tex(str(hiker2_speed)).next_to(hiker2_speed_vector, RIGHT)
-		hiker2_vector = VGroup(hiker2_speed_vector, hiker2_label).set_color(color_map[b])
+		Hiker1_speed_vector = get_ar_vector_group(hiker1_speed, hiker1_angle, str(hiker1_speed), color_map[a], -90)
+		Hiker2_speed_vector = get_ar_vector_group(hiker2_speed, hiker2_angle, str(hiker2_speed), color_map[b], 90)
+		Hiker1_length_vector = get_ar_vector_group(hiker1_length, hiker1_angle, str(hiker1_length), color_map[a], -90, 2)
+		Hiker2_length_vector = get_ar_vector_group(hiker2_length, hiker2_angle, str(hiker2_length), color_map[b], 90, 2)
 
-		self.play(ShowCreation(hiker1_vector))
-		self.play(ShowCreation(hiker2_vector))
+		ax = Axes()
+		self.play(ShowCreation(ax), run_time=2)
+		self.wait()
+		self.play(ShowCreation(Hiker1_speed_vector), run_time=2)
+		self.wait()
+		self.play(ShowCreation(Hiker2_speed_vector), run_time=2)
+		self.wait()
+		self.wait()
+		Hiker1_speed_vector.suspend_updating()
+		Hiker2_speed_vector.suspend_updating()
+		self.play(
+			ReplacementTransform(Hiker1_speed_vector, Hiker1_length_vector),
+			ReplacementTransform(Hiker2_speed_vector, Hiker2_length_vector),
+			self.camera.frame.animate
+				.move_to(VGroup(Hiker1_length_vector, Hiker2_length_vector).get_center())
+				.scale(2)
+		)
+		self.wait()
 
+		c_line = VGroup(
+			line := Vector(Hiker2_length_vector[0].get_end() - Hiker1_length_vector[0].get_end()).shift(Hiker1_length_vector[0].get_end()),
+			label := Tex('c').scale(2).next_to(line.get_center(), Vcis(line.get_angle()-PI/2))
+		).set_color(color_map[c])
 
+		C_arc = VGroup(
+			arc := Arc(hiker1_angle, angle*DEGREES),
+			label := Tex(f'{angle}^\\circ').next_to(arc.point_from_proportion(0.5), Vcis(angle*DEGREES/2))
+		).set_color(color_map[C])
 
+		self.play(
+			ShowCreation(c_line),
+			ShowCreation(C_arc)
+		)
 
-		self.embed()
 		T.play_all(self, wait_between=0)
+		self.embed()
 
 
 
