@@ -2,7 +2,7 @@ from ..actions import IncompatibleExpression
 from ..algebra import AlgebraicAction
 from ..timelines import AutoTimeline
 from ..expressions import Variables, f, g, e, ln, Number
-from .differentials import d, DifferentialOperator
+from .differentials import *
 from numpy import pi as PI
 TAU = PI*2
 

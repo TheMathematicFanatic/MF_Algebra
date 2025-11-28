@@ -43,7 +43,15 @@ class SeriesValue(Scene):
 
 class SimpleTest(Scene):
     def construct(self):
-        S = Sum(n,1,Infinity())
+        S = Sum(n,1,inf)
         A = S((x**n-9)/(x-3))
         self.add(A.mob)
+        self.embed()
+
+
+class IntegrationTest(Scene):
+    def construct(self):
+        T = Integrate(auto_color={x:RED, y:BLUE}) >> I(dy)
+        # T.play_all(self)
+        self.add(T.get_vgroup().arrange(DOWN))
         self.embed()

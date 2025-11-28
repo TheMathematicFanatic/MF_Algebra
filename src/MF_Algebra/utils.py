@@ -52,7 +52,7 @@ def Smarten(input):
 
 	if isinstance(input, float):
 		if input == np.inf:
-			from .calculus.infinity import inf
+			from .calculus.limits import inf
 			return inf
 		if input == np.nan:
 			return None

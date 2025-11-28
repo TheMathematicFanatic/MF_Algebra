@@ -1,8 +1,8 @@
 from ..actions import IncompatibleExpression
 from ..algebra import AlgebraicAction
 from ..timelines import AutoTimeline
-from ..expressions.variables import Variables, f, g, e, ln, Number
-from .integrals import I, DefiniteIntegral, IntegralOperator, PlugInBounds
+from ..expressions import Variables, f, g, e, ln, Number
+from .integrals import *
 from .differentials import DifferentialOperator, d, du, dv, dx
 from numpy import pi as PI
 TAU = PI*2
@@ -16,6 +16,14 @@ class IntegralRule(AlgebraicAction):
 		n: lambda exp: isinstance(exp, Number)
 	}
 
+class FundThmCalc_1_(IntegralRule):
+	template1 = d(DefiniteIntegral(n,x)(u*dx))
+	template2 = u
+
+class FundThmCalc_2_(IntegralRule):
+	template1 = DefiniteIntegral(a,b)(du)
+	template2 = PlugInBounds(a,b,x)(u)
+
 class Int_dx_(IntegralRule):
 	template1 = I(d(u))
 	template2 = u
@@ -23,14 +31,6 @@ class Int_dx_(IntegralRule):
 class d_Int_x_(IntegralRule):
 	template1 = d(I(u))
 	template2 = u
-
-class FundThmCalc_1_(IntegralRule):
-	template1 = d(DefiniteIntegral(n,x)(u*d(x)))
-	template2 = u
-
-class FundThmCalc_2_(IntegralRule):
-	template1 = DefiniteIntegral(a,b)(d(u))
-	template2 = PlugInBounds(a,b)(u)
 
 class Int_ConstantMultiple_(IntegralRule):
 	template1 =	I(n*u)
@@ -73,9 +73,10 @@ class IntegrationByParts_(IntegralRule):
 	template2 =	u*v - I(v*du)
 IBP_indefinite_ = IntegrationByParts_
 
-class IBP_definite_(IntegralRule):
-	template1 = DefiniteIntegral(a,b)(u*dv)
-	template2 = PlugInBounds(a,b)(u*v) - DefiniteIntegral(a,b)(v*du)
+# class IBP_definite_(IntegralRule):
+# 	template1 = DefiniteIntegral(a,b)(u*dv)
+# 	template2 = PlugInBounds(a,b)(u*v) - DefiniteIntegral(a,b)(v*du)
+# not sure how to do pluginbounds' variable. Do we even need this though?
 
 
 from ..algebra.simplify import *

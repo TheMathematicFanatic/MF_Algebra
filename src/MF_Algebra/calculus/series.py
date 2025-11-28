@@ -1,7 +1,7 @@
 from ..expressions.functions import ApplyFunction
 from ..expressions.functions.operators import Sum
 from ..expressions.variables import n,k,x
-from .infinity import inf
+from .limits import inf
 
 
 class Series(ApplyFunction):

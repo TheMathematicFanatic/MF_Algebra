@@ -50,8 +50,9 @@ I = Integral()
 
 
 class PlugInBounds(Function):
-	string_code = ['\\left.', arg, '\\right\\rvert', '_', c0, '^', c1]
-	glyph_code = [arg, 1, c0, c1]
+	# string_code = ['\\quad', '\\left.', arg, '\\right\\rvert', '_', c0, '^', c1]
+	string_code = ['\\quad', arg, '\\Big\\rvert', '_', c0, '^', c1]
+	glyph_code = [arg, 3, c1, c0]
 	def __init__(self, lower_bound, upper_bound, variable, show_variable=False):
 		self.variable = variable
 		self.show_variable = show_variable

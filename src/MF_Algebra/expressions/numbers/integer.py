@@ -4,6 +4,7 @@ from .number import *
 
 class Integer(Number):
 	value_type = int
+	value_to_string_func = lambda n: str(n) # this allows global switch between roman, sumerian, etc numerals!
 	def __init__(self, n, **kwargs):
 		assert isinstance(n, int)
 		super().__init__(**kwargs)
@@ -15,7 +16,7 @@ class Integer(Number):
 
 	@Expression.parenthesize_latex
 	def __str__(self):
-		return str(self.value)
+		return str(self.value_to_string_func(self.value))
 	
 	def compute(self):
 		return self.value
