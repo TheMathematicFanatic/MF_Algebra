@@ -272,3 +272,116 @@ def to_sympy(exp):
 	sympy_expr = sympy_expr.subs(symbols('e'), E)
 
 	return sympy_expr
+
+
+def from_MathJSON(json):
+	from .expressions import (
+		Add, Sub, Mul, Div, Pow,
+		Integer, Real, Variable
+	)
+	if isinstance(json, dict):
+		json = json["fn"]
+	if isinstance(json, int):
+		return Integer(json)
+	if isinstance(json, float):
+		return Real(json)
+	if isinstance(json, str):
+		return Variable
+	if isinstance(json, (list, tuple)):
+		json = list(json)
+		top_level = json[0]
+		top_string_to_MF_class_dict = {
+			"Add" : Add,
+			"Subtract" : Sub,
+		}
+
+
+
+def text_to_MF_Algebra(text):
+	import re
+	# Token regex
+	token_re = re.compile(
+		r"""
+		(?<!\w)-?(?:\d+\.\d*|\.\d+|\d+)   # numbers
+		| [a-zA-Z_]\w*                     # identifiers
+		| \^                                # caret
+		| =                                 # equals
+		| [()+\-*/]                         # operators and parentheses
+		""",
+		re.VERBOSE
+	)
+
+	# Helper to categorize tokens
+	def categorize(tok):
+		if tok in '+-*/()|**':
+			return 'op'
+		if tok == '**':
+			return 'caret'
+		if tok == '|':
+			return 'equals'
+		if re.match(r'(?<!\w)-?(?:\d+\.\d*|\.\d+|\d+)$', tok):
+			return 'number'
+		return 'identifier'
+
+	def rewrite_expression(s):
+		# Step 1: tokenize & replace numbers/operators
+		raw_tokens = token_re.findall(s)
+		tokens = []
+		for tok in raw_tokens:
+			if tok == '^':
+				tokens.append('**')
+			elif tok == '=':
+				tokens.append('|')
+			elif re.match(r'(?<!\w)-?(?:\d+\.\d*|\.\d+|\d+)$', tok):
+				tokens.append(f"Real({tok})" if '.' in tok else f"Integer({tok})")
+			else:
+				tokens.append(tok)
+
+		# Step 2: insert implicit multiplication
+		result = [tokens[0]]
+		for prev, curr in zip(tokens, tokens[1:]):
+			prev_cat = categorize(prev)
+			curr_cat = categorize(curr)
+			
+			# new rules for implicit multiplication
+			if ((prev_cat in ('number', 'identifier') or prev == ')') and
+				(curr_cat in ('number', 'identifier') or curr == '(')):
+				result.append('*')
+			result.append(curr)
+		return ''.join(result)
+
+	from asteval import Interpreter
+	from MF_Algebra import (Integer, Real, Variable, Function, sqrt, cbrt)
+	symtable = {
+		**{L: Variable(L, 1) for L in 'abcjklmnopqrstuvwxyz'},
+		**{F: Function(F, 1) for F in 'fgh'},
+		'Integer' : Integer,
+		'Real' : Real,
+		'Variable' : Variable,
+		'sqrt' : sqrt,
+		'cbrt' : cbrt,
+	}
+	aeval = Interpreter(symtable=symtable)
+
+	return aeval(rewrite_expression(text))
+
+
+
+
+
+import dill as pickle
+import os
+
+def save_to_file(obj:MF_Base, filename:str) -> None:
+	os.makedirs('saved_objects', exist_ok=True)
+	path = os.path.join('saved_objects', filename)
+	with open(path, 'wb') as f:
+		pickle.dump(obj, f)
+
+def load_from_file(filename:str) -> MF_Base:
+	path = os.path.join('saved_objects', filename)
+	with open(path, 'rb') as f:
+		return pickle.load(f)
+
+
+

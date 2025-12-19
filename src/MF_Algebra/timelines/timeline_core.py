@@ -187,7 +187,7 @@ class Timeline(MF_Base):
 	def reset_caches(self):
 		for i,exp in enumerate(self.expressions):
 			exp.reset_caches()
-			self.set_expression(exp, i)
+			self.set_expression(i, exp)
 
 	def align_on_equals(self, strength=1):
 		self.get_vgroup()
@@ -196,6 +196,43 @@ class Timeline(MF_Base):
 		for exp, pos in zip(self.expressions, equals_positions):
 			exp.mob.shift(strength*(avg - pos))
 		return self
+
+	def get_mob_ladder(self):
+		from MF_Tools.dual_compatibility import VGroup, ArcBetweenPoints, RIGHT, Text
+		ladder = VGroup()
+		mobs = self.get_vgroup().copy()
+		ladder.expressions = mobs.arrange(DOWN, buff=1)
+		ladder.arrows = VGroup(*[
+			ArcBetweenPoints(
+				np.array([mobs.get_edge_center(RIGHT)[0], m1.get_center()[1]-0.1, 0]),
+				np.array([mobs.get_edge_center(RIGHT)[0], m2.get_center()[1]+0.1, 0]),
+				angle=-3/4*PI
+			).shift(0.75*RIGHT).set_stroke(width=2, opacity=0.5)
+			for m1, m2 in zip(mobs[:-1], mobs[1:])
+		])
+		ladder.actions = VGroup(*[
+			Text(repr(act)).scale(0.6).next_to(arrow, RIGHT, buff=0.25)
+			for act, arrow in zip(self.actions, ladder.arrows)
+		])
+		ladder.add(ladder.expressions, ladder.arrows, ladder.actions)
+		return ladder
+	
+	def save_to_file(self, filename):
+		from ..utils import save_to_file
+		for exp in self.expressions:
+			exp._mob = None
+		save_to_file(self, filename)
+
+	def debug_anim(self, scene, i):
+		scene.remove(self.mob)
+		exp, act = self.steps[i]
+		print('Input expression:', exp)
+		print('Output expression:', act.get_output_expression(exp))
+		print('Addressmap:')
+		for entry in act.get_addressmap(exp):
+			print(entry)
+		self.play_animation(scene, i)
+
 
 class TimelineScene(Scene):
 	def __init__(self, *args, **kwargs):
