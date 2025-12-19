@@ -130,7 +130,7 @@ class Action(MF_Base):
 
 	### Modifiers ###
 
-	def pread(self, *addresses):
+	def pread(self, *addresses, **kwargs):
 		self = self.copy()
 		if len(addresses) == 0:
 			return self
@@ -139,18 +139,18 @@ class Action(MF_Base):
 			return self
 		else:
 			from .parallel import ParallelAction
-			return ParallelAction(*[self.pread(ad) for ad in addresses])
+			return ParallelAction(*[self.pread(ad) for ad in addresses], **kwargs)
 
-	def left(self):
-		return self.pread('0')
+	def left(self, **kwargs):
+		return self.pread('0', **kwargs)
 
-	def right(self):
-		return self.pread('1')
+	def right(self, **kwargs):
+		return self.pread('1', **kwargs)
 
-	def both(self, number_of_children=2):
+	def both(self, number_of_children=2, **kwargs):
 		# Intended to turn an action on an expression into an action done to both sides of an equation.
 		# Can be passed a number to apply to more than 2 sides for, say, a triple equation or inequality.
-		return self.pread(*[str(i) for i in range(number_of_children)])
+		return self.pread(*[str(i) for i in range(number_of_children)], **kwargs)
 
 
 	### Combinations ###
