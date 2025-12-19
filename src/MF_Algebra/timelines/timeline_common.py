@@ -8,16 +8,16 @@ from ..expressions.combiners.relations import Relation
 class Evaluate(AutoTimeline):
 	first_expression = None
 	mode = 'one at a time'
-	number_mode = 'float'
+	allowed_type = Real
 	def __init__(self,
 		first_expression = None,
 		mode = None,
-		number_mode = 'float',
+		allowed_type = None,
 		**kwargs
 	):
 		self.first_expression = self.first_expression or first_expression
 		self.mode = mode or self.mode
-		self.number_mode = self.number_mode or number_mode
+		self.allowed_type = self.allowed_type or allowed_type
 		super().__init__(**kwargs)
 		if self.first_expression is not None:
 			self.add_expression_to_start(self.first_expression)
@@ -31,7 +31,7 @@ class Evaluate(AutoTimeline):
 			for twig_ad in twig_ads:
 				if not isinstance(last_exp.get_subex(twig_ad), Relation):
 					try:
-						action = evaluate_().pread(twig_ad)
+						action = evaluate_(allowed_type=self.allowed_type).pread(twig_ad)
 						action.get_output_expression(last_exp)
 						return action
 					except (ValueError, IncompatibleExpression):
@@ -43,14 +43,14 @@ class Evaluate(AutoTimeline):
 			acceptable_twig_ads = []
 			for twig_ad in twig_ads:
 				try:
-					action = evaluate_().pread(twig_ad)
+					action = evaluate_(allowed_type=self.allowed_type).pread(twig_ad)
 					action.get_output_expression(last_exp)
 					acceptable_twig_ads.append(twig_ad)
 				except (ValueError, IncompatibleExpression):
 					pass
 			if len(acceptable_twig_ads) == 0:
 				return None
-			return evaluate_().pread(*acceptable_twig_ads)
+			return evaluate_(allowed_type=self.allowed_type).pread(*acceptable_twig_ads)
 		else:
 			raise ValueError(f'Invalid mode: {mode}')
 
