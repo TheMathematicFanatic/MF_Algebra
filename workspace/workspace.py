@@ -375,10 +375,11 @@ class AlgebraTest8(Scene):
 		A >> S
 		S.play_all(self, wait_between=0)
 
-
+from manimlib import *
+from MF_Algebra import *
 class AlgebraTest9(Scene):
 	def construct(self):
-		A = a*x+b*y & c*z
+		A = a*x+b*y | c*z
 		S = Solve(
 			solve_for=y,
 			auto_fit=[8,8,None],
@@ -898,8 +899,9 @@ algebra_config['always_color'] = {
 	x:RED_D, y:BLUE_D, z:GREEN_D,
 	a:RED_B, b:GREEN_D, c:BLUE_E,
 	n:GOLD, m:BLUE_B, w:PURPLE, p:PINK,
-	d: GREY_C,
+	d:GREY_C,
 	dx:RED_B, dy:BLUE_B, dz:GREEN_B,
+	u:PURPLE_D
 }
 class Differentiation(Scene):
 	def construct(self, expression = x**3-5/z):
@@ -1158,4 +1160,152 @@ Economic simulator
 
 each agent just tests its own parameter and tries to balance maximize with testing and knowledge
 '''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class Stream(Scene):
+	def construct(self):
+		S = StreamLines(lambda pos: (pos[0], -pos[1], 0), NumberPlane())
+		self.add(S)
+		self.embed()
+
+
+
+class Crescent(Scene):
+	def construct(self):
+		slider = ValueTracker(1)
+		moon = Circle(radius=2)
+		missing = always_redraw(lambda:
+			Circle(radius=1.5).move_to(slider.get_value()*RIGHT)
+		)
+		crescent = always_redraw(lambda:
+			Difference(moon, missing).set_color(WHITE,1)
+		)
+		self.add(crescent)
+		self.embed()
+
+
+algebra_config['always_color'] = {}
+algebra_config['multiplication_mode'] = 'auto'
+class EvilScribble7(MF_Scene):
+	def construct(self):
+		up = Limit(y,inf)(e**(10*y) / (y**10 - 6*y**5 - 7))
+		down = Integral(-6, 6)(u**2 / (4*sin(u**3)) * du)
+		sine_series = Sum(n,0,inf)(((-1)**n * x**(2*n+1)) / fact(2*n+1))
+		cosine_series = Sum(n,0,inf)(((-1)**n * x**(2*n)) / fact(2*n))
+		numerator = e**x + e**(2*pi) + (sine_series**2 + (cos(x))**2)
+		den1 = Sum(n,0,inf)((three/2)*(sin(pi/6))**n)
+		den2 = Sum(n,0,inf)((2**n*x**n)/fact(n))
+		denominator = den1 + den2
+		all = Integral(down, up)(numerator / denominator * dx)
+
+
+		# Up = Evaluate(up, mode='all at once')
+		# Up >> substitute_({y:inf}).pread('1')
+		# Up >> substitute_({inf-inf:inf})
+		# Up.play_all(self)
+		# up['10'].set_color(GREEN)
+		# up['11'].set_color(BLUE)
+		# up['1/'].set_color(RED)
+		# height = up['1'].get_height()
+
+		self.play(Write(all.mob))
+
+		self.embed()
+
+
+class SumEval(Scene):
+	def construct(self):
+		term1 = (3/four)**n
+		term2 = (1/two)**n
+		S = Sum(n,0,inf)
+		dist_sum = AlgebraicAction(
+			f(a+b),
+			f(a) + f(b)
+		)
+		geo_sum = AlgebraicAction(
+			Sum(n,0,inf)(a*r**n),
+			a/(1-r),
+			['0', '/1-0', {'path_arc':PI}],
+			['111', '/1-0', {'path_arc':PI}]
+		)
+
+		T = Timeline()
+		T >> S(term1 + term2)
+		T >> AlgebraicAction(S(a+b), S(a) + S(b))
+		
+
+class ScribblesChristmas(Scene):
+	def construct(self):
+		final = m*e**((r*r)*y) | x-m*(a*s)
+		original = y | ln(x/m - s*a)/r**2
+		T = Timeline() >> original
+		T >> alg_mul_L().reverse()
+		T >> AlgebraicAction(a|ln(b), e**a|b, ['10', '00', {'path_arc':-PI/2}])
+		T >> mul_(m, side='left').both()
+		# T >> distribute_().right()
+		T >> AlgebraicAction(
+			a*(b-c), a*b-a*c,
+			['0', '00', {'path_arc':-PI}],
+			['0', '10', {'path_arc':-PI}],
+			).right()
+		T >> AlgebraicAction(r**2, r*r, ['1', []]).pread('0110')
+		T >> swap_children_().pread('111')
+		T >> AlgebraicAction(m*(x/m), x, ['1/', []]).pread('10')
+		
+		L = T.get_mob_ladder()
+		L.scale(0.25).to_edge(LEFT)
+		self.add(L)
+		action_status = [
+			YELLOW,
+			GREEN,
+			RED,
+			ORANGE,
+			RED,
+			GREEN,
+			ORANGE,
+		]
+		for i, act in enumerate(action_status):
+			L.arrows[i].set_color(action_status[i])
+			L.actions[i].set_color(action_status[i])
+
+		self.embed()
+
+
+
+class SolveLinear(Scene):
+	def construct(self):
+		eq1 = a * x + b | c
+		eq2 = a * x - b | c
+		eq3 = n/m * x + b | c
+
+		T1 = Solve(x)
+		T2 = Solve(x)
+		T3 = (eq3
+			>> alg_add_R() >> evaluate_('1')
+			>> AlgebraicAction(n/m * x | p, n*x | m*p) >> evaluate_('1')
+			>> alg_mul_L() >> evaluate_('1')
+		)
+
+
+class Debug(Scene):
+	def construct(self):
+		exp = (x+5)/(y+0)
+		act = AlgebraicAction(a+b, a**b, ['+', '^']).pread('1')
+		act.get_addressmap(exp)
+		self.embed()
+
+# Debug().construct()
+
 
