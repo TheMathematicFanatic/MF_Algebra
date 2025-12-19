@@ -171,7 +171,7 @@ class EquationGame(Scene):
 			if self.mode == 'programmed':
 				self.equation = programmed_equations[index]
 			elif self.mode == 'random':
-				self.equation = random_equation(1 if index < 8  else 2)
+				self.equation = random_equation(2 if index < 8  else 3)
 			else: 
 				print('Unknown mode: ', self.mode, '. Must be programmed or random.')
 		self.timeline = Evaluate(auto_scale=2)

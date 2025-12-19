@@ -13,9 +13,9 @@ class apply_operation_(Action):
 
 	def __init__(self, other, OpClass=None, side=None, introducer=None, **kwargs):
 		self.other = Smarten(other)
-		self.OpClass = self.OpClass or OpClass
-		self.side = self.side or side
-		self.introducer = self.introducer or introducer
+		self.OpClass = OpClass or self.OpClass
+		self.side = side or self.side
+		self.introducer = introducer or self.introducer
 		super().__init__(**kwargs)
 
 	@Action.preaddressfunc

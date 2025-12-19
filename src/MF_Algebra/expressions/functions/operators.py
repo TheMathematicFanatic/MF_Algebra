@@ -4,7 +4,7 @@ from ..combiners.operations import *
 
 
 class BigOperator(Function):
-	string_code = [lambda self: self.symbol, '_', c0, '^', c1, arg]
+	string_code = [lambda self: self.symbol, '\\limits', '_', c0, '^', c1, arg]
 	glyph_code = [c1, 1, c0, arg]
 	OpClass = None
 	def __init__(self, variable, start, end, **kwargs):

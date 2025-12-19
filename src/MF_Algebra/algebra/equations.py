@@ -52,8 +52,8 @@ class alg_add_R(EquationManeuver):
 
 
 class alg_add_L(EquationManeuver):
-		template1 = a + b | c,
-		template2 = b | c - a,
+		template1 = a + b | c
+		template2 = b | c - a
 		addressmap = (
 			['00', '11', {'path_arc':PI}],
 			['0+', '1-', {'path_arc':PI}]
@@ -70,8 +70,8 @@ class alg_mul_R(EquationManeuver):
 	template2 = a | c / b
 	addressmap = (
 		['01', '11', {'path_arc':PI}],
-		['0*', FadeOut, {'run_time':0.5}],
-		[Write, '1/', {'run_time':0.5, 'delay':0.5}]
+		['0*', [], {'run_time':0.5}],
+		[[], '1/', {'run_time':0.5, 'delay':0.5}]
 	)
 	
 	def reverse(self):
@@ -89,8 +89,8 @@ class alg_mul_L(EquationManeuver):
 	template2 = b | c / a
 	addressmap = (
 		['00', '11', {'path_arc':PI}],
-		['0*', FadeOut, {'run_time':0.5}],
-		[Write, '1/', {'run_time':0.5, 'delay':0.5}]
+		['0*', [], {'run_time':0.5}],
+		[[], '1/', {'run_time':0.5, 'delay':0.5}]
 	)
 
 	def reverse(self):
@@ -108,7 +108,7 @@ class alg_pow_R(EquationManeuver):
 	template2 = a | Rad(b)(c)
 	addressmap = (
 		['01', '100', {'path_arc':-PI/3}],
-		[Write, '10f', {'delay':0.5, 'run_time':0.5}],
+		[[], '10f', {'delay':0.5, 'run_time':0.5}],
 	)
 	
 	def reverse(self):
@@ -125,7 +125,7 @@ class alg_pow_L(EquationManeuver):
 	template2 = b | Log(a)(c)
 	addressmap = (
 		['00', '100', {'path_arc':PI/2}],
-		[Write, '10f', {'delay':0.75, 'run_time':0.75}],
+		[[], '10f', {'delay':0.75, 'run_time':0.75}],
 	)
 	
 	def reverse(self):

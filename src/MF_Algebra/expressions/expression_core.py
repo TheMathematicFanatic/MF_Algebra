@@ -229,7 +229,7 @@ class Expression(MF_Base):
 			raise IndexError(f"No subexpression of {self} at address {address_string} .")
 
 	def get_subexes_at_addresses(self, *addresses):
-		return [self.get_subex(ad) for ad in addresses]
+		return {self.get_subex(ad) for ad in addresses}
 
 	def get_all_subexpressions_with_condition(self, condition):
 		result = set()
@@ -261,7 +261,7 @@ class Expression(MF_Base):
 		return results
 
 	def get_all_leaves(self):
-		self.get_subexes_at_addresses(self.get_all_leaf_addresses())
+		return self.get_subexes_at_addresses(*self.get_all_leaf_addresses())
 
 	@property
 	def left(self):

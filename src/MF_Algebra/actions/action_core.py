@@ -6,14 +6,17 @@ from functools import wraps
 
 
 class Action(MF_Base):
+	introducer = Write
+	remover = FadeOut
+	preaddress = ''
 	def __init__(self,
-		introducer=Write,
-		remover=FadeOut,
+		introducer=None,
+		remover=None,
 		preaddress=''
 	):
-		self.introducer = introducer
-		self.remover = remover
-		self.preaddress = preaddress
+		self.introducer = introducer or self.introducer
+		self.remover = remover or self.remover
+		self.preaddress = preaddress or self.preaddress
 
 
 	### Static Expressions ###

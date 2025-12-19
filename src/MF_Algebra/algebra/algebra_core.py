@@ -4,6 +4,7 @@ from ..expressions.functions import Function
 from ..utils import Smarten
 from MF_Tools.dual_compatibility import Write, FadeIn, FadeOut
 from copy import deepcopy
+from itertools import product
 
 
 class AlgebraicAction(Action):
@@ -24,8 +25,8 @@ class AlgebraicAction(Action):
 		**kwargs
 	):
 		super().__init__(**kwargs)
-		self.template1 = Smarten(self.template1 or template1)
-		self.template2 = Smarten(self.template2 or template2)
+		self.template1 = Smarten(self.template1) or Smarten(template1)
+		self.template2 = Smarten(self.template2) or Smarten(template2)
 		self.addressmap = self.addressmap or list(extra_addressmaps)
 		self.var_condition_dict = self.var_condition_dict or var_condition_dict
 		self.var_kwarg_dict = self.var_kwarg_dict or var_kwarg_dict
@@ -41,20 +42,27 @@ class AlgebraicAction(Action):
 	@Action.preaddressmap
 	def get_addressmap(self, input_expression=None):
 		addressmap = [] if self.addressmap is None else list(self.addressmap)
+
 		def get_var_ad_dict(template):
 			return {var: template.get_addresses_of_subex(var) for var in template.get_all_variables()}
 		self.template1_address_dict = get_var_ad_dict(self.template1)
 		self.template2_address_dict = get_var_ad_dict(self.template2)
+
 		leaves = self.get_all_leaves()
 		for leaf in leaves:
 			kwargs = self.var_kwarg_dict.get(leaf, {})
 			template1_addresses = self.template1_address_dict.get(leaf, [])
 			template2_addresses = self.template2_address_dict.get(leaf, [])
-			if len(template1_addresses) == 1 or len(template2_addresses) == 1:
-				for t1ad, t2ad in zip(template1_addresses, template2_addresses):
-					addressmap += [t1ad, t2ad, kwargs]
-			else:
-				raise ValueError("I don't know what to do when a variable appears more than once in both the before and after. Please turn off auto_addressmap.")
+
+			# print('leaves: ', leaves)
+			# print('leaf: ', leaf)
+			# print('template1_addresses: ', template1_addresses)
+			# print('template2_addresses: ', template2_addresses)
+
+			for t1ad, t2ad in product(template1_addresses, template2_addresses):
+				if not any((t1ad, t2ad) == (str(ad[0]).strip('(_)'), str(ad[1]).strip('(_)')) for ad in addressmap):
+					addressmap += [[t1ad, t2ad, kwargs]]
+		
 		return addressmap
 
 	def __repr__(self):

@@ -5,14 +5,20 @@ from MF_Tools.dual_compatibility import (
 	Indicate,
 	VGroup, VDict,
 	Line,
-	Scene
+	Scene, InteractiveScene
 )
 import numpy as np
 from abc import ABC
+from dataclasses import dataclass
 from copy import deepcopy
 from tabulate import tabulate
 
 
+class MF_Scene(InteractiveScene):
+	pass
+
+
+@dataclass
 class MF_Base(ABC):
 	def copy(self):
 		return deepcopy(self)
@@ -41,7 +47,7 @@ class MF_Base(ABC):
 
 def Smarten(input):
 	if input is None:
-		return
+		return None
 
 	if isinstance(input, MF_Base):
 		return input.copy()
