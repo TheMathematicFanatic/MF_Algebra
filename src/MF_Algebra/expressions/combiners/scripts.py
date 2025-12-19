@@ -23,6 +23,8 @@ class Superscript(Script):
 	symbol_glyph_length = 0
 
 
+from ..variables import x,y,z
+
 x1 = Subscript(x,1)
 x2 = Subscript(x,2)
 x3 = Subscript(x,3)

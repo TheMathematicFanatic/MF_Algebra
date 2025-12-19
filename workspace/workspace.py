@@ -1309,3 +1309,6 @@ class Debug(Scene):
 # Debug().construct()
 
 
+class Geometric(Scene):
+	def construct(self):
+		pass

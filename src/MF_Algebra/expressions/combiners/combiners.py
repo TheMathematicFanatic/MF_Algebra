@@ -1,5 +1,4 @@
 from ..expression_core import *
-from ..variables import x,y,z
 
 
 class Combiner(Expression):
