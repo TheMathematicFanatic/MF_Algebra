@@ -1,4 +1,5 @@
-from ..expressions.combiners.combiners import Combiner, Superscript
+from ..expressions.combiners.combiners import Combiner
+from ..expressions.combiners.scripts import Superscript
 from ..expressions.functions.functions import Function, c0, arg
 from ..expressions.variables import Variable
 from ..expressions.numbers.real import Real
