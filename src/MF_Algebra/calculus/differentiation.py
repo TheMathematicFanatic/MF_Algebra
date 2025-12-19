@@ -15,6 +15,10 @@ class DerivativeRule(AlgebraicAction):
 	}
 
 
+class ConstantRule_(DerivativeRule):
+	template1 =	d(n)
+	template2 =	0
+
 class ConstantMultipleRule_(DerivativeRule):
 	template1 =	d(n*x)
 	template2 =	n*d(x)

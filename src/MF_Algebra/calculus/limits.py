@@ -17,7 +17,7 @@ class Approaches(Combiner):
 
 
 class Limit(Function):
-	string_code = ['\\lim', '_', c0, arg]
+	string_code = ['\\lim', '\\limits', '_', c0, arg]
 	glyph_code = [3, c0, arg]
 	def __init__(self, variable, value, direction='both', **kwargs):
 		if direction == 'both':

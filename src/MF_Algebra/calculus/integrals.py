@@ -7,7 +7,7 @@ class IntegralOperator(Function):
 
 
 class DefiniteIntegral(IntegralOperator):
-	string_code = [lambda self: self.symbol, '_', c0, '^', c1, arg]
+	string_code = [lambda self: self.symbol, '\\limits', '_', c0, '^', c1, arg]
 	glyph_code = [c1, 1, c0, arg]
 	def __init__(self, start, end, variable=None, show_variable=False, **kwargs):
 		self.variable = variable
@@ -44,14 +44,15 @@ class IndefiniteIntegral(IntegralOperator):
 			parentheses_mode = 'weak',
 			**kwargs
 		)
-Integral = IndefiniteIntegral
-I = Integral()
+
+Integral = DefiniteIntegral
+I = IndefiniteIntegral()
 
 
 
 class PlugInBounds(Function):
 	# string_code = ['\\quad', '\\left.', arg, '\\right\\rvert', '_', c0, '^', c1]
-	string_code = ['\\quad', arg, '\\Big\\rvert', '_', c0, '^', c1]
+	string_code = ['\\quad', arg, '\\Bigg\\rvert', '_', c0, '^', c1]
 	glyph_code = [arg, 3, c1, c0]
 	def __init__(self, lower_bound, upper_bound, variable, show_variable=False):
 		self.variable = variable
