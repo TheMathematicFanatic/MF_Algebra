@@ -101,19 +101,19 @@ class Action(MF_Base):
 		def animation(input_exp, output_exp=None, **kwargs):
 			if output_exp is None:
 				output_exp = self.get_output_expression(input_exp)
-			def get_TBAM(input_exp, output_exp, **kwargs):
+			def get_TBAM(action, input_exp, output_exp, **kwargs):
 				return TransformByAddressMap(
 					input_exp,
 					output_exp,
-					*self.get_addressmap(input_exp),
-					default_introducer=self.introducer,
-					default_remover=self.remover,
+					*action.get_addressmap(input_exp),
+					default_introducer=action.introducer,
+					default_remover=action.remover,
 					**kwargs
 				)
 			try:
-				TBAM = get_TBAM(input_exp.copy(), output_exp.copy())
+				TBAM = get_TBAM(self.copy(), input_exp.copy(), output_exp.copy())
 				assert not TBAM.show_indices, f'Invalid Glyphmap: {TBAM.glyphmap}'
-				return get_TBAM(input_exp, output_exp)
+				return get_TBAM(self, input_exp, output_exp)
 			except Exception as E:
 				print('Warning: Action produced an invalid glyphmap. Falling back to TransformMatchingTex')
 				print('Exception: ', E)
@@ -155,14 +155,21 @@ class Action(MF_Base):
 
 	### Combinations ###
 
-	def __or__(self, other):
+	def create_parallel(self, other):
 		from .parallel import ParallelAction
 		if isinstance(other, ParallelAction):
 			return ParallelAction(self, *other.actions)
 		elif isinstance(other, Action):
 			return ParallelAction(self, other)
 		else:
-			raise ValueError("Can only use | with other ParallelAction or Action")
+			raise ValueError("Can only use |,+ with other ParallelAction or Action")
+
+	def __or__(self, other):
+		return self.create_parallel(other)
+	
+	def __add__(self, other):
+		return self.create_parallel(other)
+
 
 
 	### Utilities ###

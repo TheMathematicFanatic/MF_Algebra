@@ -55,7 +55,7 @@ class eRule(DerivativeRule):
 class ExponentialRule_(DerivativeRule):
 	template1 =	d(n**x)
 	template2 =	ln(n) * n**x * d(x)
-	addressmap = [([], '000')]
+	addressmap = [[[], '000']]
 
 # class ChainRule(DerivativeRule):
 	# template1 = d(f(g(a)))

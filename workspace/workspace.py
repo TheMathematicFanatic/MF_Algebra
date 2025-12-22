@@ -1248,37 +1248,62 @@ class SumEval(Scene):
 
 class ScribblesChristmas(Scene):
 	def construct(self):
-		final = m*e**((r*r)*y) | x-m*(a*s)
 		original = y | ln(x/m - s*a)/r**2
-		T = Timeline() >> original
-		T >> alg_mul_L().reverse()
-		T >> AlgebraicAction(a|ln(b), e**a|b, ['10', '00', {'path_arc':-PI/2}])
-		T >> mul_(m, side='left').both()
-		# T >> distribute_().right()
-		T >> AlgebraicAction(
+		final = m*e**((r*r)*y) | x-m*(a*s)
+
+		colors = {
+			m:RED_B,
+			e:GREEN_D,
+			r:GOLD,
+			y:GREEN_B,
+			x:GREEN_E,
+			a:GREEN_C,
+			s:RED_E,
+			ln:PURPLE
+		}
+
+		move_r2 = alg_mul_L().reverse()
+		move_ln = AlgebraicAction(a|ln(b), e**a|b, ['10', '00', {'path_arc':-PI/2}])
+		mul_m = mul_(m, side='left').both()
+		# distribute = distribute_().right()
+		dist_m = AlgebraicAction(
 			a*(b-c), a*b-a*c,
 			['0', '00', {'path_arc':-PI}],
 			['0', '10', {'path_arc':-PI}],
 			).right()
-		T >> AlgebraicAction(r**2, r*r, ['1', []]).pread('0110')
-		T >> swap_children_().pread('111')
-		T >> AlgebraicAction(m*(x/m), x, ['1/', []]).pread('10')
-		
+		r2_rr = AlgebraicAction(r**2, r*r, ['1', []]).pread('0110')
+		sa_as = swap_children_().pread('111')
+		frac = AlgebraicAction(m*(x/m), x, ['1/1', []], ['0', []]).pread('10')
+		combined = ParallelAction(frac, r2_rr, sa_as, lag=0.1)
+
+		move_r2.status = YELLOW
+		move_ln.status = GREEN
+		mul_m.status = RED
+		dist_m.status = ORANGE
+		r2_rr.status = GREEN
+		sa_as.status = GREEN
+		frac.status = GREEN
+		combined.status = GREEN
+
+		T = (
+			Timeline()#auto_color=colors)
+			>> original
+			>> move_r2
+			>> move_ln
+			>> mul_m
+			>> dist_m
+			>> combined
+		)
+
 		L = T.get_mob_ladder()
 		L.scale(0.25).to_edge(LEFT)
 		self.add(L)
-		action_status = [
-			YELLOW,
-			GREEN,
-			RED,
-			ORANGE,
-			RED,
-			GREEN,
-			ORANGE,
-		]
-		for i, act in enumerate(action_status):
-			L.arrows[i].set_color(action_status[i])
-			L.actions[i].set_color(action_status[i])
+
+		for i, act in enumerate(T.actions):
+			if act == None or not hasattr(act, 'status'):
+				continue
+			L.arrows[i].set_color(act.status)
+			L.actions[i].set_color(act.status)
 
 		self.embed()
 
@@ -1301,14 +1326,36 @@ class SolveLinear(Scene):
 
 class Debug(Scene):
 	def construct(self):
-		exp = (x+5)/(y+0)
-		act = AlgebraicAction(a+b, a**b, ['+', '^']).pread('1')
-		act.get_addressmap(exp)
-		self.embed()
+		T = load_from_file('MerryTimeline')
+		T.debug_anim(self, 2)
 
 # Debug().construct()
 
 
-class Geometric(Scene):
+class BugHunt(Scene):
 	def construct(self):
-		pass
+		# act = AlgebraicAction(
+		# 	x**2-y**2, (x+y)*(x-y),
+		# 	['-', '0+'],
+		# 	['-', '1-'],
+		# 	['01', [], {'run_time':0.5}],
+		# 	['11', [], {'run_time':0.5}]
+		# )
+		# exp1 = a**2 - eight**2
+		# exp2 = exp1 + 1/exp1
+		# T = exp2 >> act.pread('0') >> act.pread('11')
+		act = AlgebraicAction(
+			a**b, b**a
+		)
+		exp = 2**x / (w**3 + (a+b)**c)
+		act = act.pread('0', '10', '11')
+		T = exp >> act >> act
+		T >> add_(f(x)).pread('01')
+		act2 = AlgebraicAction(
+			a+b, b+a
+		)
+		T >> act2.pread('110')
+		T >> act >> act
+
+		T.play_all(self)
+		self.embed()

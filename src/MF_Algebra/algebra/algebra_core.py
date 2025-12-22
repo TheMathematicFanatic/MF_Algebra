@@ -141,7 +141,7 @@ def match_expressions(template, expression, condition_dict={}):
 	# Node case
 	var_dict = {}
 	if not isinstance(expression, type(template)):
-		raise IncompatibleExpression("Expressions do not match type")
+		raise IncompatibleExpression(f"Expressions do not match type: {expression} vs {template}")
 	if not len(template.children) == len(expression.children):
 		raise IncompatibleExpression("Expressions do not match children length")
 	for tc,ec in zip(template.children, expression.children):
