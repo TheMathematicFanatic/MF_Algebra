@@ -390,4 +390,12 @@ def load_from_file(filename:str) -> MF_Base:
 		return pickle.load(f)
 
 
-
+def apply_addressmap(addressmap, address, reverse=False):
+    for entry in addressmap:
+        in_ad = str(entry[0])
+        out_ad = str(entry[1])
+        if reverse:
+            in_ad,out_ad = out_ad,in_ad
+        if address.startswith(in_ad):
+            return out_ad + address[len(in_ad):]
+    return None
