@@ -5,7 +5,7 @@ from MF_Tools.dual_compatibility import (
 	Indicate,
 	VGroup, VDict,
 	Line,
-	Scene, InteractiveScene
+	Scene
 )
 import numpy as np
 from abc import ABC
@@ -13,9 +13,6 @@ from dataclasses import dataclass
 from copy import deepcopy
 from tabulate import tabulate
 
-
-class MF_Scene(InteractiveScene):
-	pass
 
 
 @dataclass
