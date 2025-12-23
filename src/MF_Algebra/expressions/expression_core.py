@@ -216,6 +216,11 @@ class Expression(MF_Base):
 			lambda subex: subex == target_subex
 		)
 
+	def get_all_addresses_with_paren(self):
+		return self.get_all_addresses_with_condition(
+			lambda subex: subex.parentheses
+		)
+
 
 	### Subexpressions ###
 
@@ -262,6 +267,9 @@ class Expression(MF_Base):
 
 	def get_all_leaves(self):
 		return self.get_subexes_at_addresses(*self.get_all_leaf_addresses())
+
+	def get_all_subex_with_paren(self):
+		return self.get_all_subexpressions_with_condition(lambda subex: subex.parentheses)
 
 	@property
 	def left(self):
