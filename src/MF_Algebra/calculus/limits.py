@@ -8,7 +8,7 @@ import numpy as np
 
 class Infinity(Real):
     def __init__(self, **kwargs):
-        super().__init__(np.inf, '\\infty', **kwargs)
+        super().__init__(np.inf, '\\infty', 1, **kwargs)
 inf = Infinity()
 
 
