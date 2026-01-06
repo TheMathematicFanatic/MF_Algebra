@@ -1198,7 +1198,7 @@ class Crescent(Scene):
 
 algebra_config['always_color'] = {}
 algebra_config['multiplication_mode'] = 'auto'
-class EvilScribble7(MF_Scene):
+class EvilScribble7(Scene):
 	def construct(self):
 		up = Limit(y,inf)(e**(10*y) / (y**10 - 6*y**5 - 7))
 		down = Integral(-6, 6)(u**2 / (4*sin(u**3)) * du)

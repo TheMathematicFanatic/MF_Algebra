@@ -31,14 +31,14 @@ class apply_operation_(Action):
 		if self.side == 'right':
 			return [
 				['', '0'],
-				[self.introducer, '+', {'delay':0.5}],
-				[self.introducer, '1', {'delay':0.6}]
+				[[], '+', {'delay':0.5}],
+				[[], '1', {'delay':0.6}]
 			]
 		elif self.side == 'left':
 			return [
 				['', '1'],
-				[self.introducer, '0', {'delay':0.5}],
-				[self.introducer, '+', {'delay':0.6}]
+				[[], '0', {'delay':0.5}],
+				[[], '+', {'delay':0.6}]
 			]
 		else:
 			raise ValueError(f'Invalid side: {self.side}. Must be left or right.')
