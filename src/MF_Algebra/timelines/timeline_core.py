@@ -96,6 +96,10 @@ class Timeline(MF_Base):
 			except NotImplementedError:
 				pass
 
+	def get_addressmap(self, index):
+		exp, act = self.steps[index]
+		return act.get_addressmap(exp)
+
 	def get_animation(self, index, **kwargs):
 		action = self.get_action(index)
 		expA = self.get_expression(index)
@@ -198,7 +202,7 @@ class Timeline(MF_Base):
 		return self
 
 	def get_mob_ladder(self):
-		from MF_Tools.dual_compatibility import VGroup, ArcBetweenPoints, RIGHT, Text
+		from MF_Tools.dual_compatibility import VGroup, ArcBetweenPoints, RIGHT, Text, ORANGE
 		ladder = VGroup()
 		mobs = self.get_vgroup().copy()
 		ladder.expressions = mobs.arrange(DOWN, buff=1)
@@ -214,7 +218,17 @@ class Timeline(MF_Base):
 			Text(repr(act)).scale(0.6).next_to(arrow, RIGHT, buff=0.25)
 			for act, arrow in zip(self.actions, ladder.arrows)
 		])
-		ladder.add(ladder.expressions, ladder.arrows, ladder.actions)
+		ladder.addressmaps = VGroup(*[
+			VGroup(*[
+				Text(str(entry)).set_color(ORANGE)
+				for entry in addressmap
+			]).arrange(DOWN).scale(0.25).next_to(ladder.actions[i], DOWN)
+			for i, addressmap in enumerate([
+				act.get_addressmap(exp)
+				for exp, act in zip(self.expressions[:-1], self.actions)
+			])
+		])
+		ladder.add(ladder.expressions, ladder.arrows, ladder.actions, ladder.addressmaps)
 		return ladder
 	
 	def save_to_file(self, filename):
