@@ -9,7 +9,6 @@ class evaluate_(Action):
 		self.allowed_type = Number
 		super().__init__(**kwargs)
 
-	@Action.preaddressfunc
 	def get_output_expression(self, input_expression=None):
 		try:
 			output = input_expression.evaluate()
@@ -18,8 +17,6 @@ class evaluate_(Action):
 		except:
 			raise IncompatibleExpression
 
-	@Action.autoparenmap
-	@Action.preaddressmap
 	def get_addressmap(self, input_expression=None):
 		return [
 			['', ''] # Extension by preaddress is done by decorator!

@@ -32,14 +32,10 @@ class AlgebraicAction(Action):
 		self.var_kwarg_dict = self.var_kwarg_dict or var_kwarg_dict
 		self.auto_addressmap = self.auto_addressmap or auto_addressmap
 
-
-	@Action.preaddressfunc
 	def get_output_expression(self, input_expression=None):
 		var_dict = match_expressions(self.template1, input_expression, self.var_condition_dict)
 		return self.template2.substitute(var_dict)
 
-	@Action.autoparenmap
-	@Action.preaddressmap
 	def get_addressmap(self, input_expression=None):
 		addressmap = [] if self.addressmap is None else list(self.addressmap)
 

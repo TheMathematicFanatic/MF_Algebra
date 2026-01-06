@@ -7,15 +7,12 @@ class ParallelAction(Action):
         self.lag = lag
         super().__init__(**kwargs)
     
-    @Action.preaddressfunc
     def get_output_expression(self, input_expression=None):
         expr = input_expression
         for action in self.actions:
             expr = action.get_output_expression(expr)
         return expr
 
-    @Action.autoparenmap
-    @Action.preaddressmap
     def get_addressmap(self, input_expression=None):
         total_addressmap = []
         for i,act in enumerate(self.actions):

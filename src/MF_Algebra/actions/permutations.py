@@ -62,7 +62,6 @@ class permute_children_(Action):
 		self.arc_size = arc_size
 		super().__init__(**kwargs)
 
-	@Action.preaddressfunc
 	def get_output_expression(self, input_expression=None):
 		input_expression.children = [
 			input_expression.children[self.permutation(i)]
@@ -70,8 +69,6 @@ class permute_children_(Action):
 		]
 		return input_expression
 
-	@Action.autoparenmap
-	@Action.preaddressmap
 	def get_addressmap(self, input_expression=None):
 		assert len(input_expression.children) >= len(self.permutation)
 		

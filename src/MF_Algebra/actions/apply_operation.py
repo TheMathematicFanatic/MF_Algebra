@@ -18,7 +18,6 @@ class apply_operation_(Action):
 		self.introducer = introducer or self.introducer
 		super().__init__(**kwargs)
 
-	@Action.preaddressfunc
 	def get_output_expression(self, input_expression):
 		if self.side == 'right':
 			output_expression = self.OpClass(input_expression, self.other)
@@ -28,8 +27,6 @@ class apply_operation_(Action):
 			raise ValueError(f'Invalid side: {self.side}. Must be left or right.')
 		return output_expression
 
-	@Action.autoparenmap
-	@Action.preaddressmap
 	def get_addressmap(self, input_expression):
 		if self.side == 'right':
 			return [

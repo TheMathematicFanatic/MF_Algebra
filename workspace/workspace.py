@@ -1359,3 +1359,66 @@ class BugHunt(Scene):
 
 		T.play_all(self)
 		self.embed()
+
+
+
+
+class MulFixTest(Scene):
+	def construct(self):
+		A = 3*x + 5*x + x*y + x*10
+		sub = substitute_({x:5})
+		sub2 = substitute_({5:z})
+		T = A >> sub >> sub2
+		T.play_all(self)
+		for entry in sub.get_addressmap(A):
+			print(entry)
+		print('---')
+		for entry in sub2.get_addressmap(A):
+			print(entry)
+
+
+class MulFixTest2(Scene):
+	def construct(self):
+		A = (a+b)*(x+y)
+		E = Evaluate(A)
+		E >> substitute_({x:1,y:2,a:3,b:4})
+		E.play_all(self)
+		L = E.get_mob_ladder()
+		self.add(L.scale(0.5).to_edge(LEFT))
+
+		self.embed()
+
+
+class change_symbol_(Action):
+	def get_output_expression(self, input_expression):
+		out = input_expression.copy()
+		assert isinstance(out, Mul)
+
+
+class MulFixTest3(Scene):
+	def construct(self):
+		T = three*four >> pow_(one+two) >> substitute_({4:y}) >> substitute_({y:two+one})
+		T.play_all(self)
+		L = T.get_mob_ladder()
+		self.add(L.scale(0.5).to_edge(LEFT))
+		self.embed()
+
+
+class MulFixTest4(Scene):
+	def construct(self):
+		E = Evaluate()
+		E >> (a**2 - sqrt(3+12*b))/(5-3*a) + (2*b)/sqrt(a**2+4**2)
+		E >> substitute_({a:3,b:5})
+		E.play_all(self, wait_between=0.1)
+		L = E.get_mob_ladder()
+		self.add(L.scale(0.5).to_edge(LEFT))
+		# self.embed()
+# MulFixTest4().construct()
+
+
+class MulFixTest5(Scene):
+	def construct(self):
+		T = three*four >> add_(5)
+		T.play_all(self)
+		L = T.get_mob_ladder()
+		self.add(L.scale(0.5).to_edge(LEFT))

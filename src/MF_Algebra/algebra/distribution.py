@@ -8,7 +8,6 @@ class distribute_(Action):
 		self.mode = mode #'auto', 'left', 'right'
 		super().__init__(**kwargs)
 
-	@Action.preaddressfunc
 	def get_output_expression(self, input_expression=None):
 		if self.mode == 'auto':
 			self.determine_direction(input_expression)
@@ -53,8 +52,6 @@ class distribute_(Action):
 			else:
 				raise ValueError('Cannot auto-distribute, must be a multiplication or division.')
 
-	@Action.autoparenmap
-	@Action.preaddressmap
 	def get_addressmap(self, input_expression=None):
 		return [
 			['', ''] #standin idk what the fuck im doing here

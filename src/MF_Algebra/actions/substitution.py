@@ -24,7 +24,6 @@ class substitute_(Action):
 		self.maintain_color = maintain_color
 		super().__init__(**kwargs)
 
-	@Action.preaddressfunc
 	def get_output_expression(self, input_expression=None):
 		result = input_expression.substitute(self.sub_dict)
 		if self.maintain_color:
@@ -37,8 +36,6 @@ class substitute_(Action):
 				result[*addresses].set_color(color)
 		return result
 
-	@Action.autoparenmap
-	@Action.preaddressmap
 	def get_addressmap(self, input_expression=None):
 		target_addresses = []
 		for var in self.sub_dict:
@@ -55,20 +52,20 @@ class substitute_(Action):
 				addressmap.append([ad, FadeOut, {'shift': self.fade_shift, 'delay': self.lag*i}])
 				addressmap.append([FadeIn, ad, {'shift': self.fade_shift, 'delay': self.lag*i}])
 
-		# Horrible bandaid for the problem of multiplication symbols changing and ruining the addressmap
-		# I am certain that there is a general and elegant way to do this, along with parentheses changes,
-		# and other such aesthetic matters which don't change the tree, but I still haven't figured it out.
-		from ..expressions.combiners.operations import Mul
-		input_expression = input_expression.copy()
-		output_expression = self.get_output_expression(input_expression.copy())
-		for ad in output_expression.get_all_addresses():
-			in_subex = input_expression.get_subex(ad)
-			out_subex = output_expression.get_subex(ad)
-			if isinstance(in_subex, Mul) and isinstance(out_subex, Mul):
-				if in_subex.symbol == '' and out_subex.symbol != '':
-					addressmap.append([ad, ad+'*'])
-				if in_subex.symbol != '' and out_subex.symbol == '':
-					addressmap.append([ad+'*', ad])
+		# # Horrible bandaid for the problem of multiplication symbols changing and ruining the addressmap
+		# # I am certain that there is a general and elegant way to do this, along with parentheses changes,
+		# # and other such aesthetic matters which don't change the tree, but I still haven't figured it out.
+		# from ..expressions.combiners.operations import Mul
+		# input_expression = input_expression.copy()
+		# output_expression = self.get_output_expression(input_expression.copy())
+		# for ad in output_expression.get_all_addresses():
+		# 	in_subex = input_expression.get_subex(ad)
+		# 	out_subex = output_expression.get_subex(ad)
+		# 	if isinstance(in_subex, Mul) and isinstance(out_subex, Mul):
+		# 		if in_subex.symbol == '' and out_subex.symbol != '':
+		# 			addressmap.append([ad, ad+'*'])
+		# 		if in_subex.symbol != '' and out_subex.symbol == '':
+		# 			addressmap.append([ad+'*', ad])
 
 		return addressmap
 		
@@ -91,12 +88,9 @@ class substitute_into_(Action):
 			raise ValueError(f'Invalid value for substitution_variable: {substitution_variable}')
 		super().__init__(**kwargs)
 
-	@Action.preaddressfunc
 	def get_output_expression(self, input_expression=None):
 		return self.outer_expression.substitute({self.substitution_variable: input_expression})
 
-	@Action.autoparenmap
-	@Action.preaddressmap
 	def get_addressmap(self, input_expression=None):
 		sub_into_addresses = self.outer_expression.get_addresses_of_subex(self.substitution_variable)
 		addressmap = [
