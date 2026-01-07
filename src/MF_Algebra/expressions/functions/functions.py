@@ -241,7 +241,7 @@ class ApplyFunction(BinaryOperation):
 		if parentheses_mode == 'always':
 			self.arg.give_parentheses(True)
 		from ..combiners.operations import Operation
-		if parentheses_mode == 'strong' and isinstance(self.arg, Operation):
+		if parentheses_mode == 'strong' and (isinstance(self.arg, Operation) or self.arg.is_negative()):
 			self.arg.give_parentheses(True)
 		from ..combiners.operations import Add, Sub
 		if parentheses_mode == 'weak' and (isinstance(self.arg, (Add, Sub)) or self.arg.is_negative()):

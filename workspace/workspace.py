@@ -1406,13 +1406,28 @@ class MulFixTest3(Scene):
 
 class MulFixTest4(Scene):
 	def construct(self):
-		E = Evaluate()
-		E >> (a**2 - sqrt(3+12*b))/(5-3*a) + (2*b)/sqrt(a**2+4**2)
-		E >> substitute_({a:3,b:5})
-		E.play_all(self, wait_between=0.1)
+		E = Evaluate(auto_fit=(4,1.8))
+		E >> (a**3 - sqrt(11*b+(cos(3-a)**a)))/(5-3*a) + (2*b)/sqrt(a**2+4**2)
+		E >> substitute_({a:one/five,b:pi})
+
+		can_you = VGroup(
+			TexText('Can you evaluate this?'),
+			Tex('a=3, b=4')
+		).arrange(DOWN).to_edge(UP).scale(0.75).shift(DOWN*0.75)
+		self.play(Write(E.mob))
+		self.play(Write(can_you))
+		self.wait(5)
+
+		E.play_all(self, wait_between=0.5)
+		self.wait(3)
+
+		self.play(FadeOut(E.mob), FadeOut(can_you))
 		L = E.get_mob_ladder()
-		self.add(L.scale(0.5).to_edge(LEFT))
-		# self.embed()
+		L.scale_to_fit(4, 8).center()
+		# self.play(Write(L), run_time=4)
+		self.add(L)
+		# self.play(FadeOut(L))
+		self.embed()
 # MulFixTest4().construct()
 
 
@@ -1422,3 +1437,63 @@ class MulFixTest5(Scene):
 		T.play_all(self)
 		L = T.get_mob_ladder()
 		self.add(L.scale(0.5).to_edge(LEFT))
+
+
+class SolveTest(Scene):
+	def construct(self):
+		F,m,a = Variables('Fma')
+		eq = F | m*a
+		S = Solve(m, eq, auto_scale=3)
+		S.play_all(self)
+		self.embed()
+
+
+class PythSolve(Scene):
+	def construct(self):
+		pyth = a**2 + b**2 | c**2
+		S = Solve(b)
+		S >> pyth
+		S >> substitute_({a:3,c:5})
+		S.play_all(self)
+		L = S.get_mob_ladder()
+		self.add(L.to_edge(LEFT))
+		self.embed()
+
+
+class AlgebraIssue(Scene):
+	def construct(self):
+		A = x**2 | 9
+		S = Solve(x)
+		S >> A
+		S.play_all(self)
+		L = S.get_mob_ladder()
+		self.remove(S.mob)
+		self.add(L)
+		self.embed()
+
+
+class Joe(Scene):
+	def construct(self):
+		i = Variable('i')
+		eq = e**(i*pi) + 1 | 0
+		S = Solve(i) >> eq
+		S.play_all(self)
+		self.embed()
+
+
+class Joe2(Scene):
+	def construct(self):
+		i = Variable('i')
+		eq = e**(i*x) | cos(x)+i*sin(x)
+		E = Evaluate() >> eq
+		E >> substitute_({x:0})
+		E.play_all(self)
+		self.embed()
+
+
+class Saccente(Scene):
+	def construct(self):
+		exp = -(3*(-3*two**0)*(-(three-2)*(-2)) - abs_value(-4)) + Rad(3)(64)
+		E = Evaluate(exp)
+		E.play_all(self)
+		self.embed()

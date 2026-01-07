@@ -1,12 +1,3 @@
-For all this let's just start assuming that parentheses and radicals etc are built with a standard
-number of glyphs. In deployment we can use a font or latex package which ensures this for all
-reasonable expressions.
-
-- Expression's substitute methods should not specially handle Functions.
-- Function really just needs a total rewrite
-- get_glyphs and get_subex should be entirely within subclasses like Combiner and Function,
-  it should not be the parent class's job to have a big if tree for the child classes
-
 
 
 There is a problem with substitute_into_ and preaddressing. You might want this in order to apply the same function to both sides.
@@ -20,9 +11,6 @@ class FunctionSubstituteTest(Scene):
         #self.embed()
 
 
-
-Something is wrong with the substitution in AlgebraicAction. I suppose it's best to sort this out after the rewrites...
-
-
-
 Provide a way to concatenate Timelines, in particular which can handle them each having their own rules for next_action
+
+

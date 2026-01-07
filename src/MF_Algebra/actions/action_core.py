@@ -157,7 +157,7 @@ class Action(MF_Base):
 		return wrapper
 
 	@staticmethod
-	def autoparenmap(getmap, mode='none'):
+	def autoparenmap(getmap, mode='stupid'):
 		if mode == 'none':
 			return getmap
 		if mode == 'stupid':
@@ -212,6 +212,9 @@ class Action(MF_Base):
 					# Ambiguous addressmap, just fade out
 					addressmap.append( [ad + '+', [], Action.remove_kwargs.copy()] )
 				
+				# elif len(targets) == 0:
+				# 	pass #idk what im doing
+
 				else:
 					# Matching address found
 					target = targets.pop()

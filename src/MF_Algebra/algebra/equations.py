@@ -1,9 +1,11 @@
 from .algebra_core import AlgebraicAction
 from ..actions.permutations import swap_children_
 from ..expressions.variables import a,b,c
-from ..expressions.functions.radicals import Rad
-from ..expressions.functions.logarithms import Log
+from ..expressions.functions.radicals import Rad, sqrt
+from ..expressions.functions.logarithms import Log, ln
+from ..expressions.numbers.real import e
 from MF_Tools.dual_compatibility import FadeIn, FadeOut, Write, PI
+from copy import deepcopy
 
 
 class EquationManeuver(AlgebraicAction):
@@ -16,10 +18,13 @@ class EquationManeuver(AlgebraicAction):
 		self.template1, self.template2 = self.template2, self.template1
 		# modifies addressmap accordingly
 		# (swap order and negate path_arcs)
-		for entry in self.addressmap:
+		admap_copy = deepcopy(self.addressmap)
+		for entry in admap_copy:
 			entry[0], entry[1] = entry[1], entry[0]
 			if len(entry) == 3 and 'path_arc' in entry[2].keys():
 				entry[2]['path_arc'] = -entry[2]['path_arc']
+		self.addressmap = admap_copy
+
 		return self
 
 	def flip(self):
@@ -29,13 +34,16 @@ class EquationManeuver(AlgebraicAction):
 		self.template2 = s.get_output_expression(self.template2)
 		# modifies addressmap accordingly
 		# (swap first character of addresses and negate path_arcs)
-		for entry in self.addressmap:
+		admap_copy = deepcopy(self.addressmap)
+		for entry in admap_copy:
 			if isinstance(entry[0], str):
 				entry[0] = str(1-int(entry[0][0])) + entry[0][1:]
 			if isinstance(entry[1], str):
 				entry[1] = str(1-int(entry[1][0])) + entry[1][1:]
 			if len(entry) == 3 and 'path_arc' in entry[2].keys():
 				entry[2]['path_arc'] = -entry[2]['path_arc']
+		self.addressmap = admap_copy
+
 		return self
 
 	def reverse_flip(self):
@@ -103,6 +111,21 @@ class alg_mul_L(EquationManeuver):
 		return self
 
 
+class alg_pow_2_R(EquationManeuver):
+	template1 = a**2 | b
+	template2 = a | sqrt(b)
+	addressmap = (
+		['01', '10f', {'path_arc':-PI/3}],
+	)
+	
+	def reverse(self):
+		super().reverse()
+		self.addressmap = (
+			['10f', '01', {'path_arc':PI/3}],
+		)
+		return self
+
+
 class alg_pow_R(EquationManeuver):
 	template1 = a**b | c
 	template2 = a | Rad(b)(c)
@@ -115,7 +138,22 @@ class alg_pow_R(EquationManeuver):
 		super().reverse()
 		self.addressmap = (
 			['100', '01', {'path_arc':PI/3}],
-			['10f', FadeOut, {'run_time':0.5}]
+			['10f', [], {'run_time':0.5}]
+		)
+		return self
+
+
+class alg_pow_e_L(EquationManeuver):
+	template1 = e**a | b
+	template2 = a | ln(b)
+	addressmap = (
+		['00', '10f', {'path_arc':PI/2}],
+	)
+	
+	def reverse(self):
+		super().reverse()
+		self.addressmap = (
+			['10f', '00', {'path_arc':-PI/2}],
 		)
 		return self
 
@@ -135,7 +173,6 @@ class alg_pow_L(EquationManeuver):
 			['10f', FadeOut, {'run_time':0.5}]
 		)
 		return self
-
 
 
 class alg_neg_R(EquationManeuver):

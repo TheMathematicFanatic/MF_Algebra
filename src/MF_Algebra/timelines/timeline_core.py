@@ -266,6 +266,11 @@ class TimelineScene(Scene):
 
 	def resume(self):
 		self.timeline.resume()
+	
+	def add_ladder(self):
+		self.ladder = self.timeline.get_mob_ladder()
+		self.ladder.scale_to_fit(4, 8).center()
+		self.clear()
 
 
 
