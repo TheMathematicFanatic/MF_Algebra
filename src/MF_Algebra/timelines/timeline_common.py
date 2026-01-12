@@ -91,10 +91,15 @@ class Solve(AutoTimeline):
 			except IncompatibleExpression:
 				pass
 
-		if current_address == '1':
-			return swap_children_()
-		if current_address == '0':
-			return None
+		if len(current_address) == 1:
+			self._solved = True
+			if current_address == '1':
+				# return swap_children_()
+				return None
+			elif current_address == '0':
+				return None
+			else:
+				raise Exception('What?', current_address)
 
 		if self.solve_for is not None:
 			successful_outputs = []
@@ -118,7 +123,16 @@ class Solve(AutoTimeline):
 		self.solve_for = var
 		self.resume()
 		return self
-
+	
+	@property
+	def solution(self):
+		last_exp = self.expressions[-1]
+		solve_for_ad = last_exp.get_addresses_of_subex(self.solve_for)[0]
+		if self._solved and len(solve_for_ad) == 1:
+			return last_exp.get_subex(str(1-int(solve_for_ad)))
+		else:
+			return None
+			
 
 class EvaluateAndSolve(CombinedRuleTimeline):
 	def __init__(self, *args, **kwargs):

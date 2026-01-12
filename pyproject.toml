@@ -19,6 +19,7 @@ MF_Tools = ">=1.4.3"
 sympy = { version = ">=1.8", extras = ["latex"] }
 numpy = ">=2.0"
 tabulate = "^0.9"
+dill = "^0.4"
 
 [tool.poetry.extras]
 manimce = ["manim"]

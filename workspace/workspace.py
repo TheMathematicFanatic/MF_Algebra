@@ -1491,9 +1491,125 @@ class Joe2(Scene):
 		self.embed()
 
 
-class Saccente(Scene):
+class EvalScene(Scene):
 	def construct(self):
 		exp = -(3*(-3*two**0)*(-(three-2)*(-2)) - abs_value(-4)) + Rad(3)(64)
+		self.evaluate_expression(exp)
+
+	
+	
+	def evaluate_expression(self, exp):
 		E = Evaluate(exp)
 		E.play_all(self)
+		self.clear()
+
+# algebra_config['always_color'] = {x:RED,y:BLUE,a:RED_D,b:GREEN_D}
+class SolveThenEval(Scene):
+
+	def construct(self):
+		ax = abs_value(x)
+		ay = abs_value(y)
+		exp = (ax - ay) * (ax + ay)
+		eqx = 2-3*x | 5
+		eqy = 1-2*y | 5
+		self.scene_setup(exp, eqx, eqy)
+
+	def scene_setup(self, exp, eqx, eqy):
+		E = Evaluate(exp, auto_scale=1.25)
+		Sx = Solve(x, eqx).align_on_equals()
+		Sy = Solve(y, eqy).align_on_equals()
+		Sx.vgroup.shift(2.5*UL + 0.5*LEFT)
+		Sy.vgroup.shift(2.5*UR + 0.5*RIGHT)
+
+		self.play(Write(E.mob))
+		self.wait()
+		self.play(Write(Sx.mob), Write(Sy.mob))
+		self.wait(2)
+
+		Sx.play_all(self, wait_between=0.5)
+		self.wait()
+		Sy.play_all(self, wait_between=0.5)
+		self.wait()
+
+		E >> substitute_({x:Sx.solution, y:Sy.solution}, maintain_color=True, mode='fade')
+		E.play_all(self, wait_between=0.75)
+
+		self.play(E.mob.animate.scale(1.5), rate_func=there_and_back, run_time=2)
+		self.wait(3)
+
+
+class Saccente_59_26(SolveThenEval):
+	def construct(self):
+		exp = x**-1 * y**-2 - x**-2 * y**-3
+		eqx = 1 - 2*x | 3
+		eqy = 6 + 5*y | -4
+		self.scene_setup(exp, eqx, eqy)
+
+
+class Saccente_60_26(SolveThenEval):
+	def construct(self):
+		ax = abs_value(x)
+		ay = abs_value(y)
+		exp = (ax - ay) * (ax + ay)
+		eqx = x | cbrt(-64)
+		eqy = y | cbrt(-125)
+		self.scene_setup(exp, eqx, eqy)
+
+
+class Saccente_65_28(SolveThenEval):
+	def construct(self):
+		exp = x - (x**2)**0 * (x-y) - abs_value(x-y)
+		eqx = 2*x + 6 | -4
+		eqy = 4 - 3*y | 13
+		self.scene_setup(exp, eqx, eqy)
+
+
+class SolveFor(Scene):
+	def construct(self):
+		equation = e**(a*x) - m/z | Rad(n)(c) + p
+		color = BLUE_D
+		S = Solve(p) >> equation
+		while True:
+			var = Variable(input('Solve for which variable? '))
+			S = Solve(var, auto_color={var:color}) >> S.expressions[-1]
+			self.clear(); self.add(S.mob)
+			# self.play(equation[var].animate.set_color(color))
+			S.play_all(self)
+
+
+P,V,n,R,T = Variables('PVnRT')
+algebra_config['multiplication_mode'] = 'dot'
+class EngineeringMinds(Scene):
+	def construct(self):
+		self.anim({V:10, n:3, R:8.314, T:4})
+		self.anim({V:50, n:9, R:8.314, T:100})
+
+	def anim(self, vals = {}):
+		eq = P*V | Mul(n,R,T)
+		solve_for = (eq.get_all_variables() - set_core(vals.keys())).pop()
+		S = Solve(solve_for) >> substitute_(vals)
+		S >> add_(273.15).pread('102') >> evaluate_().pread('102')
+		S >> evaluate_().pread('10') >> evaluate_().pread('1')
+		S.play_all(self)
+		self.wait(3)
+		self.play(FadeOut(S.mob))
+
+
+
+class Demo18(Scene):
+	def construct(self):
+		eq = (x**2 - 1) + (-4*y - 3) | 3
+		T = Solve()
+		T >> eq
+		self.embed()
+
+
+
+class SetTest(Scene):
+	def construct(self):
+		A = Set(1,2,3)
+		o = Empty
+		I = A & o
+		U = A | o
+		D = A - o
 		self.embed()

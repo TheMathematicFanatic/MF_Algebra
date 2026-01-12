@@ -136,8 +136,8 @@ class Timeline(MF_Base):
 		if self.mob not in scene.mobjects:
 			scene.play(Write(self.mob))
 		while self.current_exp_index < len(self.steps)-1:
+			scene.wait(wait_between)
 			self.play_next(scene=scene)
-			scene.wait(wait_between if self.current_exp_index < len(self.steps)-1 else 0)
 
 	def shift_past_steps(self, scene, expA, expB):
 		mobA_radius = expA.mob.get_critical_point(self.past_steps_direction) - expA.mob.get_center()
@@ -158,6 +158,10 @@ class Timeline(MF_Base):
 
 	def get_vgroup(self, **kwargs):
 		return VGroup(*[self.steps[i][0].mob for i in range(len(self.steps))])
+	
+	@property
+	def vgroup(self):
+		return self.get_vgroup()
 
 	@property
 	def mob(self):
@@ -246,6 +250,13 @@ class Timeline(MF_Base):
 		for entry in act.get_addressmap(exp):
 			print(entry)
 		self.play_animation(scene, i)
+
+	def __le__(self, expr):
+		assert isinstance(expr, Expression), "Can only apply expression >= timeline"
+		for act in self.actions:
+			expr = act <= expr
+		return expr
+
 
 
 class TimelineScene(Scene):

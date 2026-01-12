@@ -1,4 +1,4 @@
-from MF_Tools.dual_compatibility import dc_Tex, MANIM_TYPE, VGroup
+from MF_Tools.dual_compatibility import dc_Tex, MANIM_TYPE, VGroup, WHITE, BLACK
 from ..utils import MF_Base, Smarten, add_spaces_around_brackets
 from functools import wraps
 
@@ -9,8 +9,9 @@ algebra_config = {
 	'division_mode': 'fraction',
 	'decimal_precision': 4,
 	'always_color': {},
+	'default_color': WHITE,
 	'fast_paren_length': True,
-	'fast_glyph_count': True,
+	'fast_glyph_count': False,
 	'fast_root_length': True,
 }
 
@@ -41,10 +42,12 @@ class Expression(MF_Base):
 	def init_mob(self, **kwargs):
 		string = add_spaces_around_brackets(str(self))
 		self._mob = dc_Tex(string, **kwargs)
+		self._mob.set_color(algebra_config['default_color'])
 		self.set_color_by_subex(algebra_config['always_color'])
 
 	def __getitem__(self, key):
 		# Returns a VGroup of the glyphs at the given addresses
+		# Or if key is an Expression, returns the glyphs of that subexpression!
 		if MANIM_TYPE == 'GL':
 			parent = self.mob
 		elif MANIM_TYPE == 'CE':
@@ -62,6 +65,9 @@ class Expression(MF_Base):
 		elif isinstance(key, (list, tuple)):
 			for k in key:
 				result.add(*self[k])
+		elif isinstance(key, Expression):
+			for ad in self.get_addresses_of_subex(key):
+				result.add(*self[ad])
 		else:
 			raise ValueError(f"Invalid key: {key}")
 		return result
@@ -424,7 +430,8 @@ class Expression(MF_Base):
 		def wrapper(expr, *args, **kwargs):
 			pretex = str_func(expr, *args, **kwargs)
 			if expr.parentheses:
-				pretex = '\\left(' + pretex + '\\right)'
+				p1,p2 = expr.paren_symbols
+				pretex = '\\left' + p1 + pretex + '\\right' + p2
 			return pretex
 		return wrapper
 
