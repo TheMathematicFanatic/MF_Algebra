@@ -85,7 +85,7 @@ class Mul(BinaryOperation):
 
 	def auto_parentheses(self): # should be more intelligent based on mode
 		for child in self.children:
-			if isinstance(child, (Add, Sub)) or child.is_negative():
+			if isinstance(child, (Add, Sub)): # or child.is_negative():
 				child.give_parentheses()
 			child.auto_parentheses()
 		return self
@@ -206,3 +206,27 @@ class Negative(UnaryOperation):
 
 	def is_negative(self):
 		return True
+
+
+class PlusMinus(UnaryOperation):
+	symbol = '\\pm'
+	symbol_glyph_length = 1
+	eval_op = None
+
+	def auto_parentheses(self):
+		if isinstance(self.children[0], (Add, Sub)) or self.children[0].is_negative():
+			self.children[0].give_parentheses()
+		self.children[0].auto_parentheses()
+		return self
+
+
+class MinusPlus(UnaryOperation):
+	symbol = '\\mp'
+	symbol_glyph_length = 1
+	eval_op = None
+
+	def auto_parentheses(self):
+		if isinstance(self.children[0], (Add, Sub)) or self.children[0].is_negative():
+			self.children[0].give_parentheses()
+		self.children[0].auto_parentheses()
+		return self

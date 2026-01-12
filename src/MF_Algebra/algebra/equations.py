@@ -4,6 +4,7 @@ from ..expressions.variables import a,b,c
 from ..expressions.functions.radicals import Rad, sqrt
 from ..expressions.functions.logarithms import Log, ln
 from ..expressions.numbers.real import e
+from ..expressions.combiners.operations import PlusMinus
 from MF_Tools.dual_compatibility import FadeIn, FadeOut, Write, PI
 from copy import deepcopy
 
@@ -113,12 +114,13 @@ class alg_mul_L(EquationManeuver):
 
 class alg_pow_2_R(EquationManeuver):
 	template1 = a**2 | b
-	template2 = a | sqrt(b)
+	template2 = a | PlusMinus(sqrt(b))
 	addressmap = (
 		['01', '10f', {'path_arc':-PI/3}],
+		[[], '1~']
 	)
 	
-	def reverse(self):
+	def reverse(self): # Hopefully this never happens lol
 		super().reverse()
 		self.addressmap = (
 			['10f', '01', {'path_arc':PI/3}],
