@@ -108,25 +108,21 @@ def combine_to_timeline(A, B):
 	raise NotImplementedError(f"Unsupported combination of types {type(A)} and {type(B)}")
 
 
-def add_spaces_around_brackets(input_string): #GPT
+def add_spaces_around_brackets(input_string):
 	result = []
 	i = 0
 	length = len(input_string)
 
-	while i < length:
-		if input_string[i] == '{' or input_string[i] == '}':
-			if i > 0 and input_string[i - 1] != ' ':
-				result.append(' ')
-			result.append(input_string[i])
-			if i < length - 1 and input_string[i + 1] != ' ':
-				result.append(' ')
+	for i in range(length):
+		if input_string[i:i+2] == '{{':
+			result.append('{ ')
+		elif input_string[i:i+2] == '}}':
+			result.append('} ')
 		else:
 			result.append(input_string[i])
-		i += 1
 
 	# Join the list into a single string and remove any extra spaces
-	spaced_string = ''.join(result).split()
-	return ' '.join(spaced_string)
+	return ''.join(result).strip()
 
 
 def print_info(expression, tablefmt='rst'):
@@ -169,7 +165,7 @@ def print_info(expression, tablefmt='rst'):
 
 def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per_node=2, **kwargs):
 	import random
-	from .expressions.numbers.number import Integer
+	from .expressions.numbers import Integer
 	from .expressions.combiners.operations import Add, Sub, Mul, Div, Pow, Negative
 	nodes = [Add, Sub, Mul, Pow]
 	node = random.choice(nodes)
@@ -276,27 +272,6 @@ def to_sympy(exp):
 
 	return sympy_expr
 
-
-def from_MathJSON(json):
-	from .expressions import (
-		Add, Sub, Mul, Div, Pow,
-		Integer, Real, Variable
-	)
-	if isinstance(json, dict):
-		json = json["fn"]
-	if isinstance(json, int):
-		return Integer(json)
-	if isinstance(json, float):
-		return Real(json)
-	if isinstance(json, str):
-		return Variable
-	if isinstance(json, (list, tuple)):
-		json = list(json)
-		top_level = json[0]
-		top_string_to_MF_class_dict = {
-			"Add" : Add,
-			"Subtract" : Sub,
-		}
 
 
 

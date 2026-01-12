@@ -19,6 +19,7 @@ class Expression(MF_Base):
 	def __init__(self, *children, parentheses=False, **kwargs):
 		self.children = list(map(Smarten,children))
 		self.parentheses = parentheses
+		self.paren_symbols = ('(', ')')
 		if algebra_config['auto_parentheses']:
 			self.auto_parentheses()
 		self.reset_caches()
@@ -375,9 +376,9 @@ class Expression(MF_Base):
 
 	### Parentheses ###
 
-	def give_parentheses(self, parentheses=True):
+	def give_parentheses(self, parentheses=True, symbols = ('(',')')):
 		change = parentheses - self.parentheses
-		if change:
+		if change or symbols != self.paren_symbols:
 			self._mob = None # Don't init mob just yet, just clear the cached mob
 			if algebra_config['fast_glyph_count'] and self._glyph_count is not None:
 				# Adjust cached number of glyphs according to change
@@ -386,6 +387,7 @@ class Expression(MF_Base):
 				# Otherwise just clear the cache
 				self.reset_caches()
 			self.parentheses = parentheses
+			self.paren_symbols = symbols
 		return self
 
 	def clear_all_parentheses(self):
