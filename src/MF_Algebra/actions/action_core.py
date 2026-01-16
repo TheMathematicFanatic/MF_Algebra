@@ -123,7 +123,7 @@ class Action(MF_Base):
 
 			func = cls.get_addressmap
 			func = Action.preaddressmap(func)
-			# func = Action.autoparenmap(func)
+			func = Action.autoparenmap(func)
 			# func = Action.autoopmap(func)
 			cls.get_addressmap = func
 

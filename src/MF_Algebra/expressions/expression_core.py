@@ -626,6 +626,12 @@ class ExpressionContainer:
 	def __iter__(self):
 		if self.symbol_glyph_length_list:
 			assert len(self.strings) == len(self.symbol_glyph_length_list)
-			return (self.expression_type(s, l) for s, l in zip(self.strings, self.symbol_glyph_length_list))
+			return (
+				self.expression_type(symbol=s, symbol_glyph_length=l)
+				for s, l in zip(self.strings, self.symbol_glyph_length_list)
+			)
 		else:
-			return (self.expression_type(s) for s in self.strings)
+			return (
+				self.expression_type(symbol=s)
+				for s in self.strings
+				)

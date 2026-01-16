@@ -130,7 +130,7 @@ class Timeline(MF_Base):
 			self.play_animation(scene, index=i, **kwargs)
 			scene.wait(wait_between)
 
-	def play_all(self, scene, wait_between=1, reset_exp_index=False):
+	def play_all(self, scene, wait_between=0.5, reset_exp_index=False):
 		if reset_exp_index:
 			self.current_exp_index = 0
 		if self.mob not in scene.mobjects:
@@ -253,9 +253,9 @@ class Timeline(MF_Base):
 
 	def __le__(self, expr):
 		assert isinstance(expr, Expression), "Can only apply expression >= timeline"
-		for act in self.actions:
-			expr = act <= expr
-		return expr
+		timeline = self.copy()
+		timeline >> expr
+		return timeline.expressions[-1]
 
 
 

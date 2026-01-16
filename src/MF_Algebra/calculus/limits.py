@@ -11,6 +11,9 @@ class Infinity(Real):
         super().__init__(np.inf, '\\infty', 1, **kwargs)
 inf = Infinity()
 
+# Or ?
+# inf = Real(np.inf, '\\infty', 1)
+
 
 class Approaches(Combiner):
 	symbol = '\\to'

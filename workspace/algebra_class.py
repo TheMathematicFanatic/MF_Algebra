@@ -148,14 +148,14 @@ class EquationGame(Scene):
 			self.await_input(recurse=recurse)
 		
 	def solve_equation(self, test=True):
+		saved_state = self.save_state()
 		self.clear()
 		timeline = Solve()
 		timeline >>= self.equation
 		self.add(timeline.mob)
 		timeline.play_all(self)
 		self.wait()
-		self.play(FadeOut(timeline.mob))
-		self.play(Write(self.equation.mob))
+		self.restore()
 		if test:
 			self.guess_solution(
 				timeline.get_expression(-1).children[1]
@@ -171,7 +171,7 @@ class EquationGame(Scene):
 			if self.mode == 'programmed':
 				self.equation = programmed_equations[index]
 			elif self.mode == 'random':
-				self.equation = random_equation(2 if index < 8  else 3)
+				self.equation = random_equation(2 if index < 5  else 3)
 			else: 
 				print('Unknown mode: ', self.mode, '. Must be programmed or random.')
 		self.timeline = Evaluate(auto_scale=2)
@@ -200,52 +200,52 @@ class EquationGame(Scene):
 		if self.point_value >= self.points_to_win:
 			self.you_win()
 
-	# def you_win(self):
-	# 	self.play(*[
-	# 		circ.animate.move_to(2.5*Vcis(TAU/self.points_to_win * i)).scale(1.1)
-	# 		for i,circ in enumerate(self.point_indicators)
-	# 	])
-	# 	always_rotate(self.point_indicators)
-	# 	self.wait()
-	# 	self.play(Write(TexText('You Win!')))
-	# 	self.wait(10)
-	# 	self.embed()
-
 	def you_win(self):
-		self.play(*[FadeOut(mob) for mob in self.mobjects])
-		square = Square3D()
-		bottom = square.copy().shift(IN)
-		top = square.copy().shift(OUT)
-		square.rotate(PI/2, UP)
-		right = square.copy().shift(RIGHT)
-		left = square.copy().shift(LEFT)
-		square.rotate(PI/2, OUT)
-		up = square.copy().shift(UP)
-		down = square.copy().shift(DOWN)
-		Box = SGroup(bottom, right, left, up, down)
-		Box.apply_depth_test()
-		self.add(Box)
-
-		bomb = Sphere().set_color(BLUE_D)
-		fuse = Cylinder(radius=0.1).shift(OUT).set_color(WHITE)
-		Bomb = SGroup(bomb, fuse)
-		Bomb.scale(0.25)
-		Bomb.apply_depth_test()
-		self.add(Bomb)
-		
-		self.play(FadeIn(Bomb))
-		frame = self.camera.frame
-		self.play(frame.animate.reorient(30, 45, 0))
-		you_win = Text("You're blown up!POOP POOP DEAD AND KILD")
-		self.wait(3)
-		self.play(
-			FadeIn(you_win, run_time=0.5),
-			Bomb.animate.scale(2000)
-		)
-		self.wait(3)
-		self.play(Bomb.animate.scale(1/300), Box.animate.scale(5))
-		frame.add_ambient_rotation(3*DEG)
+		self.play(*[
+			circ.animate.move_to(2.5*Vcis(TAU/self.points_to_win * i)).scale(1.1)
+			for i,circ in enumerate(self.point_indicators)
+		])
+		always_rotate(self.point_indicators)
+		self.wait()
+		self.play(Write(TexText('You Win!')))
+		self.wait(10)
 		self.embed()
+
+	# def you_win(self):
+	# 	self.play(*[FadeOut(mob) for mob in self.mobjects])
+	# 	square = Square3D()
+	# 	bottom = square.copy().shift(IN)
+	# 	top = square.copy().shift(OUT)
+	# 	square.rotate(PI/2, UP)
+	# 	right = square.copy().shift(RIGHT)
+	# 	left = square.copy().shift(LEFT)
+	# 	square.rotate(PI/2, OUT)
+	# 	up = square.copy().shift(UP)
+	# 	down = square.copy().shift(DOWN)
+	# 	Box = SGroup(bottom, right, left, up, down)
+	# 	Box.apply_depth_test()
+	# 	self.add(Box)
+
+	# 	bomb = Sphere().set_color(BLUE_D)
+	# 	fuse = Cylinder(radius=0.1).shift(OUT).set_color(WHITE)
+	# 	Bomb = SGroup(bomb, fuse)
+	# 	Bomb.scale(0.25)
+	# 	Bomb.apply_depth_test()
+	# 	self.add(Bomb)
+		
+	# 	self.play(FadeIn(Bomb))
+	# 	frame = self.camera.frame
+	# 	self.play(frame.animate.reorient(30, 45, 0))
+	# 	you_win = Text("You're blown up!POOP POOP DEAD AND KILD")
+	# 	self.wait(3)
+	# 	self.play(
+	# 		FadeIn(you_win, run_time=0.5),
+	# 		Bomb.animate.scale(2000)
+	# 	)
+	# 	self.wait(3)
+	# 	self.play(Bomb.animate.scale(1/300), Box.animate.scale(5))
+	# 	frame.add_ambient_rotation(3*DEG)
+	# 	self.embed()
 		
 
 def random_equation(depth=1):
@@ -253,7 +253,7 @@ def random_equation(depth=1):
 	random.seed()
 	var = random.choice(list(algebra_config['always_color'].keys()))
 	exp = var
-	def one_more_layer(exp, OpClassList = [Add,Sub,Mul]):
+	def one_more_layer(exp, OpClassList = [Add,Sub,Mul,Div,Pow]):
 		OpClass = random.choice(OpClassList)
 		side = random.choice(['left', 'right'])
 		other = random.choice(range(0,21))
@@ -291,4 +291,27 @@ class RiemannSum(Scene):
 		self.embed()
 
 	
+
+class GraphLineFromIntercepts(Scene):
+	eq = 3*x + 5*y | 15
+
+	def __init__(self, eq=None, **kwargs):
+		self.eq = self.eq or eq
+		super().__init__(**kwargs)
+
+	def construct(self):
+		ax = Axes()
+		
+		# solved_eq = self.eq >= Solve(y)
+		# graph = ax.get_graph(lambda t: solved_eq.right.substitute({x:t}).compute())
+
+		one_side_eq = Sub(*self.eq.children)
+		imp_func = Function('F', algebra_rule=one_side_eq)
+		graph = ImplicitFunction(lambda u,v: 3*u-4*v-9)#imp_func.lambdify)
+
+		self.add(graph, ax)
+
+		self.embed()
+
+
 
