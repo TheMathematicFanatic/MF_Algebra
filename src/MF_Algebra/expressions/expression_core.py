@@ -11,16 +11,16 @@ algebra_config = {
 	'always_color': {},
 	'default_color': WHITE,
 	'fast_paren_length': True,
-	'fast_glyph_count': False,
+	'fast_glyph_count': True,
 	'fast_root_length': True,
 }
 
 
 class Expression(MF_Base):
-	def __init__(self, *children, parentheses=False, **kwargs):
+	parentheses = False
+	paren_symbols = ('(', ')')
+	def __init__(self, *children):
 		self.children = list(map(Smarten,children))
-		self.parentheses = parentheses
-		self.paren_symbols = ('(', ')')
 		if algebra_config['auto_parentheses']:
 			self.auto_parentheses()
 		self.reset_caches()
@@ -57,9 +57,10 @@ class Expression(MF_Base):
 		
 		result = VGroup()
 		if isinstance(key, int):
-			result.add(parent[key])
+			# result.add(parent[key]) # Turning to Expression instead
+			result.add(*self[Smarten(key)])
 		elif isinstance(key, slice):
-			result.add(*parent[key])
+			result.add(*parent[key]) # Slice will still do mob I guess
 		elif isinstance(key, str):
 			result.add(*[parent[g] for g in self.get_glyphs_at_address(key)])
 		elif isinstance(key, (list, tuple)):
@@ -602,3 +603,29 @@ class Address:
 	@classmethod
 	def from_ints(cls, *ints):
 		return cls(*[str(i) for i in ints])
+
+
+
+
+
+class ExpressionContainer:
+	expression_type = Expression
+	# Nothing but a container so that you can make multiple expressions at a time.
+	# Subclasses: Variables, Sets
+	# a,b,c = Variables('abc')
+	# mu,chi,psi = Variables('\\mu', '\\chi', '\\psi')
+	# A,B,C = Sets('ABC')
+	# You can set the glyph lengths in a list but it's really not a big deal if you don't.
+	def __init__(self, *strings, symbol_glyph_length_list=None):
+		if len(strings) == 1:
+			self.strings = list(strings[0])
+		else:
+			self.strings = list(strings)
+		self.symbol_glyph_length_list = symbol_glyph_length_list
+
+	def __iter__(self):
+		if self.symbol_glyph_length_list:
+			assert len(self.strings) == len(self.symbol_glyph_length_list)
+			return (self.expression_type(s, l) for s, l in zip(self.strings, self.symbol_glyph_length_list))
+		else:
+			return (self.expression_type(s) for s in self.strings)

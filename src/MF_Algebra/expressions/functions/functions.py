@@ -325,6 +325,12 @@ def get_value_from_code_entry(expression, entry, desired_type):
 	raise ValueError(f'Invalid glyph code entry of type {type(entry)}: {entry}')
 
 
+
 f = Function('f', 1)
 g = Function('g', 1)
 h = Function('h', 1)
+
+
+from ..expression_core import ExpressionContainer
+class Functions(ExpressionContainer):
+	expression_type = Function
