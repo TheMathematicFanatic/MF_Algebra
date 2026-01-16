@@ -4,7 +4,12 @@ from .combiners import *
 
 class Relation(Combiner):
 	def compute(self):
-		return all([self.eval_op(self.children[i].compute(), self.children[i+1].compute()) for i in range(len(self.children)-1)])
+		computed_children = []
+		for child in self.children:
+			try: child = child.compute()
+			except: pass
+			computed_children.append(child)
+		return all([self.eval_op(computed_children[i], computed_children[i+1]) for i in range(len(self.children)-1)])
 
 
 class Equation(Relation):

@@ -70,6 +70,10 @@ def Smarten(input):
 		from .expressions.numbers.complex import Complex
 		return Complex(input)
 
+	if isinstance(input, tuple):
+		from .expressions.combiners.sequences import Coordinate
+		return Coordinate(*input)
+
 	if input is ...:
 		from .expressions.variables import dots
 		return dots

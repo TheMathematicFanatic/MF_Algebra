@@ -11,5 +11,4 @@ class Sequence(Combiner):
 
 
 class Coordinate(Sequence):
-	def __init__(self, *children, **kwargs):
-		super().__init__(*children, parentheses=True, **kwargs)
+	parentheses = True

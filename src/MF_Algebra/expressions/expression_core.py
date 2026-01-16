@@ -382,18 +382,13 @@ class Expression(MF_Base):
 
 	### Parentheses ###
 
-	def give_parentheses(self, parentheses=True, symbols = ('(',')')):
+	def give_parentheses(self, parentheses=True, symbols=None):
 		change = parentheses - self.parentheses
-		if change or symbols != self.paren_symbols:
-			self._mob = None # Don't init mob just yet, just clear the cached mob
-			if algebra_config['fast_glyph_count'] and self._glyph_count is not None:
-				# Adjust cached number of glyphs according to change
-				self._glyph_count += 2 * change * self.paren_length()
-			else:
-				# Otherwise just clear the cache
-				self.reset_caches()
+		if change or symbols:
+			self.reset_caches()
 			self.parentheses = parentheses
-			self.paren_symbols = symbols
+			if symbols:
+				self.paren_symbols = symbols
 		return self
 
 	def clear_all_parentheses(self):

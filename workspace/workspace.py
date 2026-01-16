@@ -751,7 +751,7 @@ class Relativity(TimelineScene):
 		self & AlgebraicAction(a**c/b**c | x, (a/b)**c | x)
 		self.timeline.set_solve_for(v)
 		self.timeline.play_all(self)
- 
+
 
 class LimitRational(Scene):
 	def construct(self):
@@ -1014,9 +1014,11 @@ class HardEquation(Scene):
 
 class HardEquation2(Scene):
 	def construct(self):
-		eq = 10 - cbrt(8/(3+8/(5*x+7))) | 8
+		v = 8/(x**3+1)
+		eq = 10 - cbrt(8/(3+8/(5*v+7))) | 8
 		T = Solve(x, eq).align_on_equals(0.5)
 		T.play_all(self, 0.5)
+		self.embed()
 
 
 class DerivativeRuleTesting(Scene):
@@ -1578,7 +1580,7 @@ class SolveFor(Scene):
 
 
 P,V,n,R,T = Variables('PVnRT')
-algebra_config['multiplication_mode'] = 'dot'
+algebra_config['multiplication_mode'] = 'auto'
 class EngineeringMinds(Scene):
 	def construct(self):
 		self.anim({V:10, n:3, R:8.314, T:4})
@@ -1586,10 +1588,9 @@ class EngineeringMinds(Scene):
 
 	def anim(self, vals = {}):
 		eq = P*V | Mul(n,R,T)
-		solve_for = (eq.get_all_variables() - set_core(vals.keys())).pop()
+		solve_for = (eq.get_all_variables() - set(vals.keys())).pop()
 		S = Solve(solve_for) >> substitute_(vals)
-		S >> add_(273.15).pread('102') >> evaluate_().pread('102')
-		S >> evaluate_().pread('10') >> evaluate_().pread('1')
+		S >> add_(273.15).pread('102')
 		S.play_all(self)
 		self.wait(3)
 		self.play(FadeOut(S.mob))
@@ -1612,4 +1613,6 @@ class SetTest(Scene):
 		I = A & o
 		U = A | o
 		D = A - o
+		C = SetBuilder((x,y) @ R**2, x@Z, y >= 5, y | x**3)
+		self.add(VGroup(A,o,I,U,D,C).arrange_in_grid())
 		self.embed()
