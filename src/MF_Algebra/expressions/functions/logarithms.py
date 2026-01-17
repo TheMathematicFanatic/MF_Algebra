@@ -6,22 +6,15 @@ import math
 
 
 class Log(Function):
-	def __init__(self, base, allow_nickname = True, **kwargs):
+	string_code = ['\\log_', child, arg]
+	glyph_code = [3, child, arg]
+	def __init__(self, base, **kwargs):
 		kwargs.setdefault('parentheses_mode', 'strong')
-		self.allow_nickname = allow_nickname
 		super().__init__(
+			symbol = '\\log',
 			children = [base],
 			**kwargs
         )
-
-	def reset_caches(self):
-		super().reset_caches()
-		if self.allow_nickname and self.base == ten:
-			self.nicknamed = True
-		elif self.allow_nickname and self.base == e:
-			self.nicknamed = 'ln'
-		else:
-			self.nicknamed = False
 
 	def python_rule(self, x):
 		base = self.base.compute()
@@ -31,22 +24,20 @@ class Log(Function):
 	def base(self):
 		return self.children[0]
 
-	@property
-	def string_code(self):
-		return [
-			'\\ln' if self.nicknamed == 'ln' else '\\log',
-			'' if self.nicknamed else '_',
-			'' if self.nicknamed else child,
-			arg
-		]
-
-	@property
-	def glyph_code(self):
-		return [
-			2 if self.nicknamed == 'ln' else 3,
-			0 if self.nicknamed else child,
-			arg
-		]
 
 
-ln = Log(e)
+class NaturalLog(Log):
+	string_code = ['\\ln', arg]
+	glyph_code = [2, arg]
+	def __init__(self, **kwargs):
+		super().__init__(e, **kwargs)
+ln = NaturalLog()
+
+
+
+class CommonLog(Log):
+	string_code = ['\\log', arg]
+	glyph_code = [3, arg]
+	def __init__(self, **kwargs):
+		super().__init__(10, **kwargs)
+log = CommonLog()
