@@ -29,15 +29,13 @@ class Log(Function):
 class NaturalLog(Log):
 	string_code = ['\\ln', arg]
 	glyph_code = [2, arg]
-	def __init__(self, **kwargs):
-		super().__init__(e, **kwargs)
-ln = NaturalLog()
+	standard_form = Log(e)
+ln = NaturalLog(e)
 
 
 
 class CommonLog(Log):
 	string_code = ['\\log', arg]
 	glyph_code = [3, arg]
-	def __init__(self, **kwargs):
-		super().__init__(10, **kwargs)
-log = CommonLog()
+	standard_form = Log(ten)
+log = CommonLog(10)

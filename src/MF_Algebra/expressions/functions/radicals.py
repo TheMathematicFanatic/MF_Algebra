@@ -37,8 +37,7 @@ class Rad(Function):
 class SquareRoot(Rad):
 	string_code = ['\\sqrt', arg]
 	glyph_code = [2, arg]
-	def __init__(self, **kwargs):
-		super().__init__(2, **kwargs)
-sqrt = SquareRoot()
+	standard_form = Rad(2)
+sqrt = SquareRoot(2)
 
 cbrt = Rad(3)
