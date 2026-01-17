@@ -115,8 +115,8 @@ from ..expressions import Combiner
 class SetBuilder(Set, Combiner):
 	symbol = '|'
 	symbol_glyph_length = 1
-	left_spacing = '\\;'
-	right_spacing = '\\;'
+	left_spacing = '\\enspace'
+	right_spacing = '\\enspace'
 	parentheses = True
 	paren_symbols = ('\\{','\\}')
 
@@ -139,13 +139,25 @@ from ..utils import Smarten
 Empty = SymbolSet(symbol='\\varnothing', symbol_glyph_length=1, in_rule=lambda x: False)
 Empty.elements = ElementsSet()
 
-Z = SymbolSet(symbol='\\mathbb{Z}', symbol_glyph_length=1, in_rule=lambda x: isinstance(Smarten(x), Integer))
+Z = SymbolSet(
+	symbol = '\\mathbb{Z}',
+	symbol_glyph_length = 1,
+	in_rule = lambda x: isinstance(Smarten(x).compute(), Integer)
+	)
 Z.elements = ElementsSet(dots, -2, -1, 0, 1, 2, dots)
 
-N = SymbolSet(symbol='\\mathbb{N}', symbol_glyph_length=1, in_rule=lambda x: isinstance(Smarten(x), Integer) and x.value >= 0)
+N = SymbolSet(
+	symbol = '\\mathbb{N}',
+	symbol_glyph_length = 1,
+	in_rule = lambda x: isinstance(Smarten(x).compute(), Integer) and x.value >= 0
+)
 N.elements = ElementsSet(0, 1, 2, 3, dots)
 
-R = SymbolSet(symbol='\\mathbb{R}', symbol_glyph_length=1, in_rule=lambda x: isinstance(Smarten(x), (Integer, Real)))
+R = SymbolSet(
+	symbol = '\\mathbb{R}', 
+	symbol_glyph_length = 1,
+	in_rule = lambda x: isinstance(Smarten(x).compute(), (Integer, Real))
+)
 
 
 

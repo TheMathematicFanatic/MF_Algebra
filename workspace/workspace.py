@@ -651,7 +651,7 @@ class MultSymbolTest(Scene):
 
 class JadenPEMDAS(Scene):
 	def construct(self):
-		A = Div(Add(-5,1),2,mode='inline')**2-abs_value(-7)
+		A = Div(Add(-5,1),2,mode='inline')**2-abs_val(-7)
 		E = A >> Evaluate(auto_scale=2)
 		E.get_vgroup().set_color(BLACK)
 		E.play_all(self)
@@ -1495,7 +1495,7 @@ class Joe2(Scene):
 
 class EvalScene(Scene):
 	def construct(self):
-		exp = -(3*(-3*two**0)*(-(three-2)*(-2)) - abs_value(-4)) + Rad(3)(64)
+		exp = -(3*(-3*two**0)*(-(three-2)*(-2)) - abs_val(-4)) + Rad(3)(64)
 		self.evaluate_expression(exp)
 
 	
@@ -1509,8 +1509,8 @@ class EvalScene(Scene):
 class SolveThenEval(Scene):
 
 	def construct(self):
-		ax = abs_value(x)
-		ay = abs_value(y)
+		ax = abs_val(x)
+		ay = abs_val(y)
 		exp = (ax - ay) * (ax + ay)
 		eqx = 2-3*x | 5
 		eqy = 1-2*y | 5
@@ -1550,8 +1550,8 @@ class Saccente_59_26(SolveThenEval):
 
 class Saccente_60_26(SolveThenEval):
 	def construct(self):
-		ax = abs_value(x)
-		ay = abs_value(y)
+		ax = abs_val(x)
+		ay = abs_val(y)
 		exp = (ax - ay) * (ax + ay)
 		eqx = x | cbrt(-64)
 		eqy = y | cbrt(-125)
@@ -1560,7 +1560,7 @@ class Saccente_60_26(SolveThenEval):
 
 class Saccente_65_28(SolveThenEval):
 	def construct(self):
-		exp = x - (x**2)**0 * (x-y) - abs_value(x-y)
+		exp = x - (x**2)**0 * (x-y) - abs_val(x-y)
 		eqx = 2*x + 6 | -4
 		eqy = 4 - 3*y | 13
 		self.scene_setup(exp, eqx, eqy)
@@ -1579,15 +1579,15 @@ class SolveFor(Scene):
 			S.play_all(self)
 
 
-P,V,n,R,T = Variables('PVnRT')
+P,V,n,R_,T = Variables('PVnRT')
 algebra_config['multiplication_mode'] = 'auto'
 class EngineeringMinds(Scene):
 	def construct(self):
-		self.anim({V:10, n:3, R:8.314, T:4})
-		self.anim({V:50, n:9, R:8.314, T:100})
+		self.anim({V:10, n:3, R_:8.314, T:4})
+		self.anim({V:50, n:9, R_:8.314, T:100})
 
 	def anim(self, vals = {}):
-		eq = P*V | Mul(n,R,T)
+		eq = P*V | Mul(n,R_,T)
 		solve_for = (eq.get_all_variables() - set(vals.keys())).pop()
 		S = Solve(solve_for) >> substitute_(vals)
 		S >> add_(273.15).pread('102')
@@ -1608,11 +1608,20 @@ class Demo18(Scene):
 
 class SetTest(Scene):
 	def construct(self):
-		A = Set(1,2,3)
+		A = ElementsSet(1,2,3)
+		B = ElementsSet(2,3,4)
 		o = Empty
-		I = A & o
-		U = A | o
-		D = A - o
-		C = SetBuilder((x,y) @ R**2, x@Z, y >= 5, y | x**3)
-		self.add(VGroup(A,o,I,U,D,C).arrange_in_grid())
+		I = A & B
+		U = A | B
+		D = A - B
+		C = SetBuilder((x,y) % R**2, x % Z, y >= 5, y | x**3)
+		E = SetBuilder(x**3, x%R, 2**x <= 8)
+		self.add(VGroup(*[exp.mob for exp in [A,B,o,I,U,D,C,E]]).arrange_in_grid())
 		self.embed()
+
+
+
+
+
+
+

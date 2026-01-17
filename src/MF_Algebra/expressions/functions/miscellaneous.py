@@ -10,7 +10,7 @@ class AbsoluteValue(Function):
 			parentheses_mode = 'never',
 			**kwargs
 		)
-abs_value = AbsoluteValue()
+abs_val = AbsoluteValue()
 
 
 class Factorial(Function):

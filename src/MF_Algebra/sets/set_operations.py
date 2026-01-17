@@ -31,6 +31,10 @@ class SetOperation(Set, BinaryOperation):
 	def contains(self, item):
 		return self.in_op(item)
 
+	def evaluate(self):
+		results = set()
+		
+
 
 class Intersection(SetOperation):
 	symbol = '\\cap'
