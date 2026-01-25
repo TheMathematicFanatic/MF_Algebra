@@ -989,7 +989,6 @@ class FracPowerEquation(Scene):
 
 algebra_config['multiplication_mode'] = 'auto'
 
-from manim import *
 from MF_Algebra import *
 algebra_config['always_color'][x] = GREEN
 class MediumEquation(Scene):
@@ -1673,11 +1672,32 @@ class InteractiveTest(InteractiveScene):
 
 class FractionTest(Scene):
 	def construct(self):
-		A = Fraction(2,3)
-		B = Fraction(3,4)
-		C = A + B
-		self.add(C.mob)
+		An,Ad = 2,3
+		Bn,Bd = 3,4
+		
+		from math import lcm
+		Cd = lcm(Ad, Bd)
+		Am = Cd // Ad
+		Bm = Cd // Bd
+
+		add_frac = AlgebraicAction(a/c + b/c, (a+b)/c)
+		sub_frac = AlgebraicAction(a/c - b/c, (a-b)/c)
+		An,Ad,Bn,Bd = map(Smarten, [An,Ad,Bn,Bd])
+		
+		T = Timeline()
+		T >> An/Ad + Bn/Bd
+
+		if Am != 1:
+			T >> mul_(Am).pread('00', '01') >> evaluate_().pread('00', '01')
+		if Bm != 1:
+			T >> mul_(Bm).pread('10', '11') >> evaluate_().pread('10', '11')
+
+		T >> add_frac >> evaluate_().pread('0')
+
+		T.play_all(self)
+
 		self.embed()
+
 
 
 

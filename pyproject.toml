@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "MF-Algebra"
-version = "0.5.4"
+version = "0.5.5"
 description = "Manim plugin which aims to make it much easier to meaningfully transform algebra expressions."
 authors = ["John Connell <johnconnelltutor@gmail.com>"]
 license = "None"
