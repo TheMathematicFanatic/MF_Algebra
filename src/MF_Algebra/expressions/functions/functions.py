@@ -80,9 +80,9 @@ class Function(Expression):
 			count += get_value_from_code_entry(self, gc, int)
 		return count
 
+	@Expression.parenthesize_glyph_list
 	def get_glyphs_at_addigit(self, addigit):
 		start = 0
-		start += self.parentheses * self.paren_length()
 		for gc in self.glyph_code:
 			if isinstance(gc, Variable) and gc == child_num(addigit):
 				end = start + self.children[addigit].glyph_count
@@ -211,6 +211,7 @@ class ApplyFunction(BinaryOperation):
 			count += get_value_from_code_entry(self, gc, int)
 		return count
 
+	@Expression.parenthesize_glyph_list
 	def get_glyphs_at_addigit(self, addigit):
 		all_glyphs = set(range(0, self.glyph_count))
 		arg_glyphs = set(self.get_arg_glyphs())

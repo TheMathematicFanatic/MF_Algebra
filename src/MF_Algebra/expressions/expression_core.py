@@ -442,6 +442,18 @@ class Expression(MF_Base):
 			return gc
 		return wrapper
 
+	@staticmethod
+	def parenthesize_glyph_list(gl_func):
+		# Shifts lists from get_glyphs_at_addigit by paren length when necessary
+		@wraps(gl_func)
+		def wrapper(expr, *args, **kwargs):
+			gl = gl_func(expr, *args, **kwargs)
+			shift = expr.parentheses * expr.paren_length()
+			if shift:
+				gl = [g + shift for g in gl]
+			return gl
+		return wrapper
+
 
 	### Substitution ###
 

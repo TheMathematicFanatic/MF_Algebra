@@ -182,10 +182,10 @@ class UnaryOperation(Expression, Operation):
 	def get_unary_glyph(self):
 		return list(range(0, self.symbol_glyph_length))
 	
+	@Expression.parenthesize_glyph_list
 	def get_glyphs_at_addigit(self, addigit):
 		if addigit == 0:
 			start = 0
-			start += self.parentheses * self.paren_length()
 			start += self.symbol_glyph_length
 			end = start + self.children[0].glyph_count
 			return list(range(start, end))

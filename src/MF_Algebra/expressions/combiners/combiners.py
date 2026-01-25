@@ -35,9 +35,9 @@ class Combiner(Expression):
 		',': 'get_op_glyphs',
 	}
 
+	@Expression.parenthesize_glyph_list
 	def get_glyphs_at_addigit(self, addigit:int):
 		start = 0
-		start += self.parentheses * self.paren_length()
 		for sibling in self.children[:addigit]:
 			start += sibling.glyph_count
 			start += self.symbol_glyph_length
