@@ -170,6 +170,10 @@ class ApplyFunction(BinaryOperation):
 		assert len(children) == 2
 		assert children[0].is_function()
 		super().__init__(*children, **kwargs)
+		if not hasattr(self.func, 'string_code'):
+			self.func.string_code = [lambda self: str(self), arg]
+		if not hasattr(self.func, 'glyph_code'):
+			self.func.glyph_code = [lambda self: self.glyph_count, arg]
 
 	def compute(self):
 		computed_args = [arg.compute() for arg in self.args_list]
@@ -192,10 +196,7 @@ class ApplyFunction(BinaryOperation):
 
 	@Expression.parenthesize_latex
 	def __str__(self):
-		if hasattr(self.func, 'string_code'):
-			return self.get_string_from_string_code()
-		else:
-			return super().__str__.__wrapped__(self)
+		return self.get_string_from_string_code()
 
 	def get_string_from_string_code(self):
 		string = ''

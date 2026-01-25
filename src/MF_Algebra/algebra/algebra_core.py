@@ -21,7 +21,7 @@ class AlgebraicAction(Action):
 		*extra_addressmaps,
 		var_condition_dict={},
 		var_kwarg_dict={},
-		auto_addressmap=False,
+		auto_addressmap=True,
 		**kwargs
 	):
 		super().__init__(**kwargs)
@@ -38,6 +38,9 @@ class AlgebraicAction(Action):
 
 	def get_addressmap(self, input_expression=None):
 		addressmap = [] if self.addressmap is None else list(self.addressmap)
+
+		if not self.auto_addressmap:
+			return addressmap
 
 		def get_var_ad_dict(template):
 			return {var: template.get_addresses_of_subex(var) for var in template.get_all_variables()}

@@ -34,10 +34,12 @@ class Rad(Function):
 	# 	else:
 	# 		raise NotImplementedError
 
+
 class SquareRoot(Rad):
 	string_code = ['\\sqrt', arg]
 	glyph_code = [2, arg]
 	standard_form = Rad(2)
 sqrt = SquareRoot(2)
+
 
 cbrt = Rad(3)

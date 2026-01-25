@@ -17,13 +17,13 @@ class TrigFunction(Function):
 			**kwargs
 		)
 
-	def __pow__(self, other):
-		other = Smarten(other)
-		if other.compute() == -1:
-			return self.inverse()
-		else:
-			from .powers import TrigPower
-			return TrigPower(self, other)
+	# def __pow__(self, other):
+	# 	other = Smarten(other)
+	# 	if other.compute() == -1:
+	# 		return self.inverse()
+	# 	else:
+	# 		from .powers import TrigPower
+	# 		return TrigPower(self, other)
 
 	def inverse(self):
 		pass
