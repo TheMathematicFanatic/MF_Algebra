@@ -985,7 +985,12 @@ class FracPowerEquation(Scene):
 		#T.play_all(self)
 		self.embed()
 
+
+
 algebra_config['multiplication_mode'] = 'auto'
+
+from manim import *
+from MF_Algebra import *
 algebra_config['always_color'][x] = GREEN
 class MediumEquation(Scene):
 	def construct(self):
