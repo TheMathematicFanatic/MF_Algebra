@@ -116,7 +116,7 @@ algebra_config['always_color'] = {
 
 class EquationGame(Scene):
 	def construct(self):
-		self.mode = 'random'
+		self.mode = 'programmed'
 		self.init_game(10)
 		self.await_input()
 		self.embed()

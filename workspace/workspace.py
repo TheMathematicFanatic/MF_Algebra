@@ -1571,6 +1571,14 @@ class Saccente_65_28(SolveThenEval):
 		self.scene_setup(exp, eqx, eqy)
 
 
+class Saccente_63_28(SolveThenEval):
+	def construct(self):
+		exp = -x**0 - x**2*(x**0)**-3 - cbrt(-y)
+		eqx = 2*x+5 | 1
+		eqy = y | 64
+		self.scene_setup(exp, eqx, eqy)
+
+
 class SolveFor(Scene):
 	def construct(self):
 		equation = e**(a*x) - m/z | Rad(n)(c) + p
@@ -1625,6 +1633,51 @@ class SetTest(Scene):
 		self.embed()
 
 
+
+class EvilScribble26(Scene):
+	def construct(self):
+		upper_series = Series((sin(pi/6))**n)
+		upper = Integral(0, inf, vertical_bounds=True)(Div(1,2) * upper_series * du)
+
+		lower_series = Series(((-1)**n * t**(2*n+1)) / (fact(2*n+1)))
+		lower_lower = -fact(3)/pi * Series(1/n**2, n, 1)
+		lower = Integral(lower_lower, pi/2, vertical_bounds=True)(lower_series * dt)
+
+		trig_frac = ( (sin**2)(t) + (cos**2)(t) ) / ( (sin**2)(t) + (cos**(e**ln(2)))(t) )
+		denom_base = d/dt * (t+ln(trig_frac)) + x**2
+		denom_pow = Series(2/(n*(n+1)), n, 1)
+		frac = arctan(x) / denom_base**denom_pow
+
+		full = Integral(lower, upper, vertical_bounds=True)(frac * dx)
+		self.add(full.mob)
+		self.embed()
+
+
+class FuncTest(Scene):
+	def construct(self):
+		F = (f**2)(x)
+		self.add(F.mob)
+		print_info(F)
+		self.embed()
+
+
+
+class InteractiveTest(InteractiveScene):
+	def construct(self):
+		A = x**2 + y**2
+		self.add(A.mob)
+		A.addressbook = A.get_addressbook()
+		self.embed()
+
+
+
+class FractionTest(Scene):
+	def construct(self):
+		A = Fraction(2,3)
+		B = Fraction(3,4)
+		C = A + B
+		self.add(C.mob)
+		self.embed()
 
 
 

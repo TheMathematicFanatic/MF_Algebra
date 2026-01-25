@@ -62,7 +62,7 @@ def Smarten(input):
 		from math import isclose
 		if isclose(input, round(input)):
 			from .expressions.numbers.integer import Integer
-			return Integer(int(input))
+			return Integer(round(input))
 		from .expressions.numbers.real import Real
 		return Real(input)
 
@@ -191,14 +191,14 @@ def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per
 
 def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, printing=False):
 	def create_node(address):
-		from .expressions.numbers.number import Integer, Real, Rational
+		from .expressions.numbers import Integer, Real, Rational
 		from .expressions.variables import Variable
 		from .expressions.combiners.operations import Add, Sub, Mul, Div, Pow, Negative
 		from .expressions.functions.functions import Function
 		from .expressions.combiners.sequences import Sequence
 		from .expressions.combiners.relations import Equation, LessThan, LessThanOrEqualTo, GreaterThan, GreaterThanOrEqualTo
 		type_to_symbol_dict = {
-			Integer: lambda expr: str(expr.n),
+			Integer: lambda expr: str(expr.value),
 			Real: lambda expr: expr.symbol if expr.symbol else str(expr),
 			Rational: lambda expr: '\\div',
 			Variable: lambda expr: expr.symbol,
