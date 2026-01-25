@@ -597,6 +597,22 @@ class Expression(MF_Base):
 		else:
 			return Div(1, self)
 
+	def get_addressbook(self):
+		all_addresses = self.get_all_addresses()
+		for address in all_addresses.copy():
+			if self.get_subex(address).parentheses:
+				all_addresses.append(address + '_')
+		return {
+			address: self.get_glyphs_at_address(address)
+			for address in all_addresses
+		}
+
+	def get_subexpression_chain(self, address):
+		if address == '':
+			return [self]
+		else:
+			return self.get_subexpression_chain(address[:-1]) + [self.get_subex(address)]
+
 
 
 class Address:

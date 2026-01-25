@@ -7,10 +7,22 @@ class IntegralOperator(Function):
 
 
 class DefiniteIntegral(IntegralOperator):
-	string_code = [lambda self: self.symbol, '\\limits', '_', c0, '^', c1, arg]
+	string_code = [
+		lambda self: self.symbol,
+		lambda self: '\\limits' if self.vertical_bounds else '',
+		'_', c0, '^', c1, arg
+		]
 	glyph_code = [c1, 1, c0, arg]
-	def __init__(self, start, end, variable=None, show_variable=False, **kwargs):
+	def __init__(self,
+		start,
+		end,
+		variable = None,
+		show_variable = False,
+		vertical_bounds = False,
+		**kwargs
+		):
 		self.variable = variable
+		self.vertical_bounds = vertical_bounds
 		if show_variable:
 			assert variable is not None, "variable must be provided if show_variable is True"
 			lower_bound = Equation(variable, start)
@@ -24,7 +36,7 @@ class DefiniteIntegral(IntegralOperator):
 			children = [lower_bound, upper_bound],
 			parentheses_mode = 'weak',
 			**kwargs
-		)
+			)
 
 	@property
 	def lower_bound(self):
@@ -43,7 +55,7 @@ class IndefiniteIntegral(IntegralOperator):
 			symbol_glyph_length = 1,
 			parentheses_mode = 'weak',
 			**kwargs
-		)
+			)
 
 Integral = DefiniteIntegral
 I = IndefiniteIntegral()
