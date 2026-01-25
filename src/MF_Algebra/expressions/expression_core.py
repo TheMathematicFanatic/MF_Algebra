@@ -68,6 +68,8 @@ class Expression(MF_Base):
 				result.add(*self[k])
 		elif isinstance(key, Expression):
 			for ad in self.get_addresses_of_subex(key):
+				if not key.parentheses:
+					ad += '_'
 				result.add(*self[ad])
 		else:
 			raise ValueError(f"Invalid key: {key}")
@@ -128,6 +130,9 @@ class Expression(MF_Base):
 		remainder = address[1:]
 		result = []
 
+		if addigit == '!': # This can't be caught in the dictionary because it needs to use remainder
+			return self.get_glyphs_except(remainder)
+
 		if addigit in self.special_character_to_glyph_method_dict:
 			glyph_method = getattr(self, self.special_character_to_glyph_method_dict[addigit])
 			result += glyph_method()
@@ -176,6 +181,12 @@ class Expression(MF_Base):
 			start += self.paren_length()
 			end -= self.paren_length()
 		return list(range(start, end))
+
+	def get_glyphs_except(self, address):
+		return sorted(list(
+			set(range(self.glyph_count)) -
+			set(self.get_glyphs_at_address(address))
+			))
 
 	def __len__(self):
 		return self.glyph_count
