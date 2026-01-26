@@ -1672,25 +1672,28 @@ class InteractiveTest(InteractiveScene):
 
 class FractionTest(Scene):
 	def construct(self):
-		An,Ad = 2,3
-		Bn,Bd = 3,4
+		An,Ad = 64,69
+		Bn,Bd = 12,57
 		
 		from math import lcm
 		Cd = lcm(Ad, Bd)
 		Am = Cd // Ad
 		Bm = Cd // Bd
 
-		add_frac = AlgebraicAction(a/c + b/c, (a+b)/c)
-		sub_frac = AlgebraicAction(a/c - b/c, (a-b)/c)
+		add_frac = AlgebraicAction(a/c + b/c, (a+b)/c, ['0/', '/'], ['1/', '/'])
 		An,Ad,Bn,Bd = map(Smarten, [An,Ad,Bn,Bd])
 		
 		T = Timeline()
 		T >> An/Ad + Bn/Bd
 
 		if Am != 1:
-			T >> mul_(Am).pread('00', '01') >> evaluate_().pread('00', '01')
+			T >> mul_(Am).pread('00', '01')
 		if Bm != 1:
-			T >> mul_(Bm).pread('10', '11') >> evaluate_().pread('10', '11')
+			T >> mul_(Bm).pread('10', '11')
+		if Am != 1:
+			T >> evaluate_().pread('00', '01')
+		if Bm != 1:
+			T >> evaluate_().pread('10', '11')
 
 		T >> add_frac >> evaluate_().pread('0')
 
@@ -1702,4 +1705,90 @@ class FractionTest(Scene):
 
 
 
+
+class GraphByIntercept(Scene):
+	def construct(self):
+		eq = 3*x + 5*y | 15
+		eq_color = GREEN
+
+		eq.mob.scale(1.5)
+		eq.mob.to_edge(UP,buff=1).shift(3.5*RIGHT)
+		eq.mob.set_color(eq_color)
+		rect = BackgroundRectangle(eq.mob)
+		rect.set_z_index(-1)
+		self.eq = eq
+		self.eq_color = eq_color
+
+		ax = Axes(
+			x_range = [-8,8,1],
+			y_range = [-8,8,1],
+			height = 6,
+			width = 6
+		).shift(LEFT*3)
+		ax.dots = VGroup()
+		self.ax = ax
+
+		# algebra_config['always_color'] = {x:RED, y:BLUE}
+
+
+		self.add(self.eq.mob, rect, self.ax)
+
+		self.plug_in_value(x,0)
+		self.plug_in_value(y,0)
+		self.draw_line()
+
+		self.embed()
+
+	
+	def plug_in_value(self, var, val):
+		sub = substitute_({var:val})
+
+		S_eq = self.eq.copy().reset_caches()
+		S = Solve()
+		S.suspend()
+		S >> S_eq >> sub
+		S.resume()
+		S.align_on_equals()
+		S.vgroup.next_to(self.eq.mob, DOWN, buff=0.5)
+
+		P = Timeline()
+		P >> Coordinate(x,y) >> sub
+		P.vgroup.next_to(S.vgroup, DOWN, buff=0.5)
+
+		self.play(
+			ReplacementTransform(self.eq.mob.copy(), S.mob),
+			FadeIn(P.mob)
+		)
+
+		P.play_next(self)
+
+		S.play_all(self, wait_between=0)
+
+		P >> substitute_({S.solve_for:S.solution})
+		P.play_all(self)
+		self.wait()
+
+		new_dot = Point(self.ax.c2p(*P.exp.compute()))
+		new_dot.set_color(self.eq_color)
+		self.ax.dots.add(new_dot)
+		
+		self.play(
+			ReplacementTransform(P.mob.copy(), new_dot),
+		)
+		self.play(
+			FadeOut(S.mob),
+			FadeOut(P.mob),
+		)
+		
+		DecimalNumber
+
+	def draw_line(self):
+		solved_eq = self.eq >= Solve(y, preferred_side='left')
+		f = lambda val: solved_eq.right.substitute({x:val}).compute()
+		graph = self.ax.get_graph(f, x_range=[-24,24])
+		graph.set_color(self.eq_color)
+		self.play(ShowCreation(graph))
+		self.ax.line = graph
+		
+		
 

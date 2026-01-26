@@ -12,3 +12,12 @@ class Sequence(Combiner):
 
 class Coordinate(Sequence):
 	parentheses = True
+
+	def compute(self):
+		return tuple(map(lambda N: N.compute(), self.children))
+	
+	def auto_parentheses(self):
+		self.give_parentheses()
+		for child in self.children:
+			child.auto_parentheses()
+		return self

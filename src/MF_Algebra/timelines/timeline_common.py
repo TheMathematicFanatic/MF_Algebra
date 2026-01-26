@@ -62,6 +62,7 @@ class Solve(AutoTimeline):
 		self.solve_for = solve_for
 		self.auto_evaluate = auto_evaluate
 		self.all_actions_to_try = []
+		self.preferred_side = preferred_side
 		from ..algebra.equations import EquationManeuver
 		for maneuver_ in EquationManeuver.__subclasses__():
 			self.all_actions_to_try += [
@@ -90,16 +91,14 @@ class Solve(AutoTimeline):
 					return result
 			except IncompatibleExpression:
 				pass
-
 		if len(current_address) == 1:
 			self._solved = True
-			if current_address == '1':
-				# return swap_children_()
-				return None
-			elif current_address == '0':
-				return None
+			if current_address == '1' and self.preferred_side == 'left':
+				return swap_children_()
+			elif current_address == '0' and self.preferred_side == 'right':
+				return swap_children_()
 			else:
-				raise Exception('What?', current_address)
+				return None
 
 		if self.solve_for is not None:
 			successful_outputs = []

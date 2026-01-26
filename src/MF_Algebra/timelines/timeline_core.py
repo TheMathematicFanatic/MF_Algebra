@@ -10,6 +10,7 @@ class Timeline(MF_Base):
 		auto_scale = 1,
 		auto_fit = [None, None, None],
 		auto_propagate = True,
+		maintain_position = True,
 		show_past_steps = False,
 		past_steps_opacity = 0.4,
 		past_steps_direction = UP,
@@ -23,6 +24,7 @@ class Timeline(MF_Base):
 		self.auto_scale = auto_scale
 		self.auto_fit = auto_fit
 		self.auto_propagate = auto_propagate
+		self.maintain_position = maintain_position
 		self.show_past_steps = show_past_steps
 		if self.show_past_steps:
 			self.past_steps_vgroup = VGroup()
@@ -50,6 +52,8 @@ class Timeline(MF_Base):
 		self.steps[index][0] = expression
 		if self.auto_propagate:
 			self.propagate(start_at=index)
+		if self.maintain_position and len(self.expressions) > 1:
+			self.expressions[-1].mob.move_to(self.expressions[-2].mob)
 
 	def add_expression_to_start(self, expression: Expression):
 		if len(self.steps) == 0 or self.steps[0][0] is not None:

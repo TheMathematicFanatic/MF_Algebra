@@ -13,7 +13,7 @@ class substitute_(Action):
 		arc_size = PI,
 		fade_shift = DOWN*0.2,
 		lag = 0,
-		maintain_color = False,
+		maintain_color = True,
 		**kwargs
 	):
 		self.sub_dict = sub_dict
