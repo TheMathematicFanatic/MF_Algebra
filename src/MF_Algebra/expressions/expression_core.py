@@ -10,15 +10,15 @@ algebra_config = {
 	'decimal_precision': 4,
 	'always_color': {},
 	'default_color': WHITE,
-	'fast_paren_length': True,
-	'fast_glyph_count': True,
-	'fast_root_length': True,
+	'fast_paren_length': False,
+	'fast_glyph_count': False,
+	'fast_root_length': False,
 }
 
 
 class Expression(MF_Base):
 	parentheses = False
-	paren_symbols = ('(', ')')
+	paren_symbols = ('(',')')
 	def __init__(self, *children):
 		self.children = list(map(Smarten,children))
 		if algebra_config['auto_parentheses']:
@@ -439,6 +439,7 @@ class Expression(MF_Base):
 			if expr.parentheses:
 				p1,p2 = expr.paren_symbols
 				pretex = '\\left' + p1 + pretex + '\\right' + p2
+			pretex = '{' + pretex + '}'
 			return pretex
 		return wrapper
 
@@ -509,7 +510,7 @@ class Expression(MF_Base):
 			arg = Smarten(inputs[0])
 		elif len(inputs) > 1:
 			from .combiners.sequences import Sequence
-			arg = Sequence(*list(map(Smarten, inputs)))
+			arg = Sequence(*inputs)
 		return ApplyFunction(self, arg)
 
 

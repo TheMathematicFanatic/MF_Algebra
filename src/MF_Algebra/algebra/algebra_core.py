@@ -11,7 +11,7 @@ class AlgebraicAction(Action):
 	template1 = None
 	template2 = None
 	addressmap = []
-	auto_addressmap = False
+	auto_addressmap = True
 	var_condition_dict = {}       # Example {c: lambda exp: isinstance(exp, Number)}
 	var_kwarg_dict = {}           # Example {a:{'path_arc':PI}}
 

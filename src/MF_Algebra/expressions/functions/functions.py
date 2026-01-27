@@ -317,7 +317,7 @@ def get_value_from_code_entry(expression, entry, desired_type):
 		if desired_type == int:
 			return target.glyph_count
 		elif desired_type == str:
-			return '{' + str(target) + '}'
+			return str(target)
 		else:
 			raise ValueError('Invalid desired_type. Must be int or str')
 

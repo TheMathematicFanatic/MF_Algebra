@@ -408,7 +408,7 @@ def test_give_parentheses_using_mob(exp, paren_length):
 	yes_paren = exp.copy().give_parentheses(True)
 	no_paren = exp.copy().give_parentheses(False)
 	assert yes_paren.glyph_count - no_paren.glyph_count == 2 * paren_length
-	assert str(yes_paren) == '\\left(' + str(no_paren) + '\\right)'
+	assert str(yes_paren)[1:-1] == '\\left(' + str(no_paren)[1:-1] + '\\right)'
 
 
 
@@ -430,7 +430,7 @@ def test_give_parentheses_without_mob(exp, paren_length):
 	yes_paren = exp.copy().give_parentheses(True)
 	no_paren = exp.copy().give_parentheses(False)
 	assert yes_paren.glyph_count - no_paren.glyph_count == 2 * paren_length
-	assert str(yes_paren) == '\\left(' + str(no_paren) + '\\right)'
+	assert str(yes_paren)[1:-1] == '\\left(' + str(no_paren)[1:-1] + '\\right)'
 
 
 
