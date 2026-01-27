@@ -1,4 +1,4 @@
-from ..expressions.functions.functions import *
+from ..expressions import Function
 from .unit_circle import unit_circle_dict
 import numpy as np
 

@@ -1204,7 +1204,7 @@ class Crescent(Scene):
 
 algebra_config['always_color'] = {}
 algebra_config['multiplication_mode'] = 'auto'
-class EvilScribble7(Scene):
+class MathScribble7(Scene):
 	def construct(self):
 		up = Limit(y,inf)(e**(10*y) / (y**10 - 6*y**5 - 7))
 		down = Integral(-6, 6)(u**2 / (4*sin(u**3)) * du)
@@ -1633,7 +1633,7 @@ class SetTest(Scene):
 
 
 
-class EvilScribble26(Scene):
+class MathScribble26(Scene):
 	def construct(self):
 		upper_series = Series((sin(pi/6))**n)
 		upper = Integral(0, inf, vertical_bounds=True)(Div(1,2) * upper_series * du)
@@ -1790,5 +1790,23 @@ class GraphByIntercept(Scene):
 		self.play(ShowCreation(graph))
 		self.ax.line = graph
 		
-		
 
+
+from manimlib import *
+from MF_Algebra import *
+class MathScribbles25(Scene):
+	def construct(self):
+
+		lower = (-65*pi)/(4*Sum(k,1,6)(2*k**2-3*k))
+		upper = 1/fact(2) * Integral(-inf,inf)((1/alpha**2+1)*d(alpha))
+		numerator = 1 - (Taylor(sin)/Taylor(cos))**2
+		derivative = Subscript( (d/dx)(e**x).give_parentheses(True,('[',']')), x|ln(2) )
+		integral = Integral(0,x)( (sec**2)(u)*du )
+		denominator = (3+i*derivative)*(1+integral**2)
+
+		Im = Function('\\Im')
+
+		full = Im(1/i * Integral(lower, upper)( numerator / denominator * dx ))
+
+		# self.play(Write(full.mob), run_time=10)
+		self.embed()

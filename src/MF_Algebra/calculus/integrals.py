@@ -96,3 +96,5 @@ class PlugInBounds(Function):
 
 	def expand_on_args(self, arg):
 		return arg @ {self.variable:self.upper_bound} - arg @ {self.variable:self.lower_bound}
+
+

@@ -2,6 +2,7 @@ from ..actions import IncompatibleExpression
 from ..algebra import AlgebraicAction
 from ..timelines import AutoTimeline
 from ..expressions import Variables, f, g, e, ln, Number
+from ..trigonometry import *
 from .differentials import *
 from numpy import pi as PI
 TAU = PI*2
@@ -48,10 +49,6 @@ class PowerRule_(DerivativeRule):
 	addressmap = [['11', '0110'], [[], '011-1']]
 	var_kwarg_dict = {n:{'path_arc':TAU/3}}
 
-class eRule(DerivativeRule):
-	template1 = d(e**x)
-	template2 = e**x*d(x)
-
 class ExponentialRule_(DerivativeRule):
 	template1 =	d(n**x)
 	template2 =	ln(n) * n**x * d(x)
@@ -90,3 +87,15 @@ class Differentiate(AutoTimeline):
 		return None
 
 
+
+
+function_derivatives = [
+	( e**x, e**x ),
+	( ln(x), 1/x ),
+	( sin(x), cos(x) ),
+	( cos(x), -sin(x) ),
+	( tan(x), (sec**2)(x) ),
+	( arcsin(x), 1/sqrt(1-x**2) ),
+	( arccos(x), -1/sqrt(1-x**2) ),
+	( arctan(x), 1/(1+x**2) ),
+]
