@@ -4,12 +4,13 @@ import numpy as np
 
 class Number(Expression):
 	value_type = None
-	def __init__(self, **kwargs):
+	def __init__(self, value, **kwargs):
+		assert isinstance(value, self.value_type)
 		super().__init__(**kwargs)
-		self.value = None
+		self.value = value
 
 	def compute(self):
-		return float(self)
+		return self.value_type(self.value)
 
 	def __float__(self):
 		return float(self.value)

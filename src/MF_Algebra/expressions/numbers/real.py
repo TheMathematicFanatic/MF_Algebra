@@ -8,16 +8,13 @@ class Real(Number):
 	internal_precision = 10**-8
 	value_type = float
 	def __init__(self, value, symbol=None, symbol_glyph_length=None, decimal_places=None, **kwargs):
-		super().__init__(**kwargs)
 		rounded = round(value, self.decimal_places)
 		if np.abs(value - rounded) < self.internal_precision:
-			self.value = rounded
-		else:
-			self.value = value
+			value = rounded
+		super().__init__(value, **kwargs)
 		self.symbol = symbol
 		self.symbol_glyph_length = symbol_glyph_length
-		if decimal_places is not None:
-			self.decimal_places = decimal_places
+		self.decimal_places = decimal_places or self.decimal_places
 
 	@Expression.parenthesize_glyph_count
 	def get_glyph_count(self):

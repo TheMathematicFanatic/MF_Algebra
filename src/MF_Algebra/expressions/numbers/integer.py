@@ -7,11 +7,6 @@ class Integer(Number):
 	value_to_string_func = lambda n: str(n)
 	# value_to_string_func = lambda n: '\\roman{' + str(n) + '}'
 	# this allows global switch between roman, sumerian, etc numerals!
-	def __init__(self, n, **kwargs):
-		assert isinstance(n, int)
-		super().__init__(**kwargs)
-		self.value = n
-
 	@Expression.parenthesize_glyph_count
 	def get_glyph_count(self):
 		return len(str(self.value))
