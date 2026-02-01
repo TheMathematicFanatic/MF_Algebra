@@ -26,23 +26,20 @@ class Series(ApplyFunction):
 
 from ..trigonometry import sin, cos
 from ..expressions import e, x, n, fact
-class Taylor(Series): # Should this just be a function?
-	def __init__(self, func, var=x, center=0, **kwargs):
-		if center != 0: raise NotImplementedError
-		if isinstance(func, Function):
-			func = func(x)
-		if var != x: func @= {var:x}
-		term = self.term_from_func[func]
-		if var != x: term @= {x:var}
-		super().__init__(term)
-	
+def Taylor(func, var=x, center=0, **kwargs):
 	term_from_func = {
 		sin(x)  : ((-1)**n * x**(2*n+1))/fact(2*n+1),
 		cos(x)  : ((-1)**n * x**(2*n))/fact(2*n),
 		e**x    : x**n / fact(n),
 		1/(1-x) : x**n
 	}
-	
+	if center != 0: raise NotImplementedError
+	if isinstance(func, Function):
+		func = func(var)
+	if var != x: func @= {var:x}
+	term = term_from_func[func]
+	if var != x: term @= {x:var}
+	return Series(term)
 
 
 

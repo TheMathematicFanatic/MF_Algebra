@@ -27,6 +27,11 @@ class sub_zero_L(SimplificationRule):
 	template2 = -a
 	addressmap = [['0', []], ['-', '-']]
 
+class sub_same(SimplificationRule):
+	template1 = a - a
+	template2 = 0
+	addressmap = [['', '']]
+
 class mul_zero_R(SimplificationRule):
 	template1 = a * 0
 	template2 = 0
@@ -56,6 +61,11 @@ class div_zero_L(SimplificationRule):
 	template1 = 0 / a
 	template2 = 0
 	addressmap = [['/1', []]]
+
+class div_same(SimplificationRule):
+	template1 = a / a
+	template2 = 1
+	addressmap = [['', '']]
 
 class pow_one_R(SimplificationRule):
 	template1 = a ** 1

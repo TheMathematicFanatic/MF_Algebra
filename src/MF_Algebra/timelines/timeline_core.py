@@ -186,8 +186,7 @@ class Timeline(MF_Base):
 	def reset(self, reset_caches=True):
 		self.current_exp_index = 0
 		if reset_caches:
-			for exp in self.expressions:
-				exp.reset_caches()
+			self.reset_caches()
 
 	def undo_last_action(self):
 		if self.actions[-1] is not None:
@@ -199,7 +198,7 @@ class Timeline(MF_Base):
 	def reset_caches(self):
 		for i,exp in enumerate(self.expressions):
 			exp.reset_caches()
-			self.set_expression(i, exp)
+			# self.set_expression(i, exp)
 
 	def align_on_equals(self, strength=1):
 		self.get_vgroup()
@@ -218,7 +217,7 @@ class Timeline(MF_Base):
 			ArcBetweenPoints(
 				np.array([mobs.get_edge_center(RIGHT)[0], m1.get_center()[1]-0.1, 0]),
 				np.array([mobs.get_edge_center(RIGHT)[0], m2.get_center()[1]+0.1, 0]),
-				angle=-3/4*PI
+				angle = -3/4*PI
 			).shift(0.75*RIGHT).set_stroke(width=2, opacity=0.5)
 			for m1, m2 in zip(mobs[:-1], mobs[1:])
 		])

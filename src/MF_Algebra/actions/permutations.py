@@ -77,7 +77,7 @@ class permute_children_(Action):
 		elif self.mode == 'straight':
 			kwarg_dict == {}
 		else:
-			raise ValueError(f'Invalid mode: {self.mode}. Must be \'arc\' or \'straight\'.')
+			raise ValueError(f"Invalid mode: {self.mode}. Must be 'arc' or 'straight'.")
 		
 		addressmap = [
 			[str(n), str(self.permutation(n)), kwarg_dict]
@@ -105,9 +105,10 @@ class swap_children_(Action):
 		super().__init__(**kwargs)
 	
 	def get_output_expression(self, input_expression):
+		assert len(input_expression.children) == 2
+		left,right = input_expression.children
 		exp_type = type(input_expression)
-		children = input_expression.children
-		return exp_type(*children[::-1])
+		return exp_type(right, left)
 	
 	def get_addressmap(self, input_expression):
 		return [

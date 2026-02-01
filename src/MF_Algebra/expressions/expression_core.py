@@ -10,9 +10,9 @@ algebra_config = {
 	'decimal_precision': 4,
 	'always_color': {},
 	'default_color': WHITE,
-	'fast_paren_length': False,
-	'fast_glyph_count': False,
-	'fast_root_length': False,
+	'fast_paren_length': True,
+	'fast_glyph_count': True,
+	'fast_root_length': True,
 }
 
 
@@ -28,6 +28,8 @@ class Expression(MF_Base):
 	def reset_caches(self):
 		self._mob = None
 		self._glyph_count = None
+		for child in self.children:
+			child.reset_caches()
 		return self
 
 

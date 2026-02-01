@@ -37,5 +37,5 @@ ln = NaturalLog(e)
 class CommonLog(Log):
 	string_code = ['\\log', arg]
 	glyph_code = [3, arg]
-	standard_form = Log(ten)
+	standard_form = Log(10)
 log = CommonLog(10)

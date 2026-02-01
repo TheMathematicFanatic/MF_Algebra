@@ -3,3 +3,4 @@ from .equations import *
 from .distribution import *
 from .factoring import *
 from .simplify import *
+from .wrap import *
