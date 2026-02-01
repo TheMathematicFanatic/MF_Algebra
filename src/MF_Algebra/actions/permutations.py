@@ -1,5 +1,5 @@
 from .action_core import Action
-from MF_Tools.dual_compatibility import PI
+from MF_Tools.dual_compatibility import PI, DEGREES
 
 
 class Permutation:
@@ -91,9 +91,29 @@ class permute_children_(Action):
 		return addressmap
 
 
-class swap_children_(permute_children_):
-	def __init__(self, **kwargs):
-		super().__init__(
-			permutation = Permutation(1,0),
-			**kwargs
-		)
+# class swap_children_(permute_children_):
+# 	def __init__(self, **kwargs):
+# 		super().__init__(
+# 			permutation = Permutation(1,0),
+# 			**kwargs
+# 		)
+
+
+class swap_children_(Action):
+	def __init__(self, arc_degrees=180, **kwargs):
+		self.arc_degrees = arc_degrees
+		super().__init__(**kwargs)
+	
+	def get_output_expression(self, input_expression):
+		exp_type = type(input_expression)
+		children = input_expression.children
+		return exp_type(*children[::-1])
+	
+	def get_addressmap(self, input_expression):
+		return [
+			['0', '1', {'path_arc':self.arc_degrees*DEGREES}],
+			['1', '0', {'path_arc':self.arc_degrees*DEGREES}],
+
+		]
+
+swap = swap_children_()
