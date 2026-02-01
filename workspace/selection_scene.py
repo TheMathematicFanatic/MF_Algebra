@@ -29,13 +29,60 @@ class SelectionScene(InteractiveScene):
 
 
 		self.timeline = Timeline()
-		self.timeline >> full
+		A = pyth
+		self.timeline >> A >> swap
+
+		self.actions_to_try = [
+			evaluate_(),
+			# swap_children_(),
+			# add_(z),
+			*[rule() for rule in SimplificationRule.__subclasses__()],
+			AlgebraicAction((a/b)**n, (b/a)**-n, [[], '1-']),
+			AlgebraicAction((sin**2)(t) + (cos**2)(t), 1),
+			AlgebraicAction(Taylor(sin(t),t), sin(t))
+		]
+		self.toggle_selection_mode()
+
 		self.add(self.timeline.mob)
 		self.embed()
+
+	def get_highlight(self, mobject: Mobject) -> Mobject:
+		if isinstance(mobject, VMobject) and mobject.has_points() and not self.select_top_level_mobs:
+			length = max([mobject.get_height(), mobject.get_width()])
+			result = VHighlight(
+				mobject,
+				max_stroke_addition=min([50 * length, 10]),
+				n_layers=1
+			)
+			result.add_updater(lambda m: m.replace(mobject, stretch=True))
+			return result
+		elif isinstance(mobject, DotCloud):
+			return Mobject()
+		else:
+			return self.get_corner_dots(mobject)
 	
+	def gather_new_selection(self):
+		super().gather_new_selection()
+		self.get_working_actions()
 
+	def get_working_actions(self):
+		subex = self.get_subex_from_selection()
 
-
+		self.working_actions = []
+		i = 0
+		print('--- Subexpression ---')
+		print(subex)
+		print('--- Working Actions ---')
+		for action in self.actions_to_try:
+			try:
+				output = subex >= action
+				print(f'({i}) Action: ', action)
+				print('    Output: ', output)
+				print('')
+				self.working_actions.append(action)
+				i += 1
+			except:
+				pass
 
 	def get_address_from_selection(self, expression=None) -> Address:
 		expression = expression or self.timeline.exp
@@ -58,14 +105,33 @@ class SelectionScene(InteractiveScene):
 		self.timeline.play_all(self)
 
 	def apply_action_at_selection(self, action):
-		self.clear_selection()
-		address = self.get_address_from_selection()
+		if len(self.selection) == 0:
+			address = ''
+		else:
+			address = self.get_address_from_selection()
 		self.apply_action_at_address(action, address)
+		self.clear_selection()
+	
+	def __rshift__(self, other):
+		if isinstance(other, int):
+			other = self.working_actions[other]
+		self.apply_action_at_selection(other)
+		return self
 	
 	def ready_action(self, action):
-		while not self.selection:
-			pass
+		# while not self.selection:
+			# pass
 		self.apply_action_at_selection(action)
+
+	def save_timeline(self, filename):
+		self.timeline.reset()
+		save_to_file(self.timeline, filename)
+	
+	def view_ladder(self):
+		self.save_state()
+		self.clear()
+		self.add(self.timeline.get_mob_ladder()),
+	
 
 
 
@@ -100,42 +166,8 @@ class SolveSelected(SelectionScene):
 		self.apply_action(action)
 
 
-class rewrap_subex_(AlgebraicAction):
-	def __init__(self,
-		start_exp:Expression,
-		end_exp:Expression,
-		target_subex:Expression,
-		**kwargs
-	):
-		self.target_subex = target_subex
-		self.start_exp = start_exp
-		self.end_exp = end_exp
-		start_ads = start_exp.get_addresses_of_subex(target_subex)
-		end_ads = end_exp.get_addresses_of_subex(target_subex)
-		assert len(start_ads) == len(end_ads) == 1, 'Target subexpression must be unique in both expressions.'
-		# I'd love to make it work for several but I don't know how to get all glyphs except for more than one subexpression in an addressmap
-		self.start_ad = start_ads[0]
-		self.end_ad = end_ads[0]
-		super().__init__(self.start_exp, self.end_exp, **kwargs)
-	
-	def get_addressmap(self, input_expression=None):
-		return [
-			[self.start_ad, self.end_ad, {'delay':0.25}],
-			['!'+self.start_ad, '!'+self.end_ad, {'path_arc':PI}],
-		]
-
-
-rw = rewrap_subex_(
-	Sum(n,0,inf)(x**n),
-	1/(1-x),
-	x
-)
-
 pyth = (sin**2)(t) + (cos**2)(t)
 
-class unwrap_subex_(rewrap_subex_):
-	def __init__(self, outer_exp, target_subex, **kwargs):
-		super().__init__(outer_exp, target_subex, target_subex, **kwargs)
 
 
 class replace_with_(Action):
@@ -197,11 +229,11 @@ class ZoomSelected(SelectionScene):
 	@staticmethod
 	def zoom_decorator(subex):
 		"""Decorator factory that takes a subex and returns a decorator."""
-		print('zoom_decorator')
+		# print('zoom_decorator')
 		def decorator(func):
-			print('decorator')
+			# print('decorator')
 			def wrapper(self, *args, **kwargs):
-				print('wrapper')
+				# print('wrapper')
 				# Get address and zoom
 				address = self.timeline.exp.get_addresses_of_subex(subex)[0]
 				print(address)
@@ -230,7 +262,6 @@ class ZoomSelected(SelectionScene):
 
 	@zoom_decorator(trig_frac)
 	def trig_frac(self):
-		print('trig_frac')
 		self.timeline >> AlgebraicAction(e**ln(a), a).pread('1101') >> substitute_({pyth:1}) >> evaluate_()
 	
 
@@ -250,3 +281,38 @@ class ZoomSelected(SelectionScene):
 
 
 
+# FOIL = AlgebraicAction(
+# 	(a+b)*(x+y),
+# 	a*x + a*y + b*x + b*y,
+# 	['0+', []], ['1+', []], [[],'+'],
+# 	var_kwarg_dict = {v:{'path_arc':PI} for v in (a,b,x,y)},
+# )
+
+
+from itertools import product
+
+class FOIL(Action):
+	path_arc = 3
+	def get_output_expression(self, input_expression):
+		if not isinstance(input_expression, Mul):
+			print(type(input_expression))
+			raise IncompatibleExpression
+		return Add(*[
+			Mul(*term_combination)
+			for term_combination in product(*[
+				child.children if isinstance(child, Add) else [child]
+				for child in input_expression.children
+			])
+		])
+	
+	def get_addressmap(self, input_expression, **kwargs):
+		addressmap = []
+		for i, child in enumerate(input_expression.children):
+			siblings = input_expression.children[:i] + input_expression.children[i+1:]
+			for j, grandchild in enumerate(child.children):
+				addressmap += [
+					[f'{i}{j}', f'{k}{i}', {'path_arc':self.path_arc}]
+					for k in range(n)
+				]
+		return addressmap
+		
