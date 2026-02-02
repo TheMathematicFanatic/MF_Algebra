@@ -45,7 +45,7 @@ class Sine(TrigFunction):
 
 	def evaluate(self, arg):
 		if arg in unit_circle_dict:
-			return unit_circle_dict[arg][0]
+			return unit_circle_dict[arg][1]
 		else:
 			return super().evaluate(arg)
 
@@ -61,7 +61,7 @@ class Cosine(TrigFunction):
 
 	def evaluate(self, arg):
 		if arg in unit_circle_dict:
-			return unit_circle_dict[arg][1]
+			return unit_circle_dict[arg][0]
 		else:
 			return super().evaluate(arg)
 
