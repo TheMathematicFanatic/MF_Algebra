@@ -4,7 +4,7 @@ from ..expressions.numbers.number import Number
 
 
 class evaluate_(Action):
-	def __init__(self, mode='random leaf', allowed_type=object, **kwargs):
+	def __init__(self, mode='random leaf', allowed_type=None, **kwargs):
 		self.mode = mode # Idk if we will use this, seems like more of a Timeline decision
 		self.allowed_type = allowed_type
 		super().__init__(**kwargs)
@@ -12,7 +12,8 @@ class evaluate_(Action):
 	def get_output_expression(self, input_expression=None):
 		try:
 			output = input_expression.evaluate()
-			assert isinstance(output, self.allowed_type)
+			if self.allowed_type:
+				assert isinstance(output, self.allowed_type)
 			return output
 		except:
 			raise IncompatibleExpression

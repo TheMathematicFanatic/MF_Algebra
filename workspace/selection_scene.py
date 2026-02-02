@@ -28,9 +28,12 @@ class SelectionScene(InteractiveScene):
 	def construct(self):
 
 
-		self.timeline = Timeline()
-		A = pyth
-		self.timeline >> A >> swap
+		self.timeline = Timeline(auto_color={t:PURPLE,n:ORANGE,x:RED}, auto_scale=0.9)
+		A = 1**x + y**1
+		B = 3**b
+		# self.timeline >> A/A + B - B
+		# self.timeline >> Log(3)(3**x) + 3**Log(3)(y/5) + ln(e**9) + e**ln(15)
+		self.timeline >> full
 
 		self.actions_to_try = [
 			evaluate_(),
@@ -38,8 +41,9 @@ class SelectionScene(InteractiveScene):
 			# add_(z),
 			*[rule() for rule in SimplificationRule.__subclasses__()],
 			AlgebraicAction((a/b)**n, (b/a)**-n, [[], '1-']),
-			AlgebraicAction((sin**2)(t) + (cos**2)(t), 1),
-			AlgebraicAction(Taylor(sin(t),t), sin(t))
+			AlgebraicAction((sin**2)(t) + (cos**2)(t), 1, ['', '']),
+			AlgebraicAction(Taylor(sin(t),t), sin(t), ['', '']),
+			# replace_with_(x*t)
 		]
 		self.toggle_selection_mode()
 
@@ -47,6 +51,7 @@ class SelectionScene(InteractiveScene):
 		self.embed()
 
 	def get_highlight(self, mobject: Mobject) -> Mobject:
+		return Mobject()
 		if isinstance(mobject, VMobject) and mobject.has_points() and not self.select_top_level_mobs:
 			length = max([mobject.get_height(), mobject.get_width()])
 			result = VHighlight(
@@ -66,6 +71,10 @@ class SelectionScene(InteractiveScene):
 		self.get_working_actions()
 
 	def get_working_actions(self):
+		address = self.get_address_from_selection()
+		self.timeline.exp.mob.set_color(WHITE)
+		self.timeline.exp.set_color_by_subex(self.timeline.auto_color)
+		self.timeline.exp[address + '_'].set_color(GREEN)
 		subex = self.get_subex_from_selection()
 
 		self.working_actions = []
@@ -103,6 +112,7 @@ class SelectionScene(InteractiveScene):
 	def apply_action_at_address(self, action, address):
 		self.timeline >> action.pread(address)
 		self.timeline.play_all(self)
+		self.save_state()
 
 	def apply_action_at_selection(self, action):
 		if len(self.selection) == 0:
@@ -274,7 +284,7 @@ class ZoomSelected(SelectionScene):
 		self.zoom_to_selected(address1)
 		address2 = self.timeline.exp.get_addresses_of_subex(upper_series)[0]
 		self.zoom_to_selected(address2)
-		self.timeline >> substitute_({sin(pi/6):1/two}) >> rw >> evaluate_()
+		self.timeline >> substitute_({sin(pi/6):1/two}) #>> rw >> evaluate_()
 		self.restore_to_original()
 		self.timeline >> unwrap_subex_(self.timeline.exp, inf)
 		self.restore_to_original()
@@ -316,3 +326,9 @@ class FOIL(Action):
 				]
 		return addressmap
 		
+
+
+class PlayTimeline(Scene):
+	def construct(self):
+		timeline = load_from_file('test2')
+		timeline.play_all(self, wait_between=0.5)
