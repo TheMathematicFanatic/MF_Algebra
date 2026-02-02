@@ -4,9 +4,9 @@ from ..expressions.numbers.number import Number
 
 
 class evaluate_(Action):
-	def __init__(self, mode='random leaf', allowed_type=Number, **kwargs):
+	def __init__(self, mode='random leaf', allowed_type=object, **kwargs):
 		self.mode = mode # Idk if we will use this, seems like more of a Timeline decision
-		self.allowed_type = Number
+		self.allowed_type = allowed_type
 		super().__init__(**kwargs)
 
 	def get_output_expression(self, input_expression=None):
