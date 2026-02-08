@@ -1,4 +1,5 @@
 from MF_Tools.transforms import TransformByGlyphMap
+from copy import deepcopy
 
 
 
@@ -13,7 +14,7 @@ class TransformByAddressMap(TransformByGlyphMap):
             (
                 expA.get_glyphs_at_address(entry[0]) if isinstance(entry[0], str) else entry[0],
                 expB.get_glyphs_at_address(entry[1]) if isinstance(entry[1], str) else entry[1],
-                entry[2] if len(entry) > 2 else {}
+                deepcopy(entry[2]) if len(entry) > 2 else {}
             )
             for entry in addressmap
         ]
