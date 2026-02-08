@@ -39,6 +39,12 @@ class AlgebraicAction(Action):
 	def get_addressmap(self, input_expression=None):
 		addressmap = [] if self.addressmap is None else list(self.addressmap)
 
+		for i,entry in enumerate(addressmap):
+			if entry[0] == [] and len(entry) == 2:
+				addressmap[i] = [entry[0], entry[1], self.introduce_kwargs]
+			elif entry[1] == [] and len(entry) == 2:
+				addressmap[i] = [entry[0], entry[1], self.remove_kwargs]
+
 		if not self.auto_addressmap:
 			return addressmap
 

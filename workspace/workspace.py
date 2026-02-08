@@ -924,8 +924,11 @@ class SimplifyTesting(Scene):
 	def construct(self):
 		for SR_ in SimplificationRule.__subclasses__():
 			name = Tex('{'+str(SR_().template1)+'}' + ' \\to ' + '{'+str(SR_().template2)+'}')
-			A = e**(x**2+y**2)
-			input_expression = SR_().template1.substitute({a:A})
+			subst_exprs = [5, e**x, f(x,y), 3-x/y, 15*r**2, (a+b)/c]
+			from random import shuffle
+			shuffle(subst_exprs)
+			vars = SR_().template1.get_all_variables() | SR_().template2.get_all_variables()
+			input_expression = SR_().template1.substitute({v:V for v,V in zip(vars, subst_exprs)})
 			T = input_expression >> SR_()
 			self.play(
 				Write(T.mob),

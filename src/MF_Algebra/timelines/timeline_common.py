@@ -8,7 +8,7 @@ from ..expressions.combiners.relations import Relation
 class Evaluate(AutoTimeline):
 	first_expression = None
 	mode = 'one at a time'
-	allowed_type = Real
+	allowed_type = None
 	def __init__(self,
 		first_expression = None,
 		mode = None,

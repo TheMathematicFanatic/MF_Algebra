@@ -59,6 +59,29 @@ class ExponentialRule_(DerivativeRule):
 	# template2 = d(f)(g(a))*d(g(a)))
 # Idk I think this could be just always built in to all other rules
 
+function_derivatives = [
+	( e**x, e**x ),
+	( ln(x), 1/x ),
+	( sin(x), cos(x) ),
+	( cos(x), -sin(x) ),
+	( tan(x), (sec**2)(x) ),
+	( arcsin(x), 1/sqrt(1-x**2) ),
+	( arccos(x), -1/sqrt(1-x**2) ),
+	( arctan(x), 1/(1+x**2) ),
+]
+
+for func1, func2 in function_derivatives:
+	f1_x_ad = func1.get_addresses_of_subex(x)[0]
+	f2_x_ad = func2.get_addresses_of_subex(x)[0]
+	class deriv_func_rule(DerivativeRule):
+		template1 = d(func1)
+		template2 = func2*dx
+		addressmap = [
+			[f1_x_ad+'1', f2_x_ad+'0'],
+			['!'+f1_x_ad+'1', '!'+f2_x_ad+'0']
+		]
+
+
 
 from ..algebra.simplify import *
 Simplify_Rules = [rule() for rule in SimplificationRule.__subclasses__()]
@@ -89,13 +112,3 @@ class Differentiate(AutoTimeline):
 
 
 
-function_derivatives = [
-	( e**x, e**x ),
-	( ln(x), 1/x ),
-	( sin(x), cos(x) ),
-	( cos(x), -sin(x) ),
-	( tan(x), (sec**2)(x) ),
-	( arcsin(x), 1/sqrt(1-x**2) ),
-	( arccos(x), -1/sqrt(1-x**2) ),
-	( arctan(x), 1/(1+x**2) ),
-]

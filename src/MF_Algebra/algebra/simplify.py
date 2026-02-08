@@ -106,9 +106,9 @@ class mul_div(SimplificationRule):
 	addressmap = [['*0/', []]]
 
 class div_mul(SimplificationRule):
-	template1 = a - b + b
+	template1 = a / b * b
 	template2 = a
-	addressmap = [['/0*', []]]
+	addressmap = [['*0/', []]]
 
 class pow_root(SimplificationRule):
 	template1 = Rad(b)(a**b)
@@ -159,10 +159,15 @@ class pow_pow(SimplificationRule):
 	template2 = x**(a*b)
 	addressmap = []
 
-class neg_pow(SimplificationRule):
+class neg_pow_A(SimplificationRule):
 	template1 = x**-n
 	template2 = 1/x**n
 	addressmap = [['1-', '/'], [[], '0']] # Stylish!
+
+class neg_pow_B(SimplificationRule):
+	template1 = (a/b)**-n
+	template2 = (b/a)**n
+	addressmap = [['1-', []]]
 
 
 
@@ -210,7 +215,7 @@ class log_pow(SimplificationRule):
 class log_change_base(SimplificationRule):
 	template1 = Log(a)(x)
 	template2 = Log(b)(x) / Log(b)(a)
-	addressmap = [['0f', '00f'], ['0f', '10f']]
+	addressmap = [['0f','00f'], ['0f','10f'], [[],'/']]
 
 
 
