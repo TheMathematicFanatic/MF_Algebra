@@ -39,12 +39,6 @@ class AlgebraicAction(Action):
 	def get_addressmap(self, input_expression=None):
 		addressmap = [] if self.addressmap is None else list(self.addressmap)
 
-		for i,entry in enumerate(addressmap):
-			if entry[0] == [] and len(entry) == 2:
-				addressmap[i] = [entry[0], entry[1], self.introduce_kwargs]
-			elif entry[1] == [] and len(entry) == 2:
-				addressmap[i] = [entry[0], entry[1], self.remove_kwargs]
-
 		if not self.auto_addressmap:
 			return addressmap
 
@@ -56,16 +50,11 @@ class AlgebraicAction(Action):
 		leaves = self.get_all_leaves()
 		for leaf in leaves:
 			kwargs = self.var_kwarg_dict.get(leaf, {})
-			template1_addresses = self.template1_address_dict.get(leaf, [])
-			template2_addresses = self.template2_address_dict.get(leaf, [])
-
-			# print('leaves: ', leaves)
-			# print('leaf: ', leaf)
-			# print('template1_addresses: ', template1_addresses)
-			# print('template2_addresses: ', template2_addresses)
+			template1_addresses = self.template1_address_dict.get(leaf, [[]])
+			template2_addresses = self.template2_address_dict.get(leaf, [[]])
 
 			for t1ad, t2ad in product(template1_addresses, template2_addresses):
-				if not any((t1ad, t2ad) == (str(ad[0]).strip('(_)'), str(ad[1]).strip('(_)')) for ad in addressmap):
+				if not any((t1ad, t2ad) == (str(entry[0]).strip('(_)'), str(entry[1]).strip('(_)')) for entry in addressmap):
 					addressmap += [[t1ad, t2ad, kwargs]]
 		
 		return addressmap

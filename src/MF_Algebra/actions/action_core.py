@@ -122,6 +122,7 @@ class Action(MF_Base):
 			cls.get_output_expression = func
 
 			func = cls.get_addressmap
+			func = Action.autokwargmap(func)
 			func = Action.preaddressmap(func)
 			func = Action.autoparenmap(func)
 			# func = Action.autoopmap(func)
@@ -139,6 +140,19 @@ class Action(MF_Base):
 			output_expression = expr.substitute_at_address(result, preaddress)
 			output_expression.reset_parentheses()
 			return output_expression
+		return wrapper
+
+	@staticmethod
+	def autokwargmap(getmap):
+		@wraps(getmap)
+		def wrapper(action, expr, *args, **kwargs):
+			addressmap = getmap(action, expr, *args, **kwargs)
+			for i,entry in enumerate(addressmap):
+				if entry[0] == [] and (len(entry) == 2 or entry[2] == {}):
+					addressmap[i] = [entry[0], entry[1], action.introduce_kwargs]
+				elif entry[1] == [] and (len(entry) == 2 or entry[2] == {}):
+					addressmap[i] = [entry[0], entry[1], action.remove_kwargs]
+			return addressmap
 		return wrapper
 
 	@staticmethod
@@ -167,13 +181,13 @@ class Action(MF_Base):
 				in_expr, out_expr = expr, action.get_output_expression(expr)
 				for in_add in in_expr.get_all_addresses():
 					if in_expr.get_subex(in_add).parentheses:
-						addressmap.append([in_add+'()', [], Action.remove_kwargs.copy()])
+						addressmap.append([in_add+'()', [], Action.remove_kwargs])
 					for entry in addressmap:
 						if entry[0] == in_add:
 							entry[0] = entry[0] + '_'
 				for out_add in out_expr.get_all_addresses():
 					if out_expr.get_subex(out_add).parentheses:
-						addressmap.append([[], out_add+'()', Action.introduce_kwargs.copy()])
+						addressmap.append([[], out_add+'()', Action.introduce_kwargs])
 					for entry in addressmap:
 						if entry[1] == out_add:
 							entry[1] = entry[1] + '_'
@@ -210,7 +224,7 @@ class Action(MF_Base):
 
 				if targets is None or len(targets) != 1:
 					# Ambiguous addressmap, just fade out
-					addressmap.append( [ad + '+', [], Action.remove_kwargs.copy()] )
+					addressmap.append( [ad + '+', [], Action.remove_kwargs] )
 				
 				# elif len(targets) == 0:
 				# 	pass #idk what im doing
@@ -234,11 +248,11 @@ class Action(MF_Base):
 					
 					elif in_len and not out_len:
 						# Fade out glyph
-						addressmap.append( [ad + '+', [], Action.remove_kwargs.copy()])
+						addressmap.append( [ad + '+', [], Action.remove_kwargs])
 					
 					elif not in_len and out_len:
 						# Fade in glyph
-						addressmap.append( [[], target + '+', Action.introduce_kwargs.copy()])
+						addressmap.append( [[], target + '+', Action.introduce_kwargs])
 					
 					else:
 						# Neither has glyph so ignore
@@ -252,7 +266,7 @@ class Action(MF_Base):
 				targets = apply_addressmap(ad, addressmap, reverse=True)
 
 				if targets is None or len(targets) != 1:
-					addressmap.append( [[], ad + '+', Action.introduce_kwargs.copy()] )
+					addressmap.append( [[], ad + '+', Action.introduce_kwargs] )
 				
 				else:
 					raise Exception('This case should have already been caught in the in_op_ads loop.')

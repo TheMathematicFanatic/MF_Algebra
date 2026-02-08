@@ -103,7 +103,7 @@ class sub_add(SimplificationRule):
 class mul_div(SimplificationRule):
 	template1 = a * b / b
 	template2 = a
-	addressmap = [['*0/', []]]
+	addressmap = [['/0*', []]]
 
 class div_mul(SimplificationRule):
 	template1 = a / b * b
@@ -113,12 +113,12 @@ class div_mul(SimplificationRule):
 class pow_root(SimplificationRule):
 	template1 = Rad(b)(a**b)
 	template2 = a
-	addressmap = [['f', []]]
+	addressmap = [['0f', []]]
 
 class root_pow(SimplificationRule):
 	template1 = Rad(b)(a) ** b
 	template2 = a
-	addressmap = [['0f', []]]
+	addressmap = [['00f', []]]
 
 class exp_log(SimplificationRule):
 	template1 = Log(b)(b**a)
@@ -138,11 +138,13 @@ class pow_mul(SimplificationRule):
 	template1 = x**a * x**b
 	template2 = x**(a+b)
 	addressmap = [['*', '1+']]
+	var_kwarg_dict = {x:{'path_arc':-2}}
 
 class pow_div(SimplificationRule):
 	template1 = x**a / x**b
 	template2 = x**(a-b)
 	addressmap = [['/', '1-']]
+	var_kwarg_dict = {x:{'path_arc':-2}}
 
 class mul_pow(SimplificationRule):
 	template1 = (a*b)**n
@@ -211,6 +213,7 @@ class log_pow(SimplificationRule):
 	template1 = Log(b)(x**a)
 	template2 = a*Log(b)(x)
 	addressmap = [['1^','*'], ['0f','10f']]
+	var_kwarg_dict = {a:{'path_arc':3}}
 
 class log_change_base(SimplificationRule):
 	template1 = Log(a)(x)
