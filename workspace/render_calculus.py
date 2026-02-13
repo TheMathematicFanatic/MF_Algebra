@@ -7,7 +7,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../s
 
 from manimlib import *
 from MF_Algebra import *
-from MF_Algebra.extra.calculus import *
 
 
 ddx = Function('\\frac{d}{dx}', 4, 'strong')

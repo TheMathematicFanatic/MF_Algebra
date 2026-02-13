@@ -222,7 +222,6 @@ class ApplyFunction(BinaryOperation):
 
 	def get_arg_glyphs(self):
 		start = 0
-		start += self.parentheses * self.paren_length()
 		for gc in self.func.glyph_code:
 			if isinstance(gc, Variable) and gc.symbol == 'arg':
 				end = start + self.arg.glyph_count

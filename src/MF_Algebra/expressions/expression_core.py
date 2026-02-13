@@ -23,7 +23,7 @@ class Expression(MF_Base):
 		self.children = list(map(Smarten,children))
 		if algebra_config['auto_parentheses']:
 			self.auto_parentheses()
-		self.reset_caches()
+		self.reset_caches() # Wasteful to recurse?
 
 	def reset_caches(self):
 		self._mob = None

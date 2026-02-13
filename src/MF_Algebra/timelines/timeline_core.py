@@ -245,14 +245,21 @@ class Timeline(MF_Base):
 		save_to_file(self, filename)
 
 	def debug_anim(self, scene, i):
-		scene.remove(self.mob)
+		scene.clear()
 		exp, act = self.steps[i]
+		out_exp = act.get_output_expression(exp)
 		print('Input expression:', exp)
-		print('Output expression:', act.get_output_expression(exp))
+		print('Output expression:', out_exp)
 		print('Addressmap:')
 		for entry in act.get_addressmap(exp):
 			print(entry)
 		self.play_animation(scene, i)
+		self.reset()
+		scene.play(TransformByGlyphMap(
+			exp.copy().mob.shift([-3,0,0]),
+			out_exp.copy().mob,
+			show_indices=True
+		))
 
 	def __le__(self, expr):
 		assert isinstance(expr, Expression), "Can only apply expression >= timeline"

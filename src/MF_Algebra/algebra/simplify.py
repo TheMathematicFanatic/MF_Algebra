@@ -178,7 +178,7 @@ class neg_pow_B(SimplificationRule):
 class root_to_power_A(SimplificationRule):
 	template1 = Rad(n)(x)
 	template2 = x**(1/n)
-	addressmap = [['0f','1/'], [[], '0']]
+	addressmap = [['0f','1/'], [[], '10', {'delay':0.5}]]
 
 class root_to_power_B(SimplificationRule):
 	template1 = Rad(b)(x**a)

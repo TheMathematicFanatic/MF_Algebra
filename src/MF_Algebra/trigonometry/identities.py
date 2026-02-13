@@ -59,20 +59,20 @@ class double_angle_tan(TrigIdentity):
 class sin_add(TrigIdentity):
     template1 = sin(a+b)
     template2 = sin(a)*cos(b) + cos(a)*sin(b)
-    addressmap = [['1+','+']]
+    addressmap = [['1+','+'], [[],'0*'], [[],'1*']]
 
 class sin_sub(TrigIdentity):
     template1 = sin(a-b)
     template2 = sin(a)*cos(b) - cos(a)*sin(b)
-    addressmap = [['1-','-']]
+    addressmap = [['1-','-'], [[],'0*'], [[],'1*']]
 
 class cos_add(TrigIdentity):
     template1 = cos(a+b)
     template2 = cos(a)*cos(b) - sin(a)*sin(b)
-    addressmap = [['1+','-']]
+    addressmap = [['1+','-'], [[],'0*'], [[],'1*']]
 
 class cos_sub(TrigIdentity):
     template1 = cos(a-b)
     template2 = cos(a)*cos(b) + sin(a)*sin(b)
-    addressmap = [['1-','+']]
+    addressmap = [['1-','+'], [[],'0*'], [[],'1*']]
 
