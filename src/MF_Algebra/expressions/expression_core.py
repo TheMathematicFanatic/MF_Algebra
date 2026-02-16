@@ -648,32 +648,22 @@ class Address:
 
 
 
-
-
 class ExpressionContainer:
-	expression_type = Expression
 	# Nothing but a container so that you can make multiple expressions at a time.
-	# Subclasses: Variables, Sets
+	# Subclasses: Variables, Sets, Functions
 	# a,b,c = Variables('abc')
 	# mu,chi,psi = Variables('\\mu', '\\chi', '\\psi')
 	# A,B,C = Sets('ABC')
-	# You can set the glyph lengths in a list but it's really not a big deal if you don't.
-	def __init__(self, *strings, symbol_glyph_length_list=None):
+	# Note that their glyph length will not be passed.
+	expression_type = Expression
+	def __init__(self, *strings):
 		if len(strings) == 1:
-			self.strings = list(strings[0])
-		else:
-			self.strings = list(strings)
-		self.symbol_glyph_length_list = symbol_glyph_length_list
-
+			strings = strings[0]
+		self.elements = self.generate_elements(*strings)
+	
+	def generate_elements(self, *strings):
+		return [self.expression_type(symbol=s) for s in strings]
+	
 	def __iter__(self):
-		if self.symbol_glyph_length_list:
-			assert len(self.strings) == len(self.symbol_glyph_length_list)
-			return (
-				self.expression_type(symbol=s, symbol_glyph_length=l)
-				for s, l in zip(self.strings, self.symbol_glyph_length_list)
-			)
-		else:
-			return (
-				self.expression_type(symbol=s)
-				for s in self.strings
-				)
+		return (exp for exp in self.elements)
+

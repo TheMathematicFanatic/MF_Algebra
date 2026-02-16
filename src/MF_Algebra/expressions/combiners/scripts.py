@@ -1,4 +1,4 @@
-from .combiners import Combiner
+from .combiners import Combiner, CombinerContainer
 
 
 class Script(Combiner):
@@ -22,15 +22,25 @@ class Superscript(Script):
 	symbol = '^'
 	symbol_glyph_length = 0
 
+class Subscripts_R(CombinerContainer):
+	expression_type = Subscript
+	shared_side = 'right'
+
+class Subscripts_L(CombinerContainer):
+	expression_type = Subscript
+	shared_side = 'left'
+
+class Superscripts_R(CombinerContainer):
+	expression_type = Superscript
+	shared_side = 'right'
+
+class Superscripts_L(CombinerContainer):
+	expression_type = Superscript
+	shared_side = 'left'
+
 
 from ..variables import x,y,z
+x1,x2,x3 = Subscripts_L(x,1,2,3)
+y1,y2,y3 = Subscripts_L(y,1,2,3)
+z1,z2,z3 = Subscripts_L(z,1,2,3)
 
-x1 = Subscript(x,1)
-x2 = Subscript(x,2)
-x3 = Subscript(x,3)
-y1 = Subscript(y,1)
-y2 = Subscript(y,2)
-y3 = Subscript(y,3)
-z1 = Subscript(z,1)
-z2 = Subscript(z,2)
-z3 = Subscript(z,3)
