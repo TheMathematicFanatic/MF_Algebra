@@ -25,50 +25,43 @@ full = Integral(lower, upper, vertical_bounds=True)(frac * dx)
 
 
 class SelectionScene(InteractiveScene):
+	actions_to_try = [
+		evaluate_(),
+		swap_children_(),
+		*[rule() for rule in EquationManeuver.__subclasses__()],
+		*[rule() for rule in SimplificationRule.__subclasses__()],
+		AlgebraicAction((a/b)**n, (b/a)**-n, [[], '1-']),
+		AlgebraicAction((sin**2)(t) + (cos**2)(t), 1, ['', '']),
+		AlgebraicAction(Taylor(sin(t),t), sin(t), ['', '']),
+		AlgebraicAction((x+h)**3, x**3 + 3*x**2*h + 3*x*h**2 + h**3),
+		AlgebraicAction((x-h)**3, x**3 - 3*x**2*h + 3*x*h**2 - h**3),
+	]
 	def construct(self):
 
+		self.new_timeline(
+			# Limit(h,0)(	( f(x+h) - f(x) ) / h )
+			x | 3
+		)
 
-		self.timeline = Timeline(auto_color={t:PURPLE,n:ORANGE,x:RED}, auto_scale=0.9)
-		A = 1**x + y**1
-		B = 3**b
-		# self.timeline >> A/A + B - B
-		# self.timeline >> Log(3)(3**x) + 3**Log(3)(y/5) + ln(e**9) + e**ln(15)
-		self.timeline >> full
-
-		self.actions_to_try = [
-			evaluate_(),
-			# swap_children_(),
-			# add_(z),
-			*[rule() for rule in SimplificationRule.__subclasses__()],
-			AlgebraicAction((a/b)**n, (b/a)**-n, [[], '1-']),
-			AlgebraicAction((sin**2)(t) + (cos**2)(t), 1, ['', '']),
-			AlgebraicAction(Taylor(sin(t),t), sin(t), ['', '']),
-			# replace_with_(x*t)
-		]
-		self.toggle_selection_mode()
-
-		self.add(self.timeline.mob)
 		self.embed()
 
+	def new_timeline(self, exp):
+		self.clear()
+		self.timeline = Timeline(auto_fit=[10,4,None])
+		self.timeline >> exp
+		self.timeline.play_all(self)
+
 	def get_highlight(self, mobject: Mobject) -> Mobject:
-		return Mobject()
-		if isinstance(mobject, VMobject) and mobject.has_points() and not self.select_top_level_mobs:
-			length = max([mobject.get_height(), mobject.get_width()])
-			result = VHighlight(
-				mobject,
-				max_stroke_addition=min([50 * length, 10]),
-				n_layers=1
-			)
-			result.add_updater(lambda m: m.replace(mobject, stretch=True))
-			return result
-		elif isinstance(mobject, DotCloud):
-			return Mobject()
-		else:
-			return self.get_corner_dots(mobject)
+		return Mobject() # default glow is not performant
 	
 	def gather_new_selection(self):
 		super().gather_new_selection()
-		self.get_working_actions()
+		if self.readied_action:
+			self.apply_action_at_selection(self.readied_action)
+			if self.mode != 'reload':
+				self.readied_action = None
+		else:
+			self.get_working_actions()
 
 	def get_working_actions(self):
 		address = self.get_address_from_selection()
@@ -94,7 +87,7 @@ class SelectionScene(InteractiveScene):
 				pass
 
 	def get_address_from_selection(self, expression=None) -> Address:
-		expression = expression or self.timeline.exp
+		expression:Expression = expression or self.timeline.exp
 		selected_glyphs = [i for i in range(len(expression.mob)) if expression.mob[i] in self.selection]
 		addressbook = expression.get_addressbook()
 		for address, glyphs in addressbook.items():
@@ -136,12 +129,34 @@ class SelectionScene(InteractiveScene):
 	def save_timeline(self, filename):
 		self.timeline.reset()
 		save_to_file(self.timeline, filename)
-	
+
+	def load_timeline(self, filename):
+		self.clear()
+		self.timeline = load_from_file(filename)
+		assert isinstance(self.timeline, Timeline)
+		self.timeline.play_all(self)
+
 	def view_ladder(self):
 		self.save_state()
 		self.clear()
+		self.timeline.reset_caches() # For some reason animations are permanently
+		# altering the locations of some glyphs, need to look into this.
 		self.add(self.timeline.get_mob_ladder()),
-	
+
+	def setup(self, *args, **kwargs):
+		super().setup(*args, **kwargs)
+		self.mode = 'normal'
+		self.readied_action = None
+		self.toggle_selection_mode()
+
+	def ready_action(self, action, always=False):
+		self.readied_action = action
+		if always:
+			self.mode = 'reload'
+
+	def undo(self):
+		self.timeline.undo_last_action()
+		super().undo()
 
 
 
@@ -332,3 +347,106 @@ class PlayTimeline(Scene):
 	def construct(self):
 		timeline = load_from_file('test2')
 		timeline.play_all(self, wait_between=0.5)
+
+
+
+class plug_in_bounds_(Action):
+	def get_output_expression(self, input_expression):
+		assert isinstance(input_expression, ApplyFunction)
+		assert isinstance(input_expression.left, PlugInBounds)
+		return input_expression.expand_on_args()
+	
+	def get_addressmap(self, input_expression, **kwargs):
+		return [
+			['1'] # fuck man idk
+		]
+
+
+
+class CalcPrepIntegral(SelectionScene):
+	def construct(self):
+		self.timeline = Timeline()
+		self.timeline >> Integral(0,inf)((e**x / (e**(2*x)+1))*dx)
+		self.add(self.timeline.mob)
+
+		anti = GlyphMapAction(
+			Integral(0,inf)(1 / (1+x**2) * dx),
+			PlugInBounds(0,inf,x)(arctan(x)),
+			([0],[9,10,11]),
+			([2],[13]),
+			([1],[12]),
+			([7],[7]),
+			auto_morph = True,
+			auto_resolve_kwargs = {'path_arc':1, 'delay':0.1, 'lag_ratio':0.03}
+		)
+
+		self.actions_to_try = [
+			anti,
+			sub_self := AlgebraicAction(PlugInBounds(a,b,x)(y), y-y, ['0f', '-']),
+			swap := swap_children_(),
+			u_sub := substitute_({0:1,e**x*dx:du,e**x:u}),
+			ppr := pow_pow().reverse(),
+			move_numer := AlgebraicAction(a/b*c, 1/b * (a*c), [FadeIn, '00'])
+		]
+
+		self.embed()
+
+
+
+class Uwezi(SelectionScene):
+	def construct(self):
+		A,B,C,x,y,i,n = Variables('ABCxyin')
+		xi = Subscript(x,i)
+		yi = Subscript(y,i)
+		S = Sum(i,0,n)
+		eq = S(A*(xi*yi)) | S(B*xi**2) + S(C*xi)
+		
+		linear = AlgebraicAction(
+			f(a*x),
+			a*f(x),
+			var_kwarg_dict = {a:{'path_arc':PI/2}}
+		)
+
+		
+
+		self.timeline = Timeline(auto_fit=[8,4,None],auto_color={x:RED,y:BLUE})
+		self.timeline >> eq
+		self.add(self.timeline.mob)
+		self.embed()
+
+
+class TikTokSolve(SelectionScene):
+	def construct(self):
+		self.embed()
+		self.new_equation(3*x+5|50)
+
+	def new_equation(self, equation, solve_for=None):
+		self.clear()
+		self.timeline = Solve(solve_for=solve_for, auto_fit=[12,3,None]) >> equation
+		self.timeline.play_all(self)
+	
+	def test_solution(self, value=None):
+		if value is None:
+			value = self.timeline.solution
+		eq = self.timeline.expressions[0]
+		var = self.timeline.solve_for
+		self.clear()
+		self.timeline = Evaluate() >> eq >> substitute_({var:value})
+		self.timeline.play_all(self)
+		final_eq = self.timeline.exp
+		if final_eq.compute():
+			self.play(self.timeline.mob.animate.set_color(GREEN))
+		else:
+			self.play(self.timeline.mob.animate.set_color(RED))
+		self.new_equation(eq)
+
+
+
+class MathScribblesTrigIntegral(SelectionScene):
+	def construct(self):
+		integral = I(x/sqrt(x**2+2*x+10)*dx)
+
+		self.timeline = Timeline(auto_fit=[8,4,None],auto_color={x:RED,y:BLUE})
+		self.timeline >> integral
+		self.add(self.timeline.mob)
+		self.embed()
