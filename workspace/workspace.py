@@ -924,8 +924,8 @@ class SimplifyTesting(Scene):
 	def construct(self):
 		for SR_ in SimplificationRule.__subclasses__():
 			name = Tex('{'+str(SR_().template1)+'}' + ' \\to ' + '{'+str(SR_().template2)+'}')
-			# subst_exprs = [5, e**x, f(x,y), 3-x/y, 15*r**2, (a+b)/c]
-			subst_exprs = [1,2,3,x,y,z]
+			subst_exprs = [5, e**x, f(x,y), 3-x/y, 15*r**2, (a+b)/c]
+			# subst_exprs = [1,2,3,x,y,z]
 			from random import shuffle
 			shuffle(subst_exprs)
 			vars = SR_().template1.get_all_variables() | SR_().template2.get_all_variables()
@@ -1813,4 +1813,30 @@ class MathScribbles25(Scene):
 		full = Im(1/i * Integral(lower, upper)( numerator / denominator * dx ))
 
 		# self.play(Write(full.mob), run_time=10)
+		self.embed()
+
+
+class MathStuffCheng(Scene):
+	def construct(self):
+		A = Rad(y)(13-5*x) ** y
+		T = A >> root_pow()
+		self.add(T.mob)
+		# A['01'].set_color(GREEN)
+		self.embed()
+
+
+
+
+class CalcPrepIntegral(Scene):
+	def construct(self):
+		problem = Integral(0,inf)((e**x / (e**(2*x)+1))*dx)
+
+
+
+
+
+class Blank(Scene):
+	def construct(self):
+		timeline = load_from_file('cos_value')
+		timeline.play_all(self)
 		self.embed()

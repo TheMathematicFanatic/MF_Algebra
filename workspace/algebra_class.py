@@ -118,8 +118,12 @@ class EquationGame(Scene):
 	def construct(self):
 		self.mode = 'programmed'
 		self.init_game(10)
-		self.await_input()
 		self.embed()
+
+	
+	def new_equation(self, equation):
+		self.reset_equation(equation)
+		self.await_input()
 
 	def init_game(self, points_to_win):
 		self.point_value = 0
@@ -150,12 +154,12 @@ class EquationGame(Scene):
 	def solve_equation(self, test=True):
 		saved_state = self.save_state()
 		self.clear()
-		timeline = Solve()
+		timeline = Solve(auto_scale=2)
 		timeline >>= self.equation
 		self.add(timeline.mob)
 		timeline.play_all(self)
 		self.wait()
-		self.restore()
+		self.restore_state(saved_state)
 		if test:
 			self.guess_solution(
 				timeline.get_expression(-1).children[1]
@@ -190,7 +194,7 @@ class EquationGame(Scene):
 			self.play(ReplacementTransform(expr.mob, new_point_indicator))
 			self.point_indicators[self.point_value].add(new_point_indicator)
 			self.increment_point_value()
-			self.reset_equation()
+			# self.reset_equation()
 		else:
 			self.play(expr.mob.animate.set_color(RED))
 			self.reset_equation(equation=self.equation)

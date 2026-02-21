@@ -53,8 +53,12 @@ class AlgebraicAction(Action):
 			template1_addresses = self.template1_address_dict.get(leaf, [[]])
 			template2_addresses = self.template2_address_dict.get(leaf, [[]])
 
+			if template1_addresses == template2_addresses == [[]]:
+				continue
+
 			for t1ad, t2ad in product(template1_addresses, template2_addresses):
 				if not any((t1ad, t2ad) == (str(entry[0]).strip('(_)'), str(entry[1]).strip('(_)')) for entry in addressmap):
+					# If pair is not already in addressmap
 					addressmap += [[t1ad, t2ad, kwargs]]
 		
 		return addressmap

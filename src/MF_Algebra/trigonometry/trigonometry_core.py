@@ -13,7 +13,7 @@ class TrigFunction(Function):
 		super().__init__(
 			symbol = symbol,
 			python_rule = python_rule,
-			parentheses_mode = 'weak',
+			parentheses_mode = 'strong',
 			**kwargs
 		)
 

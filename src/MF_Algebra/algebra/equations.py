@@ -116,8 +116,8 @@ class alg_pow_2_R(EquationManeuver):
 	template1 = a**2 | b
 	template2 = a | PlusMinus(sqrt(b))
 	addressmap = (
-		['01', '10f', {'path_arc':-PI/3}],
-		[[], '1~']
+		['01', '100f', {'path_arc':-PI/3}],
+		[[], '1~', {'delay':0.75, 'run_time':0.75}]
 	)
 	
 	def reverse(self): # Hopefully this never happens lol
@@ -133,7 +133,7 @@ class alg_pow_R(EquationManeuver):
 	template2 = a | Rad(b)(c)
 	addressmap = (
 		['01', '100', {'path_arc':-PI/3}],
-		[[], '10f', {'delay':0.5, 'run_time':0.5}],
+		[[], '10f', {'delay':0.25, 'run_time':0.75}],
 	)
 	
 	def reverse(self):

@@ -175,10 +175,12 @@ class UnaryOperation(Expression, Operation):
 
 	special_character_to_glyph_method_dict = {
 		**Expression.special_character_to_glyph_method_dict,
+		'~': 'get_unary_glyph',
+		'+': 'get_unary_glyph',
 		'-': 'get_unary_glyph',
-		'~': 'get_unary_glyph'
 	}
 
+	@Expression.parenthesize_glyph_list
 	def get_unary_glyph(self):
 		return list(range(0, self.symbol_glyph_length))
 	
