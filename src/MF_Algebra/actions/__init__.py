@@ -6,3 +6,4 @@ from .substitution import *
 from .permutations import *
 from .evaluation import *
 from .apply_operation import *
+from .expand_functions import *
