@@ -53,3 +53,19 @@ class Combiner(Expression):
 			results += list(range(turtle, turtle + self.symbol_glyph_length))
 			turtle += self.symbol_glyph_length
 		return results
+
+
+
+class CombinerContainer(ExpressionContainer):
+	# Good for making subscripts for example
+	expression_type = Combiner
+	shared_side = 'left'
+	def generate_elements(self, *strings):
+		if self.shared_side == 'left': # x1,x2,x3 = Subscripts(x,1,2,3)
+			older_sibling = strings[0]
+			younger_siblings = strings[1:]
+			return [self.expression_type(older_sibling, younger) for younger in younger_siblings]
+		elif self.shared_side == 'right': # xi,yi = Subscripts(x,y,i,)
+			older_sibling = strings[-1]
+			younger_siblings = strings[:-1]
+			return [self.expression_type(younger, older_sibling) for younger in younger_siblings]
