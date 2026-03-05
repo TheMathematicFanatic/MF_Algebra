@@ -295,7 +295,7 @@ def text_to_MF_Algebra(text):
 
 	# Helper to categorize tokens
 	def categorize(tok):
-		if tok in '+-*/()|**':
+		if tok in '+-*/()**':
 			return 'op'
 		if tok == '**':
 			return 'caret'
@@ -333,7 +333,7 @@ def text_to_MF_Algebra(text):
 		return ''.join(result)
 
 	from asteval import Interpreter
-	from MF_Algebra import (Integer, Real, Variable, Function, sqrt, cbrt)
+	from MF_Algebra import (Integer, Real, Variable, Function, sqrt, cbrt, sin, cos, tan, csc, sec, cot)
 	symtable = {
 		**{L: Variable(L, 1) for L in 'abcjklmnopqrstuvwxyz'},
 		**{F: Function(F, 1) for F in 'fgh'},
@@ -342,6 +342,12 @@ def text_to_MF_Algebra(text):
 		'Variable' : Variable,
 		'sqrt' : sqrt,
 		'cbrt' : cbrt,
+		'sin' : sin,
+		'cos' : cos,
+		'tan' : tan,
+		'csc' : csc,
+		'sec' : sec,
+		'cot' : cot,
 	}
 	aeval = Interpreter(symtable=symtable)
 
