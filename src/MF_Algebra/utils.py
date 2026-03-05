@@ -94,22 +94,26 @@ def combine_to_timeline(A, B):
 	from .expressions.expression_core import Expression
 	from .actions.action_core import Action
 	from .timelines.timeline_core import Timeline
-	type_combo_to_timeline_func = {
-		# (TypeofA, TypeofB) : function of A,B which returns the desired Timeline object
-		(Expression, Expression) : lambda A,B: Timeline().add_expression_to_start(A).add_expression_to_end(B),
-		(Expression, Action) : lambda A,B: Timeline().add_expression_to_start(A).add_action_to_end(B),
-		(Action, Expression) : lambda A,B: Timeline().add_action_to_start(A).add_expression_to_end(B),
-		(Action, Action) : lambda A,B: Timeline().add_action_to_start(A).add_action_to_end(B),
-		(Expression, Timeline) : lambda A,B: B.add_expression_to_start(A),
-		(Action, Timeline) : lambda A,B: B.add_action_to_start(A),
-		(Timeline, Expression) : lambda A,B: A.add_expression_to_end(B),
-		(Timeline, Action) : lambda A,B: A.add_action_to_end(B),
-		(Timeline, Timeline) : lambda A,B: A.combine_timelines(B)
-	}
-	for (type1, type2), func in type_combo_to_timeline_func.items():
-		if isinstance(A, type1) and isinstance(B, type2):
-			return func(A, B)
-	raise NotImplementedError(f"Unsupported combination of types {type(A)} and {type(B)}")
+	if isinstance(A, Expression) and isinstance(B, Expression):
+		return Timeline().add_expression_to_start(A).add_expression_to_end(B)
+	elif isinstance(A, Expression) and isinstance(B, Action):
+		return Timeline().add_expression_to_start(A).add_action_to_end(B)
+	elif isinstance(A, Action) and isinstance(B, Expression):
+		return Timeline().add_action_to_start(A).add_expression_to_end(B)
+	elif isinstance(A, Action) and isinstance(B, Action):
+		return Timeline().add_action_to_start(A).add_action_to_end(B)
+	elif isinstance(A, Expression) and isinstance(B, Timeline):
+		return B.add_expression_to_start(A)
+	elif isinstance(A, Action) and isinstance(B, Timeline):
+		return B.add_action_to_start(A)
+	elif isinstance(A, Timeline) and isinstance(B, Expression):
+		return A.add_expression_to_end(B)
+	elif isinstance(A, Timeline) and isinstance(B, Action):
+		return A.add_action_to_end(B)
+	elif isinstance(A, Timeline) and isinstance(B, Timeline):
+		return A.combine_timelines(B)
+	else:
+		raise NotImplementedError(f"Unsupported combination of types {type(A)} and {type(B)}")
 
 
 def add_spaces_around_brackets(input_string):
