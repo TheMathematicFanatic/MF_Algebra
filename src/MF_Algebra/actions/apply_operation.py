@@ -11,10 +11,10 @@ class apply_operation_(Action):
 	side = 'right'
 	introducer = Write
 
-	def __init__(self, other, OpClass=None, side=None, introducer=None, **kwargs):
+	def __init__(self, other, side=None, OpClass=None, introducer=None, **kwargs):
 		self.other = Smarten(other)
-		self.OpClass = OpClass or self.OpClass
 		self.side = side or self.side
+		self.OpClass = OpClass or self.OpClass
 		self.introducer = introducer or self.introducer
 		super().__init__(**kwargs)
 
