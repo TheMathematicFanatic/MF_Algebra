@@ -107,7 +107,7 @@ programmed_equations = [
 	87 + m | 100,
 	3*p + 10 | 25
 ]
-algebra_config['multiplication_mode'] = 'x'
+algebra_config['multiplication_mode'] = 'auto'
 algebra_config['always_color'] = {
 	x:RED, y:BLUE, z:GREEN_E,
 	a:RED_B, b:GREEN_D, c:BLUE_E,
@@ -116,7 +116,7 @@ algebra_config['always_color'] = {
 
 class EquationGame(Scene):
 	def construct(self):
-		self.mode = 'programmed'
+		self.mode = 'ask'
 		self.init_game(10)
 		self.embed()
 
@@ -133,6 +133,7 @@ class EquationGame(Scene):
 		self.wait(0.5)
 		self.play(self.point_indicators.animate.arrange(RIGHT, buff=1).scale_to_fit(12).to_edge(UP), run_time=2)
 		self.reset_equation()
+		self.await_input()
 
 	def await_input(self, recurse=True):
 		print('')
@@ -176,10 +177,12 @@ class EquationGame(Scene):
 				self.equation = programmed_equations[index]
 			elif self.mode == 'random':
 				self.equation = random_equation(2 if index < 5  else 3)
+			elif self.mode == 'ask':
+				self.equation = text_to_MF_Algebra(input('What is the next equation?  '))
 			else: 
 				print('Unknown mode: ', self.mode, '. Must be programmed or random.')
 		self.timeline = Evaluate(auto_scale=2)
-		self.timeline >>= self.equation
+		self.timeline >> self.equation
 		self.play(Write(self.timeline.mob))
 
 	def guess_solution(self, value):
@@ -194,7 +197,7 @@ class EquationGame(Scene):
 			self.play(ReplacementTransform(expr.mob, new_point_indicator))
 			self.point_indicators[self.point_value].add(new_point_indicator)
 			self.increment_point_value()
-			# self.reset_equation()
+			self.reset_equation()
 		else:
 			self.play(expr.mob.animate.set_color(RED))
 			self.reset_equation(equation=self.equation)

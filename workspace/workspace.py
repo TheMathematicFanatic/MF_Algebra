@@ -1840,3 +1840,18 @@ class Blank(Scene):
 		timeline = load_from_file('cos_value')
 		timeline.play_all(self)
 		self.embed()
+
+
+class SystemOfEquations(Scene):
+	eq1 = 4*x + y | -3
+	eq2 = -x + y | 1
+	solve_through = y
+	def construct(self):
+		Eq1 = Solve(self.solve_through) >> self.eq1
+		Eq1.align_on_
+
+
+
+class Demo(Scene):
+	def construct(self):
+		D = DecimalNumber()

@@ -84,7 +84,8 @@ class Action(MF_Base):
 
 	def both(self, number_of_children=2, **kwargs):
 		# Intended to turn an action on an expression into an action done to both sides of an equation.
-		# Can be passed a number to apply to more than 2 sides for, say, a triple equation or inequality.
+		# Also good for doing something to both numerator and denominator and stuff like that.
+		# Can be passed a number to apply to more than 2 children for, say, a triple equation or inequality.
 		return self.pread(*[str(i) for i in range(number_of_children)], **kwargs)
 
 

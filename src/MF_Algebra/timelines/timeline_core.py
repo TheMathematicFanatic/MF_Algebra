@@ -134,7 +134,7 @@ class Timeline(MF_Base):
 			self.play_animation(scene, index=i, **kwargs)
 			scene.wait(wait_between)
 
-	def play_all(self, scene, wait_between=0.5, reset_exp_index=False):
+	def play_all(self, scene, wait_between=1, reset_exp_index=False):
 		if reset_exp_index:
 			self.current_exp_index = 0
 		if self.mob not in scene.mobjects:
@@ -212,13 +212,13 @@ class Timeline(MF_Base):
 		from MF_Tools.dual_compatibility import VGroup, ArcBetweenPoints, RIGHT, Text, ORANGE
 		ladder = VGroup()
 		mobs = self.get_vgroup().copy()
-		ladder.expressions = mobs.arrange(DOWN, buff=1)
+		ladder.expressions = mobs.arrange(DOWN, buff=1, aligned_edge=RIGHT)
 		ladder.arrows = VGroup(*[
 			ArcBetweenPoints(
 				np.array([mobs.get_edge_center(RIGHT)[0], m1.get_center()[1]-0.1, 0]),
 				np.array([mobs.get_edge_center(RIGHT)[0], m2.get_center()[1]+0.1, 0]),
 				angle = -3/4*PI
-			).shift(0.75*RIGHT).set_stroke(width=2, opacity=0.5)
+			).shift(0.5*RIGHT).set_stroke(width=2, opacity=0.5)
 			for m1, m2 in zip(mobs[:-1], mobs[1:])
 		])
 		ladder.actions = VGroup(*[
