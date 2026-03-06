@@ -8,6 +8,7 @@ algebra_config = {
 	'multiplication_mode': 'auto',
 	'division_mode': 'fraction',
 	'decimal_precision': 4,
+	'integer_tolerance': 1e-9,
 	'always_color': {},
 	'default_color': WHITE,
 	'fast_paren_length': True,

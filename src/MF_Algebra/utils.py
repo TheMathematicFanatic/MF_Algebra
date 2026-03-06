@@ -60,7 +60,8 @@ def Smarten(input):
 		if input == np.nan:
 			return None
 		from math import isclose
-		if isclose(input, round(input)):
+		from .expressions.expression_core import algebra_config
+		if isclose(input, round(input), rel_tol=0, abs_tol=algebra_config['integer_tolerance']):
 			from .expressions.numbers.integer import Integer
 			return Integer(round(input))
 		from .expressions.numbers.real import Real
