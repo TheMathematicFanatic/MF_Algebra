@@ -23,19 +23,30 @@ frac = arctan(x) / denom_base**denom_pow
 full = Integral(lower, upper, vertical_bounds=True)(frac * dx)
 
 
-
+algebra_config['always_color'] = {x:RED,y:BLUE,w:PURPLE,z:GREEN_E}
 class SelectionScene(InteractiveScene):
 	actions_to_try = [
 		evaluate_(),
 		swap_children_(),
-		*[rule() for rule in EquationManeuver.__subclasses__()],
-		*[rule() for rule in SimplificationRule.__subclasses__()],
 		AlgebraicAction((a/b)**n, (b/a)**-n, [[], '1-']),
 		AlgebraicAction((sin**2)(t) + (cos**2)(t), 1, ['', '']),
 		AlgebraicAction(Taylor(sin(t),t), sin(t), ['', '']),
 		AlgebraicAction((x+h)**3, x**3 + 3*x**2*h + 3*x*h**2 + h**3),
 		AlgebraicAction((x-h)**3, x**3 - 3*x**2*h + 3*x*h**2 - h**3),
 	]
+	for rule in EquationManeuver.__subclasses__():
+		actions_to_try += [
+			rule(),
+			rule().reverse(),
+			rule().flip(),
+			rule().reverse_flip()
+		]
+	for rule in SimplificationRule.__subclasses__():
+		for subrule in [rule(), rule().reverse()]:
+			if not subrule.template1 == a:
+				actions_to_try.append(subrule)
+	keep_selected_address_after_action = True
+	
 	def construct(self):
 
 		self.new_timeline(
@@ -417,27 +428,45 @@ class Uwezi(SelectionScene):
 
 class TikTokSolve(SelectionScene):
 	def construct(self):
+		self.text_top = VGroup(
+			Text('Can you find the solution?')
+		).arrange(DOWN).to_edge(UP)
+		self.text_bottom = VGroup(
+			Text('MF_Algebra - a Manim plugin for automatic algebra'),
+			Text('Code on Github, same username')
+		).arrange(DOWN).scale(0.75).to_edge(DOWN)
+		# self.new_equation(full)
 		self.embed()
-		self.new_equation(3*x+5|50)
+
 
 	def new_equation(self, equation, solve_for=None):
-		self.clear()
-		self.timeline = Solve(solve_for=solve_for, auto_fit=[12,3,None]) >> equation
-		self.timeline.play_all(self)
+		if hasattr(self, 'timeline'): self.remove(self.timeline.mob)
+		self.timeline = Solve(solve_for=solve_for, auto_fit=[8,6,None]).suspend()
+		self.timeline >> equation
+		self.play(Write(self.timeline.mob))
+		if self.text_bottom not in self.mobjects:
+			self.play(Write(self.text_bottom))
 	
+	def solve_equation(self):
+		self.timeline.resume()
+		self.timeline.play_all(self)
+		
 	def test_solution(self, value=None):
 		if value is None:
 			value = self.timeline.solution
-		eq = self.timeline.expressions[0]
-		var = self.timeline.solve_for
-		self.clear()
-		self.timeline = Evaluate() >> eq >> substitute_({var:value})
+		eq = self.timeline.exp
+		var = eq.get_all_variables().pop()
+		self.remove(self.timeline.mob)
+		self.timeline = Evaluate(auto_fit=[8,6,None]) >> eq >> substitute_({var:value})
+		self.add(self.timeline.mob)
 		self.timeline.play_all(self)
 		final_eq = self.timeline.exp
 		if final_eq.compute():
 			self.play(self.timeline.mob.animate.set_color(GREEN))
 		else:
 			self.play(self.timeline.mob.animate.set_color(RED))
+		self.wait()
+		self.remove(self.timeline.mob)
 		self.new_equation(eq)
 
 
@@ -450,3 +479,70 @@ class MathScribblesTrigIntegral(SelectionScene):
 		self.timeline >> integral
 		self.add(self.timeline.mob)
 		self.embed()
+
+
+
+
+def random_equation(depth=1):
+	# import random
+	random.seed()
+	var = random.choice(list(algebra_config['always_color'].keys()))
+	exp = var
+	def one_more_layer(exp, OpClassList = [Add,Sub,Mul,Div,Pow]):
+		OpClass = random.choice(OpClassList)
+		side = random.choice(['left', 'right'])
+		other = random.choice(range(0,21))
+		if side == 'left':
+			return OpClass(exp, other)
+		elif side == 'right':
+			return OpClass(other, exp)
+	for i in range(depth):
+		exp = one_more_layer(exp)
+	solution = random.choice(range(0,21))
+	other = exp.copy().substitute({var:solution}).compute()
+	exp = Equation(exp, other)
+	return exp
+
+
+
+class MathScribbles27(SelectionScene):
+	def construct(self):
+		lower1 = Limit(u,inf)((1+1/u)**u)
+		lower2 = Sum(n,0,inf)(1/fact(n))
+		lower = lower1 - lower2
+
+		upper1 = Integral(-inf,inf)(e**(-u**2)*d(u))
+		upper2 = Integral(0,2)((3/two*w**2-w)*d(w))
+		upper = upper1**2 * upper2
+
+		num1 = (cos**(9/pi*(tan**-1)(sqrt(3))))(t)
+		num2 = cos(t)*(sin**2)(t)
+		den1 = (cos**(8/pi*(tan**-1)(1)))(t)
+		den2 = (sin**(4*pi*(sin**-1)(1)))(t)
+		frac = (num1 + num2)/(den1 + den2)
+		
+		inner_int = Integral(400,x)(frac**fact(2)*dt)
+
+		integrand = Taylor(sin)**2 * (d/dx)(inner_int)
+
+		full = Integral(lower, upper)(integrand*dx)
+	
+		self.timeline = Timeline(auto_fit=[12,4,None])
+		self.timeline >> full
+		self.timeline.play_all(self)
+		self.embed()
+
+
+
+class GraphScene(SelectionScene):
+	def construct(self):
+		self.timeline = Timeline()
+		self.timeline >> Equation(f(x), x)
+		NP = NumberPlane()
+		graph = always_redraw(lambda: NP.get_graph(
+			lambda x1: self.timeline.exp.right.substitute({x:x1}).compute(),
+		))
+		self.add(NP,graph)
+		self.add(self.timeline.mob)
+		self.embed()
+
