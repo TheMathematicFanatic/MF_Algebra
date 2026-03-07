@@ -27,27 +27,42 @@ class AddressMapAction(Action):
 
 
 class GlyphMapAction(Action):
-    def __init__(self, *glyph_map, extra_animations=[], show_indices=False, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self,
+        input_exp,
+        output_exp,
+        *glyph_map,
+        extra_animations = [],
+        **kwargs
+        ):
+        action_kwargs = {
+            key : kwargs.pop(key)
+            for key in Action.__init__.__code__.co_varnames[1:]
+            if key in kwargs
+        }
+        super().__init__(**action_kwargs)
+        self.TBGM_kwargs = kwargs
+        self.input_exp = input_exp
+        self.output_exp = output_exp
         self.glyph_map = glyph_map
         self.extra_animations = extra_animations
-        self.show_indices = show_indices
     
     def get_animation(self, **kwargs):
         def animation(input_exp, output_exp=None):
-            if output_exp is None:
-                output_exp = self.get_output_expression(input_exp)
+            input_exp = self.input_exp
+            output_exp = self.output_exp
             return AnimationGroup(
                 TransformByGlyphMap(
                     input_exp.mob,
                     output_exp.mob,
                     *self.glyph_map,
-                    show_indices = self.show_indices,
-                    **kwargs
+                    **self.TBGM_kwargs
                 ),
                 *self.extra_animations
             )
         return animation
+
+    def get_output_expression(self, input_expression):
+        return self.output_exp
 
 
 class AnimationAction(Action):

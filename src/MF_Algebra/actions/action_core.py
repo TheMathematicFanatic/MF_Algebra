@@ -162,7 +162,8 @@ class Action(MF_Base):
 		def wrapper(action, expr, *args, **kwargs):
 			expr = expr.copy()
 			preaddress = kwargs.get('preaddress', '') or action.preaddress
-			addressmap = getmap(action, expr, *args, **kwargs)
+			active_part = expr.get_subex('') # Whether this should happen is key, TODO investigate
+			addressmap = getmap(action, active_part, *args, **kwargs)
 			if preaddress:
 				for entry in addressmap:
 					for i, ad in enumerate(entry):
@@ -179,7 +180,8 @@ class Action(MF_Base):
 			@wraps(getmap)
 			def wrapper(action, expr, *args, **kwargs):
 				addressmap = list(getmap(action, expr, *args, **kwargs))
-				in_expr, out_expr = expr, action.get_output_expression(expr)
+				in_expr = expr.copy()
+				out_expr = action.copy().get_output_expression(expr)
 				for in_add in in_expr.get_all_addresses():
 					if in_expr.get_subex(in_add).parentheses:
 						addressmap.append([in_add+'()', [], Action.remove_kwargs])
