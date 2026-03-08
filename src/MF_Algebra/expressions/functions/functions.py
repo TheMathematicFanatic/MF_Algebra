@@ -155,10 +155,10 @@ class Function(Expression):
 	@property
 	def lambdify(self):
 		assert self.algebra_rule is not None, 'This function has no algebra rule'
-		from ...utils import to_sympy
+		from ...utils import MF_Algebra_to_sympy
 		from sympy import lambdify
-		sympy_vars = [to_sympy(v) for v in self.algebra_rule_variables]
-		sympy_rule = to_sympy(self.algebra_rule)
+		sympy_vars = [MF_Algebra_to_sympy(v) for v in self.algebra_rule_variables]
+		sympy_rule = MF_Algebra_to_sympy(self.algebra_rule)
 		return lambdify(sympy_vars, sympy_rule, 'math')
 
 

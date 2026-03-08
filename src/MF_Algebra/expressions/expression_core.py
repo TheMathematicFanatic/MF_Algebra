@@ -1,20 +1,7 @@
-from MF_Tools.dual_compatibility import dc_Tex, MANIM_TYPE, VGroup, WHITE, BLACK
-from ..utils import MF_Base, Smarten, add_spaces_around_brackets
+from MF_Tools.dual_compatibility import dc_Tex, MANIM_TYPE, VGroup
+from ..utils import MF_Base, Smarten, add_spaces_around_brackets, algebra_config
 from functools import wraps
 
-
-algebra_config = {
-	'auto_parentheses': True,
-	'multiplication_mode': 'auto',
-	'division_mode': 'fraction',
-	'decimal_precision': 4,
-	'integer_tolerance': 1e-9,
-	'always_color': {},
-	'default_color': WHITE,
-	'fast_paren_length': True,
-	'fast_glyph_count': True,
-	'fast_root_length': True,
-}
 
 
 class Expression(MF_Base):
