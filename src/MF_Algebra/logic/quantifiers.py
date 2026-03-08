@@ -17,19 +17,24 @@ class Quantifier(Function):
 
 
 class ForAll(Quantifier):
-	symbol = '\\forall'
-	symbol_glyph_length = 1
 	eval_op = staticmethod(lambda L: all(L))
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.symbol = '\\forall'
+		self.symbol_glyph_length = 1
 
 
 class Exists(Quantifier):
-	symbol = '\\exists'
-	symbol_glyph_length = 1
 	eval_op = staticmethod(lambda L: any(L))
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.symbol = '\\exists'
+		self.symbol_glyph_length = 1
 
 
 class UniqueExists(Quantifier):
-	symbol = '\\exists{!}'
-	symbol_glyph_length = 2
 	eval_op = staticmethod(lambda L: sum(L) == 1)
-
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.symbol = '\\exists{!}'
+		self.symbol_glyph_length = 2
