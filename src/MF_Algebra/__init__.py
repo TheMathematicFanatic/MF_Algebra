@@ -10,3 +10,4 @@ from .algebra import *
 from .calculus import *
 from .trigonometry import *
 from .sets import *
+from .logic import *

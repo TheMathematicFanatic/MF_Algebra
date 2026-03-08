@@ -24,63 +24,63 @@ class Set(Expression):
 		return iter(self._set)
 
 	def __and__(self, other):
-		from .set_operations import Intersection
+		from .operations import Intersection
 		return Intersection(self, other)
 
 	def __rand__(self, other):
-		from .set_operations import Intersection
+		from .operations import Intersection
 		return Intersection(other, self)
 
 	def __or__(self, other):
-		from .set_operations import Union
+		from .operations import Union
 		return Union(self, other)
 	
 	def __ror__(self, other):
-		from .set_operations import Union
+		from .operations import Union
 		return Union(other, self)
 
 	def __sub__(self, other):
-		from .set_operations import Difference
+		from .operations import Difference
 		return Difference(self, other)
 	
 	def __rsub__(self, other):
-		from .set_operations import Difference
+		from .operations import Difference
 		return Difference(other, self)
 
 	def __truediv__(self, other):
-		from .set_operations import Difference
+		from .operations import Difference
 		return Difference(self, other)
 	
 	def __rtruediv__(self, other):
-		from .set_operations import Difference
+		from .operations import Difference
 		return Difference(other, self)
 	
 	def __rmod__(self, other):
-		from .set_operations import IsElement
+		from .operations import IsElement
 		return IsElement(other, self)
 	
 	def __lt__(self, other):
-		from .set_operations import IsProperSubset
+		from .operations import IsProperSubset
 		return IsProperSubset(self, other)
 	
 	def __le__(self, other):
-		from .set_operations import IsSubset
+		from .operations import IsSubset
 		return IsSubset(self, other)
 	
 	def __mul__(self, other):
-		from .set_operations import CartesianProduct
+		from .operations import CartesianProduct
 		return CartesianProduct(self, other)
 	
 	def __rmul__(self, other):
-		from .set_operations import CartesianProduct
+		from .operations import CartesianProduct
 		return CartesianProduct(other, self)
 
 	def __pow__(self, other):
-		from .set_operations import CartesianPower
+		from .operations import CartesianPower
 		return CartesianPower(self, other)
 	
 	def __rpow__(self, other):
-		from .set_operations import CartesianPower
+		from .operations import CartesianPower
 		return CartesianPower(other, self)
 
 
@@ -139,24 +139,24 @@ from ..utils import Smarten
 Empty = SymbolSet(symbol='\\varnothing', symbol_glyph_length=1, in_rule=lambda x: False)
 Empty.elements = ElementsSet()
 
-Z = SymbolSet(
+ZZ = SymbolSet(
 	symbol = '\\mathbb{Z}',
 	symbol_glyph_length = 1,
-	in_rule = lambda x: isinstance(Smarten(x).compute(), Integer)
+	in_rule = lambda x: isinstance(Smarten(x).evaluate(), Integer)
 	)
-Z.elements = ElementsSet(dots, -2, -1, 0, 1, 2, dots)
+ZZ.elements = ElementsSet(dots, -2, -1, 0, 1, 2, dots)
 
-N = SymbolSet(
+NN = SymbolSet(
 	symbol = '\\mathbb{N}',
 	symbol_glyph_length = 1,
-	in_rule = lambda x: isinstance(Smarten(x).compute(), Integer) and x.value >= 0
+	in_rule = lambda x: isinstance(Smarten(x).evaluate(), Integer) and x.value >= 0
 )
-N.elements = ElementsSet(0, 1, 2, 3, dots)
+NN.elements = ElementsSet(0, 1, 2, 3, dots)
 
-R = SymbolSet(
+RR = SymbolSet(
 	symbol = '\\mathbb{R}', 
 	symbol_glyph_length = 1,
-	in_rule = lambda x: isinstance(Smarten(x).compute(), (Integer, Real))
+	in_rule = lambda x: isinstance(Smarten(x).evaluate(), (Integer, Real))
 )
 
 
