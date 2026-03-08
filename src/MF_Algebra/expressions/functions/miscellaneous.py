@@ -19,6 +19,7 @@ class Factorial(Function):
 	def __init__(self, **kwargs):
 		from scipy.special import gamma
 		super().__init__(
+			symbol = '!',
 			python_rule = lambda z: gamma(z+1),
 			parentheses_mode = 'strong',
 			**kwargs

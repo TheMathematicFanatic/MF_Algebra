@@ -39,78 +39,344 @@ def print_info(expression, tablefmt='rst'):
 	print(table)
 
 
-# def create_graph(expr, node_size=0.5, horizontal_buff=1, vertical_buff=1.5, printing=False):
-# 	def create_node(address):
-# 		from .expressions.numbers import Integer, Real, Rational
-# 		from .expressions.variables import Variable
-# 		from .expressions.combiners.operations import Add, Sub, Mul, Div, Pow, Negative
-# 		from .expressions.functions.functions import Function
-# 		from .expressions.combiners.sequences import Sequence
-# 		from .expressions.combiners.relations import Equation, LessThan, LessThanOrEqualTo, GreaterThan, GreaterThanOrEqualTo
-# 		type_to_symbol_dict = {
-# 			Integer: lambda expr: str(expr.value),
-# 			Real: lambda expr: expr.symbol if expr.symbol else str(expr),
-# 			Rational: lambda expr: '\\div',
-# 			Variable: lambda expr: expr.symbol,
-# 			Add: lambda expr: '+',
-# 			Sub: lambda expr: '-',
-# 			Mul: lambda expr: '\\times',
-# 			Div: lambda expr: '\\div',
-# 			Pow: lambda expr: '\\hat{}',
-# 			Negative: lambda expr: '-',
-# 			Function: lambda expr: expr.symbol,
-# 			Sequence: lambda expr: ',',
-# 			Equation: lambda expr: '=',
-# 			LessThan: lambda expr: '<',
-# 			LessThanOrEqualTo: lambda expr: '\\leq',
-# 			GreaterThan: lambda expr: '>',
-# 			GreaterThanOrEqualTo: lambda expr: '\\geq',
-# 		}
-# 		subex = expr.get_subex(address)
-# 		symbol = type_to_symbol_dict[type(subex)](subex)
-# 		tex = Tex(symbol)
-# 		# if tex.width > tex.height:
-# 		# 	tex.scale_to_fit_width(node_size)
-# 		# else:
-# 		# 	tex.scale_to_fit_height(node_size)
-# 		return tex
-# 	addresses = expr.get_all_addresses()
-# 	if printing: print(addresses)
-# 	max_length = max(len(address) for address in addresses)
-# 	layered_addresses = [
-# 		[ad for ad in addresses if len(ad) == i]
-# 		for i in range(max_length + 1)
-# 	]
-# 	if printing: print(layered_addresses)
-# 	max_index = max(range(len(layered_addresses)), key=lambda i: len(layered_addresses[i]))
-# 	max_layer = layered_addresses[max_index]
-# 	max_width = len(max_layer)
-# 	if printing: print(max_index, max_width, max_layer)
-# 	Nodes = VDict({ad: create_node(ad) for ad in addresses})
-# 	#Max_layer = VGroup(*[Nodes[ad] for ad in max_layer]).arrange(RIGHT,buff=horizontal_buff)
-# 	def position_children(parent_address):
-# 		parent = Nodes[parent_address]
-# 		child_addresses = [ad for ad in layered_addresses[len(parent_address)+1] if ad[:-1] == parent_address]
-# 		if printing: print(child_addresses)
-# 		child_Nodes = VGroup(*[Nodes[ad] for ad in child_addresses]).arrange(RIGHT,buff=1)
-# 		child_Nodes.move_to(parent.get_center()+DOWN*vertical_buff)
-# 	for i in range(max_index, max_length):
-# 		for ad in layered_addresses[i]:
-# 			position_children(ad)
-# 	def position_parent(child_address):
-# 		sibling_Nodes = VGroup(*[Nodes[ad] for ad in layered_addresses[len(child_address)] if ad[:-1] == child_address[:-1]])
-# 		parent_Node = Nodes[child_address[:-1]]
-# 		parent_Node.move_to(sibling_Nodes.get_center()+UP*vertical_buff)
-# 	for i in range(max_index, 0, -1):
-# 		for ad in layered_addresses[i]:
-# 			position_parent(ad)
-# 	Edges = VGroup(*[
-# 		Line(
-# 			Nodes[ad[:-1]].get_bounding_box_point(DOWN),
-# 			Nodes[ad].get_bounding_box_point(UP),
-# 			buff=0.2, stroke_opacity=0.4
-# 			)
-# 		for ad in addresses if len(ad) > 0
-# 		])
-# 	return VGroup(Nodes, Edges)
+
+
+
+
+
+def get_graph_mobject(expr, color='#FFFFFF', stroke_width=2, show_addresses=True):
+	from MF_Tools.dual_compatibility import VDict, VGroup, dc_Tex, Text, Circle, Line, RIGHT, DOWN
+	from MF_Tools import scale_to_fit_mobject
+
+	def tree_layout(addresses, x_spacing=0.5, y_spacing=1.0, node_widths=None): # AI written (Claude)
+		"""
+		Compute (x, y) coordinates for a tree whose nodes are identified by
+		concatenated-digit-string addresses (e.g. '', '0', '1', '01', '10').
+
+		Uses the Reingold-Tilford algorithm (Buchheim et al. linear-time variant)
+		to produce a layout that is:
+		- Downward-growing (y increases with depth)
+		- Non-overlapping (no two nodes share a position)
+		- Compact (siblings are packed as tightly as x_spacing allows)
+		- Aesthetically balanced (parents centred over children; symmetric
+			subtrees are mirror images of each other)
+
+		Args:
+			addresses   : list of address strings, e.g. ['', '0', '1', '00', '01']
+			x_spacing   : minimum horizontal gap between node *edges* (default 1.0)
+			y_spacing   : vertical distance between depth levels (default 1.0)
+			node_widths : optional dict mapping address -> width (default 1.0 for all).
+						The x coordinate returned for each node is its centre.
+						Nodes with wider labels are spaced further from their
+						siblings so that edges never overlap.
+
+		Returns:
+			dict mapping each address -> (x: float, y: float)
+		"""
+		import sys
+		sys.setrecursionlimit(max(sys.getrecursionlimit(), len(addresses) * 10))
+
+		addr_set = set(addresses)
+
+		# ------------------------------------------------------------------ #
+		# 0.  Node widths                                                    #
+		# ------------------------------------------------------------------ #
+
+		_nw = node_widths or {}
+		nw = {a: _nw.get(a, 1.0) for a in addresses}   # width of each node
+
+		def gap(u, v):
+			"""Minimum centre-to-centre distance so u and v don't overlap."""
+			return nw[u] / 2.0 + x_spacing + nw[v] / 2.0
+
+		# ------------------------------------------------------------------ #
+		# 1.  Build tree structure                                           #
+		# ------------------------------------------------------------------ #
+
+		def _children(addr):
+			"""All addresses that are one digit longer and share the same prefix."""
+			return sorted(
+				[a for a in addr_set if len(a) == len(addr) + 1 and a.startswith(addr)],
+				key=lambda a: a[-1],   # sort by the appended digit
+			)
+
+		children = {a: _children(a) for a in addresses}
+
+		parent = {}
+		for a in addresses:
+			for child in children[a]:
+				parent[child] = a
+
+		roots = [a for a in addresses if a not in parent]
+		if len(roots) != 1:
+			raise ValueError(f"Expected exactly one root node, found: {roots}")
+		root = roots[0]
+		root_depth = len(root)   # usually 0 for root = ''
+
+		# ------------------------------------------------------------------ #
+		# 2.  Per-node mutable state                                         #
+		# ------------------------------------------------------------------ #
+
+		prelim   = {a: 0.0  for a in addresses}   # preliminary x
+		mod      = {a: 0.0  for a in addresses}   # modifier passed down to subtree
+		shift    = {a: 0.0  for a in addresses}   # accumulated shift (right)
+		change   = {a: 0.0  for a in addresses}   # shift redistribution slope
+		ancestor = {a: a    for a in addresses}   # used in contour comparison
+		thread   = {a: None for a in addresses}   # cross-level pointer for contour walk
+
+		# ------------------------------------------------------------------ #
+		# 3.  Helper functions                                               #
+		# ------------------------------------------------------------------ #
+
+		def sibling_index(v):
+			p = parent.get(v)
+			return 0 if p is None else children[p].index(v)
+
+		def left_sibling(v):
+			p = parent.get(v)
+			if p is None:
+				return None
+			siblings = children[p]
+			idx = siblings.index(v)
+			return siblings[idx - 1] if idx > 0 else None
+
+		def leftmost_sibling(v):
+			"""First child of v's parent (leftmost among v's siblings)."""
+			p = parent.get(v)
+			return None if p is None else children[p][0]
+
+		def next_left(v):
+			"""Step left along a contour: first child, or left thread."""
+			ch = children[v]
+			return ch[0] if ch else thread[v]
+
+		def next_right(v):
+			"""Step right along a contour: last child, or right thread."""
+			ch = children[v]
+			return ch[-1] if ch else thread[v]
+
+		def get_ancestor(vim, v, default_ancestor):
+			"""
+			Return the ancestor of vim that is a sibling of v,
+			falling back to default_ancestor.
+			"""
+			anc = ancestor[vim]
+			p = parent.get(v)
+			if p is not None and anc in children[p]:
+				return anc
+			return default_ancestor
+
+		# ------------------------------------------------------------------ #
+		# 4.  Core Reingold-Tilford routines                                 #
+		# ------------------------------------------------------------------ #
+
+		def move_subtree(wm, wp, s):
+			"""
+			Shift the subtree rooted at wp rightward by s, recording the shift
+			so execute_shifts can distribute it evenly across the in-between siblings.
+			"""
+			n = sibling_index(wp) - sibling_index(wm)
+			if n > 0:
+				change[wp] -= s / n
+				shift[wp]  += s
+				change[wm] += s / n
+			prelim[wp] += s
+			mod[wp]    += s
+
+		def execute_shifts(v):
+			"""
+			Sweep right-to-left over v's children, applying accumulated shifts.
+			This distributes the shifts that move_subtree placed on the endpoints.
+			"""
+			s = c = 0.0
+			for w in reversed(children[v]):
+				prelim[w] += s
+				mod[w]    += s
+				c         += change[w]
+				s         += shift[w] + c
+
+		def apportion(v, default_ancestor):
+			"""
+			Compare the right contour of the left neighbour subtree with the
+			left contour of the current subtree; shift v's subtree if they
+			would overlap, and set cross-level threads to allow future contour
+			walks to continue cheaply.
+			"""
+			w = left_sibling(v)
+			if w is None:
+				return default_ancestor
+
+			# Four walkers:  inside / outside  ×  right subtree (v) / left subtree (w)
+			vip = vop = v           # inner / outer pointer on right (current) subtree
+			vim = w                 # inner pointer on left subtree (nearest left sibling)
+			vom = leftmost_sibling(v)  # outer pointer on left subtree (leftmost sibling)
+
+			sir = mod[vip]
+			sor = mod[vop]
+			sil = mod[vim]
+			sol = mod[vom]
+
+			while True:
+				nr = next_right(vim)
+				nl = next_left(vip)
+				if nr is None or nl is None:
+					break
+
+				vim = nr
+				vip = nl
+				vom = next_left(vom)
+				vop = next_right(vop)
+				ancestor[vop] = v
+
+				s = (prelim[vim] + sil + nw[vim] / 2.0) - (prelim[vip] + sir - nw[vip] / 2.0) + x_spacing
+				if s > 0:
+					move_subtree(get_ancestor(vim, v, default_ancestor), v, s)
+					sir += s
+					sor += s
+
+				sil += mod[vim]
+				sir += mod[vip]
+				sol += mod[vom]
+				sor += mod[vop]
+
+			# Extend threads to bridge any remaining contour gap
+			if next_right(vim) is not None and next_right(vop) is None:
+				thread[vop]  = next_right(vim)
+				mod[vop]    += sil - sor
+
+			if next_left(vip) is not None and next_left(vom) is None:
+				thread[vom]  = next_left(vip)
+				mod[vom]    += sir - sol
+				default_ancestor = v
+
+			return default_ancestor
+
+		def first_walk(v):
+			"""
+			Post-order pass: assign preliminary x positions bottom-up,
+			packing siblings together and recording mod offsets for parents.
+			"""
+			ch = children[v]
+			if not ch:
+				# Leaf: place next to left sibling (or at 0)
+				ls = left_sibling(v)
+				if ls is not None:
+					prelim[v] = prelim[ls] + gap(ls, v)
+			else:
+				default_ancestor = ch[0]
+				for w_ in ch:
+					first_walk(w_)
+					default_ancestor = apportion(w_, default_ancestor)
+				execute_shifts(v)
+				mid = (prelim[ch[0]] + prelim[ch[-1]]) / 2.0
+				ls = left_sibling(v)
+				if ls is not None:
+					prelim[v] = prelim[ls] + gap(ls, v)
+					mod[v]    = prelim[v] - mid
+				else:
+					prelim[v] = mid
+
+		def second_walk(v, m, depth):
+			"""
+			Pre-order pass: propagate mod offsets downward to compute final x,
+			and assign y from depth.
+			"""
+			result[v] = (prelim[v] + m, depth * y_spacing)
+			for w in children[v]:
+				second_walk(w, m + mod[v], depth + 1)
+
+		# ------------------------------------------------------------------ #
+		# 5.  Run and return                                                 #
+		# ------------------------------------------------------------------ #
+
+		result = {}
+		first_walk(root)
+		second_walk(root, 0.0, 0)
+		return result
+
+	addresses = expr.get_all_addresses()
+	ad_coord_dict = tree_layout(addresses)
+
+	def get_symbol(expr):
+		from ..expressions.numbers import Integer, Real
+		from ..expressions.variables import Variable
+		from ..expressions.combiners import Combiner, Mul, Div, Pow, UnaryOperation
+		from ..expressions.functions import Function, ApplyFunction, Rad, Log
+		type_to_symbolfunc_dict = {
+			Integer: lambda expr: str(expr.value),
+			Real: lambda expr: expr.symbol if expr.symbol else str(expr),
+			Variable: lambda expr: expr.symbol,
+			Mul: lambda expr: '\\times',
+			Div: lambda expr: '/',
+			Pow: lambda expr: '\\wedge',
+			Rad: lambda expr: '\\sqrt{}',
+			Log: lambda expr: '\\log',
+			ApplyFunction: lambda expr: '\\circledast',
+			UnaryOperation: lambda expr: expr.symbol,
+			Function: lambda expr: expr.symbol,
+			Combiner: lambda expr: expr.symbol,
+		}
+		for T, F in type_to_symbolfunc_dict.items():
+			if isinstance(expr, T):
+				return F(expr)
+		return 'Error'
+	
+	def get_node(expr):
+		tex = dc_Tex(get_symbol(expr))
+		circle = Circle(stroke_color=color, stroke_width=stroke_width)
+		scale_to_fit_mobject(tex, circle)
+		tex.scale(0.8)
+		return VGroup(circle, tex).scale(0.25)
+
+	Nodes = VDict({
+		ad : get_node(expr.get_subex(ad)).move_to(coord[0]*RIGHT + coord[1]*DOWN)
+		for ad, coord in ad_coord_dict.items()
+		})
+
+	def get_edge(node1,node2):
+		def closest_circle_points(c1, c2, r):
+			dx, dy = c2[0] - c1[0], c2[1] - c1[1]
+			import math
+			dist = math.hypot(dx, dy)
+			nx, ny = dx / dist, dy / dist
+			return (c1[0] + nx * r, c1[1] + ny * r, 0), (c2[0] - nx * r, c2[1] - ny * r, 0)
+		c1 = node1.get_center()
+		c2 = node2.get_center()
+		r = node1.get_width() / 2
+		return Line(*closest_circle_points(c1,c2,r), stroke_color=color, stroke_width=stroke_width)
+	
+	Edges = VDict({
+		ad : get_edge(Nodes[ad], Nodes[ad[:-1]])
+		for ad in addresses
+		if ad != ''
+	})
+
+	result = VGroup(Nodes, Edges)
+
+	if show_addresses: # This has stopped working for some reason
+		def get_address_label(address):
+			from MF_Tools.dual_compatibility import ORANGE
+			label = Text(str(address)).set_color(ORANGE)
+			node = Nodes[address]
+			scale_to_fit_mobject(label, node)
+			label.scale(1).next_to(node, DOWN, buff=-0.1)
+			return label
+		
+		Addresses = VGroup(*[
+			get_address_label(ad)
+			for ad in addresses
+			if ad != ''
+		])
+		
+		result.add(Addresses)
+
+	result.center()
+	return result
+
+
+def debug_expression(expr, scene):
+	from MF_Tools.dual_compatibility import VGroup, DOWN
+	scene.clear()
+	scene.add(VGroup(expr.mob, get_graph_mobject(expr)).arrange(DOWN,buff=1))
+	print_info(expr)
 
