@@ -1851,7 +1851,3 @@ class SystemOfEquations(Scene):
 		Eq1.align_on_
 
 
-
-class Demo(Scene):
-	def construct(self):
-		D = DecimalNumber()

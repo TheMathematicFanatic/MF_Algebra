@@ -546,3 +546,13 @@ class GraphScene(SelectionScene):
 		self.add(self.timeline.mob)
 		self.embed()
 
+
+class ChestnutIntegral(SelectionScene):
+	def construct(self):
+		numerator = 1 + (x**2*e**x + e**x)
+		denominator = x**2 + 1
+		problem = Integral(0,2)((numerator/denominator)*dx)
+		self.timeline = Timeline() >> problem
+		self.embed()
+
+

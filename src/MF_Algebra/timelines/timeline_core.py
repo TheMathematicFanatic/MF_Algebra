@@ -209,34 +209,8 @@ class Timeline(MF_Base):
 		return self
 
 	def get_mob_ladder(self):
-		from MF_Tools.dual_compatibility import VGroup, ArcBetweenPoints, RIGHT, Text, ORANGE
-		ladder = VGroup()
-		mobs = self.get_vgroup().copy()
-		ladder.expressions = mobs.arrange(DOWN, buff=1, aligned_edge=RIGHT)
-		ladder.arrows = VGroup(*[
-			ArcBetweenPoints(
-				np.array([mobs.get_edge_center(RIGHT)[0], m1.get_center()[1]-0.1, 0]),
-				np.array([mobs.get_edge_center(RIGHT)[0], m2.get_center()[1]+0.1, 0]),
-				angle = -3/4*PI
-			).shift(0.5*RIGHT).set_stroke(width=2, opacity=0.5)
-			for m1, m2 in zip(mobs[:-1], mobs[1:])
-		])
-		ladder.actions = VGroup(*[
-			Text(repr(act)).scale(0.6).next_to(arrow, RIGHT, buff=0.25)
-			for act, arrow in zip(self.actions, ladder.arrows)
-		])
-		ladder.addressmaps = VGroup(*[
-			VGroup(*[
-				Text(str(entry)).set_color(ORANGE)
-				for entry in addressmap
-			]).arrange(DOWN).scale(0.25).next_to(ladder.actions[i], DOWN)
-			for i, addressmap in enumerate([
-				act.get_addressmap(exp)
-				for exp, act in zip(self.expressions[:-1], self.actions)
-			])
-		])
-		ladder.add(ladder.expressions, ladder.arrows, ladder.actions, ladder.addressmaps)
-		return ladder
+		from ..utils import get_mob_ladder
+		return get_mob_ladder(self)
 	
 	def save_to_file(self, filename):
 		from ..utils import save_to_file
