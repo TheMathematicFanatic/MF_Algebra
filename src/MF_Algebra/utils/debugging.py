@@ -289,7 +289,7 @@ def _tree_layout(addresses, x_spacing=0.5, y_spacing=1.0, node_widths=None): # A
 
 
 def get_graph_mobject(expr, color='#FFFFFF', stroke_width=2, show_addresses=True):
-	from MF_Tools.dual_compatibility import VDict, VGroup, dc_Tex, Text, Circle, Line, RIGHT, DOWN
+	from MF_Tools.dual_compatibility import VDict, VGroup, dc_Tex, Circle, Line, RIGHT, DOWN
 	from MF_Tools import scale_to_fit_mobject
 
 	addresses = expr.get_all_addresses()
@@ -353,8 +353,8 @@ def get_graph_mobject(expr, color='#FFFFFF', stroke_width=2, show_addresses=True
 
 	if show_addresses: # This has stopped working for some reason
 		def get_address_label(address):
-			from MF_Tools.dual_compatibility import ORANGE
-			label = Text(str(address)).set_color(ORANGE)
+			from MF_Tools.dual_compatibility import ORANGE, dc_TexText
+			label = dc_TexText(str(address)).set_color(ORANGE)
 			node = Nodes[address]
 			scale_to_fit_mobject(label, node)
 			label.scale(1).next_to(node, DOWN, buff=-0.1)
@@ -385,13 +385,13 @@ def debug_expression(expr, scene):
 
 def get_mob_ladder(timeline):
 	from MF_Tools.dual_compatibility import VGroup, ArcBetweenPoints, RIGHT, LEFT, Text, ORANGE, DOWN, np, PI
-	from MF_Tools import scale_to_fit_mobject
+	from MF_Tools import scale_to_fit
 	ladder = VGroup()
 	mobs = timeline.get_vgroup().copy()
 	ladder.expressions = mobs.arrange(DOWN, buff=1, aligned_edge=RIGHT)
 	ladder.graphs = VGroup(*[
-		scale_to_fit_mobject(
-			get_graph_mobject(exp), mob
+		scale_to_fit(
+			get_graph_mobject(exp), len_y=mob.get_height(), buff=0
 		).next_to(mob, LEFT, buff=1).scale(1.2)
 		for exp, mob in zip(timeline.expressions, mobs)
 	])
@@ -408,14 +408,23 @@ def get_mob_ladder(timeline):
 		for act, arrow in zip(timeline.actions, ladder.arrows)
 	])
 	ladder.addressmaps = VGroup(*[
-		VGroup(*[
-			Text(str(entry)).set_color(ORANGE)
-			for entry in addressmap
-		]).arrange(DOWN).scale(0.25).next_to(ladder.actions[i], DOWN)
+		scale_to_fit(
+			VGroup(*[
+				Text(str(entry)).set_color(ORANGE)
+				for entry in addressmap
+			]).arrange(DOWN),
+			len_y = (
+				ladder.actions[i].get_center()[1] - ladder.actions[i+1].get_center()[1]
+				if i + 1 < len(ladder.actions)
+				else ladder.actions[i-1].get_center()[1] - ladder.actions[i].get_center()[1]
+			)*0.8
+		).next_to(ladder.actions[i], DOWN)
 		for i, addressmap in enumerate([
 			act.get_addressmap(exp)
 			for exp, act in zip(timeline.expressions[:-1], timeline.actions)
 		])
 	])
+
+
 	ladder.add(ladder.graphs, ladder.expressions, ladder.arrows, ladder.actions, ladder.addressmaps)
 	return ladder
