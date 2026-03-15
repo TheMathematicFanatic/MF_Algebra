@@ -289,7 +289,8 @@ def _tree_layout(addresses, x_spacing=0.5, y_spacing=1.0, node_widths=None): # A
 
 
 def get_graph_mobject(expr, color='#FFFFFF', stroke_width=2, show_addresses=True):
-	from MF_Tools.dual_compatibility import VDict, VGroup, dc_Tex, Circle, Line, RIGHT, DOWN
+	from MF_Tools.dual_compatibility import VDict, VGroup, dc_Tex, Circle, Line
+	from MF_Tools.dual_compatibility import UP, DOWN, LEFT, RIGHT
 	from MF_Tools import scale_to_fit_mobject
 
 	addresses = expr.get_all_addresses()
@@ -338,9 +339,9 @@ def get_graph_mobject(expr, color='#FFFFFF', stroke_width=2, show_addresses=True
 			dist = math.hypot(dx, dy)
 			nx, ny = dx / dist, dy / dist
 			return (c1[0] + nx * r, c1[1] + ny * r, 0), (c2[0] - nx * r, c2[1] - ny * r, 0)
-		c1 = node1.get_center()
-		c2 = node2.get_center()
-		r = node1.get_width() / 2
+		c1 = node1[0].get_center()
+		c2 = node2[0].get_center()
+		r = node1[0].get_width() / 2
 		return Line(*closest_circle_points(c1,c2,r), stroke_color=color, stroke_width=stroke_width)
 	
 	Edges = VDict({
@@ -353,11 +354,11 @@ def get_graph_mobject(expr, color='#FFFFFF', stroke_width=2, show_addresses=True
 
 	if show_addresses: # This has stopped working for some reason
 		def get_address_label(address):
-			from MF_Tools.dual_compatibility import ORANGE, dc_TexText
-			label = dc_TexText(str(address)).set_color(ORANGE)
+			from MF_Tools.dual_compatibility import ORANGE, Text
+			label = Text(str(address)).set_color(ORANGE)
 			node = Nodes[address]
-			scale_to_fit_mobject(label, node)
-			label.scale(1).next_to(node, DOWN, buff=-0.1)
+			scale_to_fit_mobject(label, node, buff=0)
+			label.scale(0.2).next_to(node, UP, buff=0.1)
 			return label
 		
 		Addresses = VGroup(*[
@@ -417,7 +418,8 @@ def get_mob_ladder(timeline):
 				ladder.actions[i].get_center()[1] - ladder.actions[i+1].get_center()[1]
 				if i + 1 < len(ladder.actions)
 				else ladder.actions[i-1].get_center()[1] - ladder.actions[i].get_center()[1]
-			)*0.8
+			)*0.8,
+			buff=0
 		).next_to(ladder.actions[i], DOWN)
 		for i, addressmap in enumerate([
 			act.get_addressmap(exp)
