@@ -556,3 +556,13 @@ class ChestnutIntegral(SelectionScene):
 		self.embed()
 
 
+class SeriesAdder(SelectionScene):
+	def construct(self):
+		self.timeline = Timeline()
+		self.series = Sum(n,0,inf)(1/n**2)
+	
+	def show_terms(self):
+		pass
+
+
+

@@ -1851,3 +1851,42 @@ class SystemOfEquations(Scene):
 		Eq1.align_on_
 
 
+class Clock(Scene):
+	def construct(self):
+		from MF_Tools import VT, DN, Vcis
+		Clock = VGroup(
+			Circle(radius=12),
+			*[
+				Tex(str(n)).move_to(10.5*Vcis(n/12*TAU, clockwise=True)).scale(5)
+				for n in range(1,13)
+			]
+		).set_color(WHITE)
+		
+		t_val = VT(0)
+		H = always_redraw(lambda: Line(ORIGIN, 5*Vcis(~t_val*TAU/12, clockwise=True), color=RED))
+		M = always_redraw(lambda: Line(ORIGIN, 10*Vcis(~t_val*TAU, clockwise=True), color=BLUE))
+		D = always_redraw(lambda: Line(H.get_end(), M.get_end(), color=GREEN))
+		t = DN(t_val)
+		d = DN(lambda: D.get_length(), color=GREEN)
+		d.to_corner(UL).fix_in_frame()
+		
+		self.add(H,M,D,Clock, d)
+
+		frame = self.camera.frame
+		self.play(frame.animate.scale(3))
+		self.play(t_val @ 12, run_time=30, rate_func=linear)
+		self.embed()
+
+class Patreon0(Scene):
+	def construct(self):
+		(Timeline(auto_color={x:RED,y:BLUE},auto_fit=[10,6,None])
+		>> 4*x**2-7
+		>> reciprocal_()
+		>> add_(6)
+		>> equals_(y)
+		>> Solve(x)
+		>> substitute_({y:10})
+		>> Evaluate()
+		).play_all(self, wait_between=0.5)
+
+
