@@ -57,7 +57,7 @@ class Evaluate(AutoTimeline):
 
 
 class Solve(AutoTimeline):
-	def __init__(self, solve_for=None, first_expression=None, preferred_side=None, auto_evaluate=True, **kwargs):
+	def __init__(self, solve_for=None, first_expression=None, preferred_side='left', auto_evaluate=True, **kwargs):
 		super().__init__(**kwargs)
 		self.solve_for = solve_for
 		self.auto_evaluate = auto_evaluate

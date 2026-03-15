@@ -41,19 +41,24 @@ class Timeline(MF_Base):
 			return None
 
 	def set_expression(self, index: int, expression: Expression):
+		if index == len(self.steps):
+			self.add_expression_to_end(expression)
+		self.steps[index][0] = expression
+		if self.auto_propagate:
+			self.propagate(start_at=index)
+		self.apply_aesthetics_to_expression(index)
+
+
+	def apply_aesthetics_to_expression(self, index):
+		expression = self.expressions[index]
 		if self.auto_color:
 			expression.set_color_by_subex(self.auto_color)
 		if any(self.auto_fit):
 			expression.mob.scale_to_fit(*self.auto_fit)
 		elif self.auto_scale != 1:
 			expression.mob.scale(self.auto_scale)
-		if index == len(self.steps):
-			self.add_expression_to_end(expression)
-		self.steps[index][0] = expression
-		if self.auto_propagate:
-			self.propagate(start_at=index)
 		if self.maintain_position and len(self.expressions) > 1:
-			self.expressions[-1].mob.move_to(self.expressions[-2].mob)
+			self.expressions[index].mob.move_to(self.expressions[-2].mob)
 
 	def add_expression_to_start(self, expression: Expression):
 		if len(self.steps) == 0 or self.steps[0][0] is not None:
@@ -198,7 +203,7 @@ class Timeline(MF_Base):
 	def reset_caches(self):
 		for i,exp in enumerate(self.expressions):
 			exp.reset_caches()
-			# self.set_expression(i, exp)
+			self.set_expression(i, exp)
 
 	def align_on_equals(self, strength=1):
 		self.get_vgroup()
@@ -241,6 +246,25 @@ class Timeline(MF_Base):
 		timeline >> expr
 		return timeline.expressions[-1]
 
+	def combine_timelines(self, other):
+		last_exp = self.expressions[-1]
+		other = last_exp >> other
+		self.steps.pop()
+
+		save_auto_propagate = self.auto_propagate
+		self.auto_propagate = False
+		if hasattr(self,'suspend'):
+			self.suspend()
+
+		for exp, act in other.steps:
+			self.add_expression_to_end(exp)
+			self.add_action_to_end(act)
+
+		self.auto_propagate = save_auto_propagate
+		if hasattr(self,'resume'):
+			self.resume()
+
+		return self
 
 
 class TimelineScene(Scene):
