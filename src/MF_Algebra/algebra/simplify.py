@@ -150,7 +150,7 @@ class pow_mul_(SimplificationRule):
 	template1 = x**a * x**b
 	template2 = x**(a+b)
 	addressmap = [['*', '1+']]
-	var_kwarg_dict = {x:{'path_arc':-2}}
+	var_kwarg_dict = {x:{'path_arc':2}}
 
 class pow_div_(SimplificationRule):
 	template1 = x**a / x**b

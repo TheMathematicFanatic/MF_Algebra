@@ -101,3 +101,17 @@ class substitute_into_(Action):
 	
 	def get_animation(self, *args, **kwargs):
 		return super().get_animation(*args, auto_fade=True, auto_resolve_delay=0.75, **kwargs)
+
+
+
+
+class replace_with_(Action):
+	def __init__(self, expression, **kwargs):
+		self.expression = expression
+		super().__init__(**kwargs)
+	
+	def get_output_expression(self, input_expression):
+		return self.expression
+	
+	def get_addressmap(self, input_expression=None):
+		return [['', '']]

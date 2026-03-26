@@ -43,16 +43,30 @@ class wrap_subex_(rewrap_subex_):
 
 
 
-class unwrap_subex_(rewrap_subex_):
-	def __init__(self,
-		outer_exp,
-		target_subex,
-		**kwargs
-	):
-		super().__init__(
-			start_exp = outer_exp,
-			end_exp = target_subex,
-			target_subex = target_subex,
-			**kwargs
-		)
+# class unwrap_subex_(rewrap_subex_):
+# 	def __init__(self,
+# 		outer_exp,
+# 		target_subex,
+# 		**kwargs
+# 	):
+# 		super().__init__(
+# 			start_exp = outer_exp,
+# 			end_exp = target_subex,
+# 			target_subex = target_subex,
+# 			**kwargs
+# 		)
 
+from ..actions import Action
+class unwrap_subex_(Action):
+	def __init__(self, address, **kwargs):
+		self.address = address
+		super().__init__(**kwargs)
+	
+	def get_output_expression(self, input_expression):
+		return input_expression.get_subex(self.address)
+	
+	def get_addressmap(self, input_expression, **kwargs):
+		return [
+			[self.address, ''],
+			['!'+self.address, []]
+		]

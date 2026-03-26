@@ -54,7 +54,7 @@ class Timeline(MF_Base):
 		if self.auto_color:
 			expression.set_color_by_subex(self.auto_color)
 		if any(self.auto_fit):
-			expression.mob.scale_to_fit(*self.auto_fit)
+			expression.mob.scale_to_fit(*self.auto_fit, max_scale=3)
 		elif self.auto_scale != 1:
 			expression.mob.scale(self.auto_scale)
 		if self.maintain_position and len(self.expressions) > 1:

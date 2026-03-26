@@ -323,8 +323,7 @@ def get_graph_mobject(expr, color='#FFFFFF', stroke_width=2, show_addresses=True
 	def get_node(expr):
 		tex = dc_Tex(get_symbol(expr))
 		circle = Circle(stroke_color=color, stroke_width=stroke_width)
-		scale_to_fit_mobject(tex, circle)
-		tex.scale(0.8)
+		scale_to_fit_mobject(tex, circle, scaleback=0.7)
 		return VGroup(circle, tex).scale(0.25)
 
 	Nodes = VDict({
@@ -392,7 +391,7 @@ def get_mob_ladder(timeline):
 	ladder.expressions = mobs.arrange(DOWN, buff=1, aligned_edge=RIGHT)
 	ladder.graphs = VGroup(*[
 		scale_to_fit(
-			get_graph_mobject(exp), len_y=mob.get_height(), buff=0
+			get_graph_mobject(exp), len_y=mob.get_height(), max_scale=1.5,
 		).next_to(mob, LEFT, buff=1).scale(1.2)
 		for exp, mob in zip(timeline.expressions, mobs)
 	])
@@ -419,7 +418,9 @@ def get_mob_ladder(timeline):
 				if i + 1 < len(ladder.actions)
 				else ladder.actions[i-1].get_center()[1] - ladder.actions[i].get_center()[1]
 			)*0.8,
-			buff=0
+			buff=0.1,
+			scaleback=0.9,
+			max_scale=1,
 		).next_to(ladder.actions[i], DOWN)
 		for i, addressmap in enumerate([
 			act.get_addressmap(exp)

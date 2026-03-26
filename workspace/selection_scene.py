@@ -206,16 +206,6 @@ pyth = (sin**2)(t) + (cos**2)(t)
 
 
 
-class replace_with_(Action):
-	def __init__(self, expression, **kwargs):
-		self.expression = expression
-		super().__init__(**kwargs)
-	
-	def get_output_expression(self, input_expression):
-		return self.expression
-	
-	def get_addressmap(self, input_expression=None):
-		return [['', '']]
 
 
 
