@@ -1,12 +1,12 @@
 from .action_core import Action
-from ..expressions.combiners.operations import Add, Sub, Mul, Div, Pow
+from ..expressions.combiners.operations import Add, Sub, Mul, Div, Pow, Negative
 from ..expressions.combiners.relations import Equation
 from ..expressions.functions.functions import ApplyFunction
 from ..utils import Smarten
 from MF_Tools.dual_compatibility import Write
 
 
-class apply_operation_(Action):
+class apply_binary_operation_(Action):
 	OpClass = None
 	side = 'right'
 	introducer = Write
@@ -47,25 +47,48 @@ class apply_operation_(Action):
 		return type(self).__name__ + '(' + str(self.other) + ')'
 
 
-class add_(apply_operation_):
+class add_(apply_binary_operation_):
 	OpClass = Add
 
-class sub_(apply_operation_):
+class sub_(apply_binary_operation_):
 	OpClass = Sub
 
-class mul_(apply_operation_):
+class mul_(apply_binary_operation_):
 	OpClass = Mul
 
-class div_(apply_operation_):
+class div_(apply_binary_operation_):
 	OpClass = Div
 
-class pow_(apply_operation_):
+class pow_(apply_binary_operation_):
 	OpClass = Pow
 
-class equals_(apply_operation_):
+class equals_(apply_binary_operation_):
 	OpClass = Equation
 
-class apply_func_(apply_operation_):
+class apply_func_(apply_binary_operation_):
 	OpClass = ApplyFunction
 	side = 'left'
 
+
+class apply_unary_operation_(Action):
+	OpClass = None
+	introducer = Write
+
+	def __init__(self, OpClass=None, introducer=None, **kwargs):
+		self.OpClass = OpClass or self.OpClass
+		self.introducer = introducer or self.introducer
+		super().__init__(**kwargs)
+
+	def get_output_expression(self, input_expression):
+		return self.OpClass(input_expression)
+
+	def get_addressmap(self, input_expression):
+		return [
+			['', '0'],
+			[[], '+', {'delay':0.5}],
+		]
+
+
+class negate_(apply_unary_operation_):
+	OpClass = Negative
+	introducer = Write
