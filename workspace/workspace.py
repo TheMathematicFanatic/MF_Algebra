@@ -1890,3 +1890,12 @@ class Patreon0(Scene):
 		).play_all(self, wait_between=0.5)
 
 
+from MF_Algebra import Action
+class fibonacci_(Action):
+	def get_output_expression(self, input_expression):
+		assert isinstance(input_expression, Sequence) and len(input_expression.children) >= 2
+		last1,last2 = input_expression.children[-2:]
+		input_expression.children.append(last1+last2)
+		return input_expression
+	
+

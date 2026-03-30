@@ -7,7 +7,7 @@ class CoolBase(ABC):
                 setattr(cls, k, v)
             else:
                 raise TypeError(f"{k} is not a valid attribute")
-        return super().__new__(cls, *args, **kwargs)
+        return super().__new__(*args, **kwargs)
 
 
 class CoolClass(CoolBase):
