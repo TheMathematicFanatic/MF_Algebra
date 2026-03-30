@@ -1,9 +1,9 @@
 from ..expressions.expression_core import Expression
 from ..expressions.combiners.operations import Mul
-from .animations import TransformByAddressMap
-from MF_Tools.dual_compatibility import Write, FadeIn, FadeOut, TransformMatchingTex
+from MF_Tools import TransformByGlyphMap, AnimationGroup, Write, FadeIn, FadeOut, TransformMatchingTex
 from ..utils import MF_Base, apply_addressmap
 from functools import wraps
+from copy import deepcopy
 
 
 class Action(MF_Base):
@@ -13,13 +13,15 @@ class Action(MF_Base):
 	remove_kwargs = {'run_time':0.5}
 	preaddress = ''
 	def __init__(self,
-		introducer=None,
-		remover=None,
-		preaddress=''
+		introducer = None,
+		remover = None,
+		preaddress = '',
+		extra_animations = [],
 	):
 		self.introducer = introducer or self.introducer
 		self.remover = remover or self.remover
 		self.preaddress = preaddress or self.preaddress
+		self.extra_animations = extra_animations
 
 	def get_output_expression(self, input_expression):
   		# define in subclasses
@@ -32,31 +34,51 @@ class Action(MF_Base):
 
 	### Animating ###
 
+	def get_glyphmap(self, expA, expB, addressmap):
+		glyphmap = [
+			(
+				expA.get_glyphs_at_address(entry[0]) if isinstance(entry[0], str) else entry[0],
+				expB.get_glyphs_at_address(entry[1]) if isinstance(entry[1], str) else entry[1],
+				deepcopy(entry[2]) if len(entry) > 2 else {} # deepcopy needed because dicts are mutable
+			)
+			for entry in addressmap
+		]
+		return glyphmap
+
 	def get_animation(self, **kwargs):
 		def animation(input_exp, output_exp=None, **kwargs):
 			if output_exp is None:
 				output_exp = self.get_output_expression(input_exp)
-			def get_TBAM(action, input_exp, output_exp, **kwargs):
-				return TransformByAddressMap(
-					input_exp,
-					output_exp,
-					*action.get_addressmap(input_exp),
-					default_introducer=action.introducer,
-					default_remover=action.remover,
+			addressmap = self.get_addressmap(input_exp)
+			glyphmap = self.get_glyphmap(input_exp, output_exp, addressmap)
+			def get_TBGM(input_exp, output_exp, **kwargs):
+				return TransformByGlyphMap(
+					input_exp.mob,
+					output_exp.mob,
+					*glyphmap,
+					default_introducer = self.introducer,
+					default_introducer_kwargs = self.introduce_kwargs,
+					default_remover = self.remover,
+					default_remover_kwargs = self.remove_kwargs,
 					**kwargs
 				)
 			try:
-				TBAM = get_TBAM(self.copy(), input_exp.copy(), output_exp.copy())
-				assert not TBAM.show_indices, f'Invalid Glyphmap: {TBAM.glyphmap}'
-				return get_TBAM(self, input_exp, output_exp)
+				TBGM = get_TBGM(input_exp.copy(), output_exp.copy())
+				assert not TBGM.show_indices
+				TBGM = get_TBGM(input_exp, output_exp)
 			except Exception as E:
 				print('Warning: Action produced an invalid glyphmap. Falling back to TransformMatchingTex')
 				print('Exception: ', E)
 				print('Action: ', self)
 				print('Input: ', input_exp)
 				print('Output: ', output_exp)
-				print('Addressmap: ', self.get_addressmap(input_exp))
+				print('Addressmap: ', addressmap)
+				print('Glyphmap: ', glyphmap)
 				return TransformMatchingTex(input_exp.mob, output_exp.mob, **kwargs)
+			if self.extra_animations:
+				return AnimationGroup(TBGM, *self.extra_animations)
+			else:
+				return TBGM
 		return animation
 
 	def __call__(self, expr1, expr2=None, **kwargs):
