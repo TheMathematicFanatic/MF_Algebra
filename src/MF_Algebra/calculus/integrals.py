@@ -12,7 +12,7 @@ class DefiniteIntegral(IntegralOperator):
 		lambda self: '\\limits' if self.vertical_bounds else '',
 		'_', c0, '^', c1, arg
 		]
-	glyph_code = [c1, 1, c0, arg]
+	glyph_code = [1, c1, c0, arg]
 	def __init__(self,
 		start,
 		end,
