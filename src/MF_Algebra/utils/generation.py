@@ -1,3 +1,4 @@
+import numpy as np
 
 def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per_node=2, **kwargs):
 	import random

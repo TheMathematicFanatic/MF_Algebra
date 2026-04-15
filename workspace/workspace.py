@@ -1899,3 +1899,16 @@ class fibonacci_(Action):
 		return input_expression
 	
 
+class Full(Scene):
+	def construct(self):
+		algebra_config['always_color'] = {x:RED, t:BLUE_E, n:GOLD, theta:PURPLE, dx:RED_B, dt:BLUE_B}
+		FullTimeline = load_from_file('/Users/johnconnell/Library/Application Support/SymPlay/saved_objects/FullScribble')
+		FullTimeline.play_all(self)
+
+
+class CheckSomething(Scene):
+	def construct(self):
+		T = x**2 + y**2 >> div_(3)
+		T.play_all(self)
+
+# CheckSomething().construct()
