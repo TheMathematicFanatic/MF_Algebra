@@ -642,15 +642,23 @@ class ExpressionContainer:
 	# a,b,c = Variables('abc')
 	# mu,chi,psi = Variables('\\mu', '\\chi', '\\psi')
 	# A,B,C = Sets('ABC')
-	# Note that their glyph length will not be passed.
+	# Note that their glyph length will be assumed to be 1 unless otherwise passed.
 	expression_type = Expression
-	def __init__(self, *strings):
+	default_glyph_length = 1
+	def __init__(self, *strings, glyph_length=None):
 		if len(strings) == 1:
 			strings = strings[0]
+		self.glyph_length = glyph_length or self.default_glyph_length
 		self.elements = self.generate_elements(*strings)
 	
 	def generate_elements(self, *strings):
-		return [self.expression_type(symbol=s) for s in strings]
+		return [
+			self.expression_type(
+				symbol = s,
+				symbol_glyph_length = self.glyph_length
+			)
+			for s in strings
+		]
 	
 	def __iter__(self):
 		return (exp for exp in self.elements)
