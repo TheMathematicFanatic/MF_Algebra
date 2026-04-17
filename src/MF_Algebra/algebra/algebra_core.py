@@ -65,9 +65,6 @@ class AlgebraicAction(Action):
 
 	def __repr__(self):
 		return f'{self.__class__.__name__}({self.template1}, {self.template2})'
-	
-	def get_animation(self, *args, **kwargs):
-		return super().get_animation(*args, auto_fade=True, auto_resolve_kwargs={'delay':0.1}, **kwargs)
 
 	def reverse(self):
 		# swaps input and output templates

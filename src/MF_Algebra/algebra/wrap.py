@@ -12,9 +12,9 @@ class rewrap_subex_(AlgebraicAction):
 		target_subex:Expression = None,
 		**kwargs
 	):
-		self.target_subex = target_subex
 		self.start_exp = start_exp
 		self.end_exp = end_exp
+		self.target_subex = target_subex
 		self.start_ads = start_exp.get_addresses_of_subex(target_subex)
 		self.end_ads = end_exp.get_addresses_of_subex(target_subex)
 		super().__init__(self.start_exp, self.end_exp, **kwargs)

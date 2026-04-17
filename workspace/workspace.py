@@ -1908,7 +1908,16 @@ class Full(Scene):
 
 class CheckSomething(Scene):
 	def construct(self):
-		T = x**2 + y**2 >> div_(3)
+		T = x**2 + y**2 >> div_(3) >> swap >> mul_(x).pread('0') >> substitute_({x:2}) >> evaluate_().pread('0')
 		T.play_all(self)
+		self.embed()
 
-# CheckSomething().construct()
+
+class CheckSomethingElse(Scene):
+	def construct(self):
+		geo_sum = rewrap_subex_(Sum(n,0,inf)(x**n), 1/(1-x), x)
+		T = Sum(n,0,inf)(x**n) >> substitute_({x:0.6}) >> geo_sum >> Evaluate()
+		sin_sum = rewrap_subex_(sin(x), Taylor(sin, x), x)
+		T >> add_(z) >> apply_func_(sin) >> sin_sum
+		T.play_all(self)
+		self.embed()

@@ -11,7 +11,7 @@ class Action(MF_Base):
 	introduce_kwargs = {'run_time':0.5, 'delay':0.5}
 	remover = FadeOut
 	remove_kwargs = {'run_time':0.5}
-	auto_morph = False
+	auto_morph = True
 	auto_resolve_kwargs = {}
 	preaddress = ''
 	def __init__(self,
@@ -47,13 +47,14 @@ class Action(MF_Base):
 		]
 		return glyphmap
 
-	def get_animation(self, **kwargs):
+	def get_animation(self, **base_kwargs):
 		def animation(input_exp, output_exp=None, **kwargs):
+			kwargs = {**base_kwargs, **kwargs}
 			if output_exp is None:
 				output_exp = self.get_output_expression(input_exp)
 			addressmap = self.get_addressmap(input_exp)
 			glyphmap = self.get_glyphmap(input_exp, output_exp, addressmap)
-			def get_TBGM(input_exp, output_exp, **kwargs):
+			def get_TBGM(input_exp, output_exp):
 				return TransformByGlyphMap(
 					input_exp.mob,
 					output_exp.mob,
@@ -62,7 +63,7 @@ class Action(MF_Base):
 					default_introducer_kwargs = self.introduce_kwargs,
 					default_remover = self.remover,
 					default_remover_kwargs = self.remove_kwargs,
-					auto_morph = True,
+					auto_morph = self.auto_morph,
 					auto_resolve_kwargs = self.auto_resolve_kwargs,
 					**kwargs
 				)
@@ -78,7 +79,7 @@ class Action(MF_Base):
 				print('Output: ', output_exp)
 				print('Addressmap: ', addressmap)
 				print('Glyphmap: ', glyphmap)
-				return TransformMatchingTex(input_exp.mob, output_exp.mob, **kwargs)
+				return TransformMatchingTex(input_exp.mob, output_exp.mob)
 			if self.extra_animations:
 				return AnimationGroup(TBGM, *self.extra_animations)
 			else:
