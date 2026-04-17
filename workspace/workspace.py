@@ -1921,3 +1921,12 @@ class CheckSomethingElse(Scene):
 		T >> add_(z) >> apply_func_(sin) >> sin_sum
 		T.play_all(self)
 		self.embed()
+
+
+class CheckOneMoreThing(Scene):
+	def construct(self):
+		factor = rewrap_subex_(x**3-9*x, x*(x+3)*(x-3), x)
+		T = z**3-9*z >> factor >> substitute_({z:5}) >> Evaluate()
+		T.play_all(self)
+		self.embed()
+

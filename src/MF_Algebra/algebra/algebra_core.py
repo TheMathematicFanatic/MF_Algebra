@@ -14,6 +14,7 @@ class AlgebraicAction(Action):
 	auto_addressmap = True
 	var_condition_dict = {}       # Example {c: lambda exp: isinstance(exp, Number)}
 	var_kwarg_dict = {}           # Example {a:{'path_arc':PI}}
+	auto_morph = True
 
 	def __init__(self,
 		template1=None,

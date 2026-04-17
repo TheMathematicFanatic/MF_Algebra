@@ -144,6 +144,67 @@ class log_exp_(SimplificationRule):
 
 
 
+# Distribution
+# I'd really like to generalize all these to a single action class for all
+# compatible operation types and any number of children, but I haven't been
+# able to figure that out yet and I have practical need now.
+
+class dist_mul_add_L_(SimplificationRule):
+	template1 = a*(x+y)
+	template2 = a*x+a*y
+	addressmap = [['*', []], [[], '0*'], [[], '1*']]
+	var_kwarg_dict = {a:{'path_arc':-3}}
+
+class dist_mul_add_R_(SimplificationRule):
+	template1 = (x+y)*a
+	template2 = x*a+y*a
+	addressmap = [['*', []], [[], '0*'], [[], '1*']]
+	var_kwarg_dict = {a:{'path_arc':3}}
+
+class dist_mul_sub_L_(SimplificationRule):
+	template1 = a*(x-y)
+	template2 = a*x-a*y
+	addressmap = [['*', []], [[], '0*'], [[], '1*']]
+	var_kwarg_dict = {a:{'path_arc':-3}}
+
+class dist_mul_sub_R_(SimplificationRule):
+	template1 = (x-y)*a
+	template2 = x*a-y*a
+	addressmap = [['*', []], [[], '0*'], [[], '1*']]
+	var_kwarg_dict = {a:{'path_arc':3}}
+
+class dist_neg_add_(SimplificationRule):
+	template1 = -(x+y)
+	template2 = -x-y
+	addressmap = [['-', '0-'], ['-', '-', {'path_arc':-2}]]
+
+class dist_neg_sub_(SimplificationRule):
+	template1 = -(x-y)
+	template2 = -x+y
+	addressmap = [['-', '0-'], ['-', '+', {'path_arc':-2}], ['0-', '+']]
+
+class dist_div_add_(SimplificationRule):
+	template1 = (x+y)/a
+	template2 = x/a+y/a
+	addressmap = [['/', '0/'], ['/', '1/']]
+
+class dist_div_sub_(SimplificationRule):
+	template1 = (x-y)/a
+	template2 = x/a-y/a
+	addressmap = [['/', '0/'], ['/', '1/']]
+
+class dist_pow_mul_(SimplificationRule):
+	template1 = (x*y)**a
+	template2 = x**a * y**a
+	addressmap = [['0*', '*']]
+
+class dist_pow_div_(SimplificationRule):
+	template1 = (x/y)**a
+	template2 = x**a / y**a
+	addressmap = [['0/', '/']]
+
+
+
 # Exponent Properties
 
 class pow_mul_(SimplificationRule):
@@ -157,16 +218,6 @@ class pow_div_(SimplificationRule):
 	template2 = x**(a-b)
 	addressmap = [['/', '1-']]
 	var_kwarg_dict = {x:{'path_arc':-2}}
-
-class mul_pow_(SimplificationRule):
-	template1 = (a*b)**n
-	template2 = a**n * b**n
-	addressmap = [['0*', '*']]
-
-class div_pow_(SimplificationRule):
-	template1 = (a/b)**n
-	template2 = a**n / b**n
-	addressmap = [['0/', '/']]
 
 class pow_pow_(SimplificationRule):
 	template1 = (x**a)**b

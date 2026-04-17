@@ -11,7 +11,7 @@ class Action(MF_Base):
 	introduce_kwargs = {'run_time':0.5, 'delay':0.5}
 	remover = FadeOut
 	remove_kwargs = {'run_time':0.5}
-	auto_morph = True
+	auto_morph = False
 	auto_resolve_kwargs = {}
 	preaddress = ''
 	def __init__(self,
