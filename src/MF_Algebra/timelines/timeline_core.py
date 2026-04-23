@@ -128,8 +128,8 @@ class Timeline(MF_Base):
 		if self.show_past_steps:
 			self.shift_past_steps(scene, expA, expB)
 		animation = self.get_animation(index, **kwargs)
-		scene.play(animation)
 		self.current_exp_index = index+1
+		scene.play(animation)
 
 	def play_next(self, scene):
 		self.play_animation(scene, index=self.current_exp_index)
