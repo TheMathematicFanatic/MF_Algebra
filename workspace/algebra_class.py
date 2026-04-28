@@ -322,3 +322,10 @@ class GraphLineFromIntercepts(Scene):
 
 
 
+
+
+class UnitCircle(Scene):
+	def construct(self):
+		circle = Circle()
+		self.add(circle)
+		theta = ValueTracker(0)

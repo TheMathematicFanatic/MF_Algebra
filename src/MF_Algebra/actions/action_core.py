@@ -11,7 +11,7 @@ class Action(MF_Base):
 	introduce_kwargs = {'run_time':0.5, 'delay':0.5}
 	remover = FadeOut
 	remove_kwargs = {'run_time':0.5}
-	auto_morph = False
+	auto_morph = True
 	auto_resolve_kwargs = {}
 	preaddress = ''
 	def __init__(self,
@@ -200,7 +200,7 @@ class Action(MF_Base):
 		return wrapper
 
 	@staticmethod
-	def autoparenmap(getmap, mode='stupid'):
+	def autoparenmap(getmap, mode='none'):
 		if mode == 'none':
 			return getmap
 		if mode == 'stupid':

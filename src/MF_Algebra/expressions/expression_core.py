@@ -379,7 +379,12 @@ class Expression(MF_Base):
 			from .functions.functions import Composition
 			return Composition(self, other)
 		else:
-			return NotImplemented
+			from .combiners import Eml
+			return Eml(self, other)
+
+	def __rmatmul__(self, other):
+		from .combiners import Eml
+		return Eml(other, self)
 
 
 	### Parentheses ###
