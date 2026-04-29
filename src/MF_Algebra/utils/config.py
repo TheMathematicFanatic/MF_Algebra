@@ -10,4 +10,5 @@ algebra_config = {
 	'fast_paren_length': True,
 	'fast_glyph_count': True,
 	'fast_root_length': True,
+	'autoparenmap_mode': 'stupid'
 }

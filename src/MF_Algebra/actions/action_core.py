@@ -1,7 +1,7 @@
 from ..expressions.expression_core import Expression
 from ..expressions.combiners.operations import Mul
 from MF_Tools import TransformByGlyphMap, AnimationGroup, Write, FadeIn, FadeOut, TransformMatchingTex
-from ..utils import MF_Base, apply_addressmap
+from ..utils import MF_Base, apply_addressmap, algebra_config
 from functools import wraps
 from copy import deepcopy
 
@@ -200,7 +200,9 @@ class Action(MF_Base):
 		return wrapper
 
 	@staticmethod
-	def autoparenmap(getmap, mode='none'):
+	def autoparenmap(getmap, mode=None):
+		if mode is None:
+			mode = algebra_config['autoparenmap_mode']
 		if mode == 'none':
 			return getmap
 		if mode == 'stupid':
