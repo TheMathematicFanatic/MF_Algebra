@@ -26,7 +26,7 @@ ev = evaluate_()
 #     return set(strip_addressmap(addressmap1)) == set(strip_addressmap(addressmap2))
 
 
-@MFparam('in_exp, act, expected', [
+@MFparam('in_exp, act, expected_out_exp', [
 
     ('swap_add', A, swap, y**2 + x**2),
 
@@ -55,8 +55,8 @@ ev = evaluate_()
     ('substitute', A, subs, one**2 + two**2),
 
 ])
-def test_get_output_expression(in_exp, act, out_exp):
-    assert (in_exp >= act) == act.get_output_expression(in_exp) == out_exp
+def test_get_output_expression(in_exp, act, expected_out_exp):
+    assert (in_exp >= act) == act.get_output_expression(in_exp) == expected_out_exp
 
 
 # @MFparam('in_exp, act, addressmap', [
