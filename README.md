@@ -6,9 +6,9 @@ This is a Manim plugin (**still under construction**) for algebra animations tha
 - Timeline: These objects contain an alternating sequence of expressions and actions, and methods for automatically determining these sequences, and managing mobject adding/removing and action animations. For example, the Solve timeline takes an equation and tries to solve it for a certain variable, filling itself in with actions and expressions to achieve that goal.
 
 
-Documentation and tutorials coming in the future. \
+Some documentation has been created by someone I only know as Ed, see the pdf file in the parent folder. Thank you Ed! \
+Further documentation and tutorials coming in the future. For now, check in workspace for examples. \
 Please consider supporting this project! \
-For now, check in workspace for examples!
 
 
 ## Installation
