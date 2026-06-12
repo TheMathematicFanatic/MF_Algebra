@@ -1930,3 +1930,12 @@ class CheckOneMoreThing(Scene):
 		T.play_all(self)
 		self.embed()
 
+
+class LoadFullGlyph(Scene):
+	def construct(self):
+		algebra_config['always_color'] = {x:RED, u:BLUE_D, pi:PURPLE_B, e:GREEN_D}
+		timeline = load_from_file('FullGlyph')
+		assert isinstance(timeline, Timeline)
+		timeline.reset()
+		timeline.play_all(self)
+		self.embed()

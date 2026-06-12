@@ -13,7 +13,7 @@ class def_tan(TrigIdentity):
     addressmap = [['0f','00f'], ['0f','10f'], [[],'/']]
 
 class def_cot(TrigIdentity):
-    template1 = tan(t)
+    template1 = cot(t)
     template2 = cos(t)/sin(t)
     addressmap = [['0f','00f'], ['0f','10f'], [[],'/']]
 
