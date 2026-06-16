@@ -145,3 +145,43 @@ class SolveAndEvaluate(Solve, Evaluate):
 	
 	def decide_next_action(self, index):
 		return super().decide_next_action(index)
+
+
+# Frankly all Timelines need to be rearchitected
+# This shitty way of doing things is temporary (lol)
+# Just adding this so I can finally turn on the button in Symplay
+
+class Simplify(AutoTimeline):
+	def __init__(self, solve_for=None, auto_evaluate=True, **kwargs):
+		super().__init__(**kwargs)
+		self.auto_evaluate = auto_evaluate
+		self.all_actions_to_try = []
+		from ..algebra.simplify import SimplificationRule
+		for rule_ in SimplificationRule.__subclasses__():
+			self.all_actions_to_try += [
+				rule_()
+			]
+
+	def decide_next_action(self, index:int):
+		last_exp = self.get_expression(index)
+
+		if self.auto_evaluate:
+			try:
+				result = (Evaluate(last_exp)).decide_next_action(0) #bruh
+				if result is not None:
+					return result
+			except IncompatibleExpression:
+				pass
+
+		for rule in self.all_actions_to_try:
+			addresses_to_try = last_exp.get_all_addresses_of_type(type(rule.template1))
+			for ad in addresses_to_try:
+				try:
+					last_exp >= rule.pread(ad)
+					return rule.pread(ad)
+				except IncompatibleExpression:
+					pass
+
+		return None
+
+# This is horrible -_-

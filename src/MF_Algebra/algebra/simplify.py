@@ -17,6 +17,7 @@ class SimplificationRule(AlgebraicAction):
 			globals()[name[:-1]] = cls()
 		
 
+# Identities
 
 class add_zero_R_(SimplificationRule):
 	template1 = a + 0
@@ -112,15 +113,25 @@ class sub_add_(SimplificationRule):
 	template2 = a
 	addressmap = [['+0-', []]]
 
-class mul_div_(SimplificationRule):
-	template1 = a * b / b
+class mul_div_R_(SimplificationRule):
+	template1 = (a * b) / b
 	template2 = a
 	addressmap = [['/0*', []]]
 
-class div_mul_(SimplificationRule):
-	template1 = a / b * b
+class mul_div_L_(SimplificationRule):
+	template1 = (b * a) / b
+	template2 = a
+	addressmap = [['/0*', []]]
+
+class div_mul_R_(SimplificationRule):
+	template1 = (a / b) * b
 	template2 = a
 	addressmap = [['*0/', []]]
+
+class div_mul_L_(SimplificationRule):
+	template1 = b * (a / b)
+	template2 = a
+	addressmap = [['*1/', []]]
 
 class pow_root_(SimplificationRule):
 	template1 = Rad(b)(a**b)
@@ -186,12 +197,12 @@ class dist_neg_sub_(SimplificationRule):
 class dist_div_add_(SimplificationRule):
 	template1 = (x+y)/a
 	template2 = x/a+y/a
-	addressmap = [['/', '0/'], ['/', '1/']]
+	addressmap = [['/', '0/', {'run_time':0.8}], ['/', '1/', {'run_time':0.8}]]
 
 class dist_div_sub_(SimplificationRule):
 	template1 = (x-y)/a
 	template2 = x/a-y/a
-	addressmap = [['/', '0/'], ['/', '1/']]
+	addressmap = [['/', '0/', {'run_time':0.8}], ['/', '1/', {'run_time':0.8}]]
 
 class dist_pow_mul_(SimplificationRule):
 	template1 = (x*y)**a
@@ -283,10 +294,10 @@ class log_pow_(SimplificationRule):
 	addressmap = [['1^','*'], ['0f','10f']]
 	var_kwarg_dict = {a:{'path_arc':3}}
 
-class log_change_base_(SimplificationRule):
-	template1 = Log(a)(x)
-	template2 = Log(b)(x) / Log(b)(a)
-	addressmap = [['0f','00f'], ['0f','10f'], [[],'/']]
+# class log_change_base_(SimplificationRule):
+# 	template1 = Log(a)(x)
+# 	template2 = Log(b)(x) / Log(b)(a)
+# 	addressmap = [['0f','00f'], ['0f','10f'], [[],'/']]
 
 
 
