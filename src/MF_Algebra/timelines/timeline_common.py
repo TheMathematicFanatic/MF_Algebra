@@ -165,14 +165,6 @@ class Simplify(AutoTimeline):
 	def decide_next_action(self, index:int):
 		last_exp = self.get_expression(index)
 
-		if self.auto_evaluate:
-			try:
-				result = (Evaluate(last_exp)).decide_next_action(0) #bruh
-				if result is not None:
-					return result
-			except IncompatibleExpression:
-				pass
-
 		for rule in self.all_actions_to_try:
 			addresses_to_try = last_exp.get_all_addresses_of_type(type(rule.template1))
 			for ad in addresses_to_try:
@@ -181,6 +173,14 @@ class Simplify(AutoTimeline):
 					return rule.pread(ad)
 				except IncompatibleExpression:
 					pass
+
+		if self.auto_evaluate:
+			try:
+				result = (Evaluate(last_exp)).decide_next_action(0) #bruh
+				if result is not None:
+					return result
+			except IncompatibleExpression:
+				pass
 
 		return None
 
