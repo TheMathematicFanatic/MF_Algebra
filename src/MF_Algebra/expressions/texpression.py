@@ -1,5 +1,6 @@
 from .expression_core import Expression
 from MF_Tools.dual_compatibility import dc_Tex
+from ..utils import Smarten
 
 '''
 This is a spoof Expression wrapper for what is actually just a Tex mobject.
@@ -16,12 +17,15 @@ class Texpression(Expression):
 	def init_glyph_count(self):
 		self._glyph_count = self.get_glyph_count_from_mob()
 
-	@Expression.parenthesize_latex
+	@Expression.parenthesize_latex #?
 	def __str__(self):
 		return self.latex_string
 
 	def compute(self):
-		raise ValueError(f"Expression contains a texpression.")
+		try:
+			return Smarten(self.latex_string).compute()
+		except:
+			raise ValueError(f"Expression contains a texpression.")
 
 	def hash_key(self):
 		return (self.__class__, self.latex_string)
