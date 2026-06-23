@@ -10,11 +10,18 @@ from MF_Algebra import *
 class Eml(BinaryOperation):
 	symbol = '\\epsilon'
 	symbol_glyph_length = 1
-	eval_op = staticmethod(lambda x, y: np.exp(x) - np.log(n))
+	eval_op = staticmethod(lambda x, y: np.exp(x) - np.log(y))
 
 	def evaluate(self):
 		x,y = self.children
 		return e**x - ln(y)
+
+	def auto_parentheses(self):
+		for i, child in enumerate(self.children):
+			if isinstance(child, (Add, Sub, Eml)) or child.is_negative():
+				child.give_parentheses()
+			child.auto_parentheses()
+		return self
 
 
 def matmul(self, other):
