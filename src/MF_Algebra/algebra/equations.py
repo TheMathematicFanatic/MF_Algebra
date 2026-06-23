@@ -4,7 +4,7 @@ from ..expressions.variables import a,b,c
 from ..expressions.functions.radicals import Rad, sqrt
 from ..expressions.functions.logarithms import Log, ln
 from ..expressions.numbers.real import e
-from ..expressions.combiners.operations import PlusMinus
+from ..expressions.combiners.operations import PositiveNegative
 from copy import deepcopy
 
 
@@ -108,7 +108,7 @@ class alg_mul_L(EquationManeuver):
 
 class alg_pow_2_R(EquationManeuver):
 	template1 = a**2 | b
-	template2 = a | PlusMinus(sqrt(b))
+	template2 = a | PositiveNegative(sqrt(b))
 	addressmap = (
 		['01', '100f', {'path_arc':-1}],
 		[[], '1~', {'delay':0.75, 'run_time':0.75}]

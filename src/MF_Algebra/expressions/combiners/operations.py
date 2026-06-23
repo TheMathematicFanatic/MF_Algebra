@@ -157,6 +157,32 @@ class Pow(BinaryOperation):
 		return False
 
 
+class PlusMinus(BinaryOperation):
+	symbol = '\\pm'
+	symbol_glyph_length = 1
+	eval_op = None
+
+	def auto_parentheses(self):
+		for i, child in enumerate(self.children):
+			if i > 0 and (isinstance(child, (Add, Sub)) or child.is_negative()):
+				child.give_parentheses()
+			child.auto_parentheses()
+		return self
+
+
+class MinusPlus(BinaryOperation):
+	symbol = '\\mp'
+	symbol_glyph_length = 1
+	eval_op = None
+
+	def auto_parentheses(self):
+		for i, child in enumerate(self.children):
+			if i > 0 and (isinstance(child, (Add, Sub)) or child.is_negative()):
+				child.give_parentheses()
+			child.auto_parentheses()
+		return self
+
+
 class UnaryOperation(Expression, Operation):
 	symbol = None
 	symbol_glyph_length = None
@@ -201,7 +227,7 @@ class Negative(UnaryOperation):
 	eval_op = staticmethod(lambda x: -x)
 
 	def auto_parentheses(self):
-		if isinstance(self.children[0], (Add, Sub)) or self.children[0].is_negative():
+		if isinstance(self.children[0], (Add, Sub, UnaryOperation)) or self.children[0].is_negative():
 			self.children[0].give_parentheses()
 		self.children[0].auto_parentheses()
 		return self
@@ -210,7 +236,22 @@ class Negative(UnaryOperation):
 		return True
 
 
-class PlusMinus(UnaryOperation):
+class Positive(UnaryOperation):
+	symbol = '+'
+	symbol_glyph_length = 1
+	eval_op = staticmethod(lambda x: x)
+
+	def auto_parentheses(self):
+		if isinstance(self.children[0], (Add, Sub, UnaryOperation)) or self.children[0].is_negative():
+			self.children[0].give_parentheses()
+		self.children[0].auto_parentheses()
+		return self
+
+	def is_negative(self):
+		return False # ?? fugly idk
+
+
+class PositiveNegative(UnaryOperation):
 	symbol = '\\pm'
 	symbol_glyph_length = 1
 	eval_op = None
@@ -222,7 +263,7 @@ class PlusMinus(UnaryOperation):
 		return self
 
 
-class MinusPlus(UnaryOperation):
+class NegativePositive(UnaryOperation):
 	symbol = '\\mp'
 	symbol_glyph_length = 1
 	eval_op = None
@@ -232,3 +273,4 @@ class MinusPlus(UnaryOperation):
 			self.children[0].give_parentheses()
 		self.children[0].auto_parentheses()
 		return self
+
