@@ -207,6 +207,11 @@ class Expression(MF_Base):
 			lambda subex: not subex.children
 		)
 
+	def get_all_nonleaf_addresses(self):
+		return self.get_all_addresses_with_condition(
+			lambda subex: subex.children
+		)
+
 	def get_all_twig_addresses(self):
 		return self.get_all_addresses_with_condition(
 			lambda subex: subex.children and all(
