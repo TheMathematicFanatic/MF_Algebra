@@ -27,17 +27,17 @@ class ConstantMultipleRule_(DerivativeRule):
 class SumRule_(DerivativeRule):
 	template1 =	d(x+y)
 	template2 =	d(x) + d(y)
-	addressmap = [['+', '+']]
+	addressmap = [['1+', '+']]
 
 class DifferenceRule_(DerivativeRule):
 	template1 =	d(x-y)
 	template2 =	d(x) - d(y)
-	addressmap = [['-', '-']]
+	addressmap = [['1-', '-']]
 
 class ProductRule_(DerivativeRule):
 	template1 =	d(x*y)
 	template2 =	y*d(x) + x*d(y)
-	addressmap = [['*', '+'], [[], '0*'], [[], '1*']]
+	addressmap = [['1*', '+'], [[], '0*'], [[], '1*']]
 
 class QuotientRule_(DerivativeRule):
 	template1 =	d(x/y)

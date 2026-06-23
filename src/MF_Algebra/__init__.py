@@ -1,4 +1,4 @@
-__version__ = '0.5.8'
+__version__ = '0.5.9'
 __author__ = 'John Connell - The Mathematic Fanatic'
 __description__ = 'Manim plugin which aims to make it much easier to meaningfully transform algebra expressions.'
 
@@ -11,4 +11,5 @@ from .calculus import *
 from .trigonometry import *
 from .sets import *
 from .logic import *
-from .scenes import *
+# from .scenes import *
+# Dependence on InteractiveScene makes the whole project only work with manimgl and not CE

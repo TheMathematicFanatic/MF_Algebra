@@ -10,12 +10,12 @@ class DifferentialOperator(Function):
 d = DifferentialOperator(
 	symbol = '\\mathrm{d}',
 	symbol_glyph_length = 1,
-	parentheses_mode = 'weak'
+	parentheses_mode = 'strong'
 )
 delta = DifferentialOperator(
 	symbol = '\\mathrm{\\delta}',
 	symbol_glyph_length = 1,
-	parentheses_mode = 'weak'
+	parentheses_mode = 'strong'
 )
 
 dx = d(x)

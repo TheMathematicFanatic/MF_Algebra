@@ -31,13 +31,13 @@ class Xor(BinaryOperation):
 
 
 class Implies(BinaryOperation):
-	symbol = '\\land'
+	symbol = '\\Rightarrow'
 	symbol_glyph_length = 1
 	eval_op = staticmethod(lambda P, Q: not P or Q)
 
 
 class Iff(BinaryOperation):
-	symbol = '\\land'
+	symbol = '\\Leftrightarrow'
 	symbol_glyph_length = 1
 	eval_op = staticmethod(lambda P, Q: P == Q)
 
