@@ -77,8 +77,11 @@ class Mul(BinaryOperation):
 			raise ValueError(f"Invalid multiplication mode: {self.mode}. Mode must be among {list(glyph_length_dict.keys())}")
 
 	def auto_determine_mode(self):
-		from ..numbers.number import Number
-		if all(isinstance(child, Number) for child in self.children):
+		from ..numbers import Number, Real
+		if all( # This is ass, we should generalize the concept of a symbol to all numbers and not just Real #TODO
+			(isinstance(child, Number) and not (isinstance(child, Real) and child.symbol is not None))
+			for child in self.children
+		):
 			return 'dot'
 		else:
 			return 'juxtapose'

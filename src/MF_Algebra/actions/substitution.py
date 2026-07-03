@@ -31,8 +31,8 @@ class substitute_(Action):
 				color = input_expression.get_color_of_subex(from_subex)
 				addresses = input_expression.get_addresses_of_subex(from_subex)
 				for i,ad in enumerate(addresses):
-					if input_expression.get_subex(ad).parentheses and not Smarten(to_subex).parentheses:
-						addresses[i] += '_'
+					#if input_expression.get_subex(ad).parentheses and not Smarten(to_subex).parentheses:
+					addresses[i] += '_'
 				result[*addresses].set_color(color)
 		return result
 

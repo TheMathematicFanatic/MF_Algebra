@@ -1,10 +1,11 @@
 import numpy as np
 
-def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per_node=2, **kwargs):
+def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per_node=2, seed=None, **kwargs):
 	import random
 	from ..expressions.numbers import Integer
 	from ..expressions.combiners.operations import Add, Sub, Mul, Div, Pow, Negative
 	nodes = [Add, Sub, Mul, Div, Pow]
+	random.seed(seed)
 	node = random.choice(nodes)
 	def generate_child(current_depth):
 		if np.random.random() < 1 / (current_depth + 1):

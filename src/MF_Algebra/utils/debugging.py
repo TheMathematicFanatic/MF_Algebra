@@ -299,7 +299,7 @@ def get_graph_mobject(expr, color='#FFFFFF', stroke_width=2, show_addresses=True
 	def get_symbol(expr):
 		from ..expressions.numbers import Integer, Real
 		from ..expressions.variables import Variable
-		from ..expressions.combiners import Combiner, Mul, Div, Pow, UnaryOperation
+		from ..expressions.combiners import Combiner, Mul, Div, Pow, UnaryOperation, Subscript
 		from ..expressions.functions import Function, ApplyFunction, Rad, Log
 		type_to_symbolfunc_dict = {
 			Integer: lambda expr: str(expr.value),
@@ -313,6 +313,7 @@ def get_graph_mobject(expr, color='#FFFFFF', stroke_width=2, show_addresses=True
 			ApplyFunction: lambda expr: '\\circledast',
 			UnaryOperation: lambda expr: expr.symbol,
 			Function: lambda expr: expr.symbol,
+			Subscript: lambda expr: '\\_',
 			Combiner: lambda expr: expr.symbol,
 		}
 		for T, F in type_to_symbolfunc_dict.items():
