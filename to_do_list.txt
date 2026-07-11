@@ -14,3 +14,15 @@ class FunctionSubstituteTest(Scene):
 Provide a way to concatenate Timelines, in particular which can handle them each having their own rules for next_action
 
 
+Parentheses puzzle
+
+Multiplication puzzle
+
+AlgebraicAction preaddress duplication
+
+Colors can be refactored to be an expression attribute.
+Expressions' init_mob method checks if any subexpressions have a color set and then color those glyphs.
+This means that coloring is now per instance, so multiple instances of the same variable, for example, could be colored differently.
+This has advantages and disadvantages. Perhaps upon initialization, and expression could check if it's a key of the always color, dictionary, and color itself accordingly.
+substitute_'s maintain coloring feature would now work a lot better and not get lost on mobject reloads.
+evaluate_ could also make use of it, either combining the constituent colors together, or letting one take over entirely, such as for the sake of showing error propagation!
