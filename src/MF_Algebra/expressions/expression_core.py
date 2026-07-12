@@ -384,12 +384,7 @@ class Expression(MF_Base):
 			from .functions.functions import Composition
 			return Composition(self, other)
 		else:
-			from .combiners import Eml
-			return Eml(self, other)
-
-	def __rmatmul__(self, other):
-		from .combiners import Eml
-		return Eml(other, self)
+			raise ValueError(f'Cannot compose expressions that are not both functions: {self} and {other}')
 
 
 	### Parentheses ###
