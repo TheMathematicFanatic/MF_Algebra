@@ -62,8 +62,9 @@ class permute_children_(Action):
 		super().__init__(**kwargs)
 
 	def get_output_expression(self, input_expression=None):
+		original_children = input_expression.children.copy()
 		input_expression.children = [
-			input_expression.children[self.permutation(i)]
+			original_children[self.permutation(i)]
 			for i in range(len(input_expression.children))
 		]
 		return input_expression
@@ -79,7 +80,7 @@ class permute_children_(Action):
 			raise ValueError(f"Invalid mode: {self.mode}. Must be 'arc' or 'straight'.")
 		
 		addressmap = [
-			[str(n), str(self.permutation(n)), kwarg_dict]
+			[str(self.permutation(n)), str(n), kwarg_dict]
 			for n in range(len(self.permutation))
 		]
 
