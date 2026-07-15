@@ -7,17 +7,20 @@ from functools import wraps
 class Expression(MF_Base):
 	parentheses = False
 	paren_symbols = ('(',')')
+	color = None
 	def __init__(self, *children):
 		self.children = list(map(Smarten,children))
+		self.reset_caches() # Wasteful to recurse?
 		if algebra_config['auto_parentheses']:
 			self.auto_parentheses()
-		self.reset_caches() # Wasteful to recurse?
+		if self in algebra_config['always_color'].keys():
+			self.color = algebra_config['always_color'][self]
 
 	def reset_caches(self):
 		self._mob = None
 		self._glyph_count = None
 		for child in self.children:
-			child.reset_caches()
+			child.reset_caches() # Why are we even doing this?
 		return self
 
 
@@ -32,8 +35,12 @@ class Expression(MF_Base):
 	def init_mob(self, **kwargs):
 		string = add_spaces_around_brackets(str(self))
 		self._mob = dc_Tex(string, **kwargs)
-		self._mob.set_color(algebra_config['default_color'])
-		self.set_color_by_subex(algebra_config['always_color'])
+		if self.color:
+			self._mob.set_color(self.color)
+		else:
+			self._mob.set_color(algebra_config['default_color'])
+			self.set_color_by_subex(algebra_config['always_color'])
+			self.set_color_by_children()
 
 	def __getitem__(self, key):
 		# Returns a VGroup of the glyphs at the given addresses
@@ -540,6 +547,15 @@ class Expression(MF_Base):
 
 
 	### Coloring ###
+
+	def set_color_by_children(self):
+		addresses = self.get_all_addresses()
+		while addresses:
+			address = addresses.pop(0)
+			subex = self.get_subex(address)
+			if subex.color:
+				self[address+'_'].set_color(subex.color)
+				addresses = [ad for ad in addresses if not ad.startswith(address)]
 
 	def set_color_by_subex(self, subex_color_dict):
 		for subex, color in subex_color_dict.items():

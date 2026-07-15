@@ -9,15 +9,18 @@ class Evaluate(AutoTimeline):
 	first_expression = None
 	mode = 'one at a time'
 	allowed_type = None
+	color_mode = 'combine'
 	def __init__(self,
 		first_expression = None,
 		mode = None,
 		allowed_type = None,
+		color_mode = None,
 		**kwargs
 	):
 		self.first_expression = self.first_expression or first_expression
 		self.mode = mode or self.mode
 		self.allowed_type = self.allowed_type or allowed_type
+		self.color_mode = self.color_mode or color_mode
 		super().__init__(**kwargs)
 		if self.first_expression is not None:
 			self.add_expression_to_start(self.first_expression)
@@ -31,7 +34,7 @@ class Evaluate(AutoTimeline):
 			for twig_ad in twig_ads:
 				if not isinstance(last_exp.get_subex(twig_ad), Relation):
 					try:
-						action = evaluate_(allowed_type=self.allowed_type).pread(twig_ad)
+						action = evaluate_(allowed_type=self.allowed_type, color_mode=self.color_mode).pread(twig_ad)
 						action.get_output_expression(last_exp)
 						return action
 					except (ValueError, IncompatibleExpression):
@@ -43,7 +46,7 @@ class Evaluate(AutoTimeline):
 			acceptable_twig_ads = []
 			for twig_ad in twig_ads:
 				try:
-					action = evaluate_(allowed_type=self.allowed_type).pread(twig_ad)
+					action = evaluate_(allowed_type=self.allowed_type, color_mode=self.color_mode).pread(twig_ad)
 					action.get_output_expression(last_exp)
 					acceptable_twig_ads.append(twig_ad)
 				except (ValueError, IncompatibleExpression):

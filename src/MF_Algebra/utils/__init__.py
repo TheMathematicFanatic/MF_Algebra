@@ -1,5 +1,6 @@
 from .addresses import *
 from .base_class import *
+from .color import *
 from .config import *
 from .conversions import *
 from .debugging import *

@@ -6,8 +6,8 @@ class Number(Expression):
 	value_type = None
 	def __init__(self, value, **kwargs):
 		assert isinstance(value, self.value_type)
-		super().__init__(**kwargs)
 		self.value = value
+		super().__init__(**kwargs)
 
 	def compute(self):
 		return self.value_type(self.value)

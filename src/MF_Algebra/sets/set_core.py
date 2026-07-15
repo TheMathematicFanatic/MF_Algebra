@@ -10,8 +10,8 @@ class Set(Expression):
 		in_rule = None, # condition to check if input is in set
 		**kwargs
 	):
-		super().__init__(*children, **kwargs)
 		self.in_rule = self.in_rule or in_rule
+		super().__init__(*children, **kwargs)
 
 	def __contains__(self, item):
 		# x in A (must return bool)
