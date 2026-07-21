@@ -166,7 +166,7 @@ class Action(MF_Base):
 			active_part = expr.get_subex(preaddress)
 			result = func(action, active_part)
 			output_expression = expr.substitute_at_address(result, preaddress)
-			output_expression.reset_parentheses()
+			output_expression.reset_parentheses() # This needs a rethink
 			return output_expression
 		return wrapper
 
