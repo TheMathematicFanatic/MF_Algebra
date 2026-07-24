@@ -1,11 +1,12 @@
 from ..actions.action_core import Action
 from ..expressions.combiners.operations import Add, Sub, Mul, Div, Pow
+from typing import Literal
 
 
 class distribute_(Action):
 	# Not done yet, multilayer does not work... this is so necessary but rather nontrivial... hm...
-	def __init__(self, mode='auto', multilayer=False, **kwargs):
-		self.mode = mode #'auto', 'left', 'right'
+	def __init__(self, mode: Literal['auto', 'left', 'right'] = 'auto', multilayer=False, **kwargs):
+		self.mode = mode
 		super().__init__(**kwargs)
 
 	def get_output_expression(self, input_expression=None):

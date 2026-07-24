@@ -2,6 +2,7 @@ from ..expression_core import *
 from ..combiners.sequences import Sequence
 from ..combiners.operations import BinaryOperation
 from ..variables import Variable
+from typing import Literal
 
 
 arg = Variable('arg')
@@ -36,12 +37,12 @@ class Function(Expression):
 	string_code = [lambda self: self.symbol, arg]
 	glyph_code = [lambda self: self.symbol_glyph_length, arg]
 	def __init__(self,
-		symbol = None,
-		symbol_glyph_length = None,
+		symbol:str = None,
+		symbol_glyph_length:int = None,
 		python_rule = None,
 		algebra_rule_variables = None,
 		algebra_rule = None,
-		parentheses_mode = 'always',
+		parentheses_mode: Literal['always', 'strong', 'weak', 'var_only', 'never'] = 'always',
 		children = [],
 		**kwargs
 	):

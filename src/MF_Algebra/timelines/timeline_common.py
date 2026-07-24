@@ -3,18 +3,20 @@ from .timeline_variants import *
 from ..expressions.variables import Variable
 from ..actions.evaluation import evaluate_
 from ..expressions.combiners.relations import Relation
+from typing import Literal, Type
+from ..expressions.expression_core import Expression
 
 
 class Evaluate(AutoTimeline):
 	first_expression = None
 	mode = 'one at a time'
 	allowed_type = None
-	color_mode = 'combine'
+	color_mode = None
 	def __init__(self,
-		first_expression = None,
-		mode = None,
-		allowed_type = None,
-		color_mode = None,
+		first_expression: Expression | None = None,
+		mode: Literal['one at a time', 'all at once'] = None,
+		allowed_type: Type[Expression] | None = None,
+		color_mode: Literal[None, 'combine'] = None,
 		**kwargs
 	):
 		self.first_expression = self.first_expression or first_expression
@@ -60,7 +62,13 @@ class Evaluate(AutoTimeline):
 
 
 class Solve(AutoTimeline):
-	def __init__(self, solve_for=None, first_expression=None, preferred_side='left', auto_evaluate=True, **kwargs):
+	def __init__(self,
+		solve_for: Expression | None = None,
+		first_expression: Expression | None = None,
+		preferred_side: Literal['left', 'right'] = 'left',
+		auto_evaluate: bool = True,
+		**kwargs
+	):
 		super().__init__(**kwargs)
 		self.solve_for = solve_for
 		self.auto_evaluate = auto_evaluate
@@ -155,7 +163,10 @@ class SolveAndEvaluate(Solve, Evaluate):
 # Just adding this so I can finally turn on the button in Symplay
 
 class Simplify(AutoTimeline):
-	def __init__(self, solve_for=None, auto_evaluate=True, **kwargs):
+	def __init__(self,
+		auto_evaluate:bool = True,
+		**kwargs
+	):
 		super().__init__(**kwargs)
 		self.auto_evaluate = auto_evaluate
 		self.all_actions_to_try = []

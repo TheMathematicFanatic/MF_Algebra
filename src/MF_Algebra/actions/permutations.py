@@ -1,5 +1,6 @@
 from .action_core import Action
-
+from typing import Literal
+from ..expressions import Expression
 
 class Permutation:
 	def __init__(self, *order):
@@ -55,13 +56,19 @@ class Permutation:
 
 
 class permute_children_(Action):
-	def __init__(self, permutation, mode='arc', arc_size=2.5, **kwargs):
+	def __init__(
+		self,
+		permutation: Permutation,
+		mode: Literal['arc', 'straight'] = 'arc',
+		arc_size: float = 2.5,
+		**kwargs
+	):
 		self.permutation = permutation
 		self.mode = mode
 		self.arc_size = arc_size
 		super().__init__(**kwargs)
 
-	def get_output_expression(self, input_expression=None):
+	def get_output_expression(self, input_expression: Expression | None = None):
 		original_children = input_expression.children.copy()
 		input_expression.children = [
 			original_children[self.permutation(i)]
@@ -69,7 +76,7 @@ class permute_children_(Action):
 		]
 		return input_expression
 
-	def get_addressmap(self, input_expression=None):
+	def get_addressmap(self, input_expression: Expression | None = None):
 		assert len(input_expression.children) >= len(self.permutation)
 		
 		if self.mode == 'arc':

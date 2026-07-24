@@ -2,14 +2,15 @@ from .action_core import Action
 from ..expressions.expression_core import Expression
 from MF_Tools.dual_compatibility import PI, DOWN, FadeIn, FadeOut
 from ..utils import Smarten
+from typing import Literal
 
 
 
 
 class substitute_(Action):
 	def __init__(self,
-		sub_dict,
-		mode = 'transform',
+		sub_dict: dict,
+		mode: Literal['transform', 'swirl', 'fade'] = 'transform',
 		arc_size = PI,
 		fade_shift = DOWN*0.2,
 		lag = 0,
@@ -24,7 +25,7 @@ class substitute_(Action):
 		self.maintain_color = maintain_color
 		super().__init__(**kwargs)
 
-	def get_output_expression(self, input_expression=None):
+	def get_output_expression(self, input_expression: Expression | None = None):
 		result = input_expression.substitute(self.sub_dict)
 		if self.maintain_color:
 			for from_subex, to_subex in self.sub_dict.items():
@@ -34,7 +35,7 @@ class substitute_(Action):
 					result.get_subex(address).color = color
 		return result
 
-	def get_addressmap(self, input_expression=None):
+	def get_addressmap(self, input_expression: Expression | None = None):
 		target_addresses = []
 		for var in self.sub_dict:
 			target_addresses += input_expression.get_subex(self.preaddress).get_addresses_of_subex(var)
@@ -72,7 +73,11 @@ class substitute_(Action):
 
 
 class substitute_into_(Action):
-	def __init__(self, outer_expression, substitution_variable=None, **kwargs):
+	def __init__(self,
+		outer_expression: Expression,
+		substitution_variable: Expression | None = None,
+		**kwargs
+	):
 		self.outer_expression = outer_expression
 		if isinstance(substitution_variable, Expression) and substitution_variable.is_variable():
 			self.substitution_variable = substitution_variable
@@ -86,10 +91,10 @@ class substitute_into_(Action):
 			raise ValueError(f'Invalid value for substitution_variable: {substitution_variable}')
 		super().__init__(**kwargs)
 
-	def get_output_expression(self, input_expression=None):
+	def get_output_expression(self, input_expression: Expression | None = None):
 		return self.outer_expression.substitute({self.substitution_variable: input_expression})
 
-	def get_addressmap(self, input_expression=None):
+	def get_addressmap(self, input_expression: Expression | None = None):
 		sub_into_addresses = self.outer_expression.get_addresses_of_subex(self.substitution_variable)
 		addressmap = [
 			['', ad]
@@ -104,12 +109,12 @@ class substitute_into_(Action):
 
 
 class replace_with_(Action):
-	def __init__(self, expression, **kwargs):
+	def __init__(self, expression: Expression, **kwargs):
 		self.expression = expression
 		super().__init__(**kwargs)
 	
-	def get_output_expression(self, input_expression):
+	def get_output_expression(self, input_expression: Expression | None = None):
 		return self.expression
 	
-	def get_addressmap(self, input_expression=None):
+	def get_addressmap(self, input_expression: Expression | None = None):
 		return [['', '']]

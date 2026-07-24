@@ -1,11 +1,16 @@
+from ..expressions.expression_core import Expression
 from .action_core import Action, IncompatibleExpression
-from ..expressions.combiners.operations import Operation
-from ..expressions.numbers.number import Number
 from ..utils.color import average_color
+from typing import Type, Literal
 
 
 class evaluate_(Action):
-	def __init__(self, allowed_type=None, color_mode=None, **kwargs):
+	def __init__(
+		self,
+		allowed_type: Type[Expression] = None,
+		color_mode: Literal[None, 'combine'] = None,
+		**kwargs
+	):
 		self.color_mode = color_mode
 		self.allowed_type = allowed_type
 		super().__init__(**kwargs)

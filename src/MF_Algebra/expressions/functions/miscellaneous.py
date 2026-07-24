@@ -1,4 +1,5 @@
 from .functions import Function, child, arg, arg0, arg1
+from typing import Literal
 
 
 class AbsoluteValue(Function):
@@ -29,7 +30,7 @@ fact = Factorial()
 
 from ..variables import n, k
 class BinomialCoefficient(Function):
-	def __init__(self, mode='binom', **kwargs):
+	def __init__(self, mode: Literal['binom', 'nCk', 'C(n,k)'] = 'binom', **kwargs):
 		self.mode = mode
 		super().__init__(
 			algebra_rule_variables = [n,k],

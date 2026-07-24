@@ -1,9 +1,11 @@
 from .action_core import Action
-from ..expressions.combiners.operations import Add, Sub, Mul, Div, Pow, Negative
+from ..expressions.expression_core import Expression
+from ..expressions.combiners.operations import BinaryOperation, Add, Sub, Mul, Div, Pow, UnaryOperation, Negative
 from ..expressions.combiners.relations import Equation
 from ..expressions.functions.functions import ApplyFunction
 from ..utils import Smarten
 from MF_Tools.dual_compatibility import Write
+from typing import Literal, Type
 
 
 class apply_binary_operation_(Action):
@@ -11,7 +13,13 @@ class apply_binary_operation_(Action):
 	side = 'right'
 	introducer = Write
 
-	def __init__(self, other, side=None, OpClass=None, introducer=None, **kwargs):
+	def __init__(self,
+		other: Expression,
+		side: Literal['left', 'right'] | None = None,
+		OpClass: Type[BinaryOperation] | None = None,
+		introducer = None,
+		**kwargs
+		):
 		self.other = Smarten(other)
 		self.side = side or self.side
 		self.OpClass = OpClass or self.OpClass
@@ -74,7 +82,10 @@ class apply_unary_operation_(Action):
 	OpClass = None
 	introducer = Write
 
-	def __init__(self, OpClass=None, introducer=None, **kwargs):
+	def __init__(self,
+		OpClass = None,
+		introducer = None, # Manim introducer animation
+		**kwargs):
 		self.OpClass = OpClass or self.OpClass
 		self.introducer = introducer or self.introducer
 		super().__init__(**kwargs)

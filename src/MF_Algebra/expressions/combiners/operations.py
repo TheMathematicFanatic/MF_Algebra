@@ -1,5 +1,6 @@
 from ..expression_core import *
 from .combiners import Combiner
+from typing import Literal
 
 
 class Operation:
@@ -38,7 +39,7 @@ class Sub(BinaryOperation):
 
 class Mul(BinaryOperation):
 	eval_op = staticmethod(lambda x, y: x * y)
-	def __init__(self, *args, mode='config', **kwargs):
+	def __init__(self, *args, mode: Literal['config', 'auto', 'dot', 'x', 'juxtapose']='config', **kwargs):
 		self._mode = mode
 		super().__init__(*args, **kwargs)
 
@@ -96,7 +97,7 @@ class Mul(BinaryOperation):
 
 class Div(BinaryOperation):
 	eval_op = staticmethod(lambda x, y: x / y)
-	def __init__(self, *args, mode='fraction', **kwargs):
+	def __init__(self, *args, mode: Literal['fraction', 'inline'] = 'fraction', **kwargs):
 		self.mode = mode
 		super().__init__(*args, **kwargs)
 

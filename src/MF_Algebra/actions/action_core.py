@@ -4,6 +4,7 @@ from MF_Tools import TransformByGlyphMap, AnimationGroup, Write, FadeIn, FadeOut
 from ..utils import MF_Base, apply_addressmap, algebra_config
 from functools import wraps
 from copy import deepcopy
+from typing import Literal
 
 
 class Action(MF_Base):
@@ -200,7 +201,7 @@ class Action(MF_Base):
 		return wrapper
 
 	@staticmethod
-	def autoparenmap(getmap, mode=None):
+	def autoparenmap(getmap, mode: Literal[None, 'none', 'stupid', 'smart'] = None):
 		if mode is None:
 			mode = algebra_config['autoparenmap_mode']
 		if mode == 'none':
