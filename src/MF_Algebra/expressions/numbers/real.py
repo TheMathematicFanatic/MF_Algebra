@@ -48,6 +48,6 @@ class Real(Number):
 			return self.value
 
 
-e = Real(np.e, 'e')
-pi = Real(np.pi, '\\pi')
-tau = Real(np.pi*2, '\\tau')
+e = Real(np.e, 'e', 1)
+pi = Real(np.pi, '\\pi', 1)
+tau = Real(np.pi*2, '\\tau', 1)

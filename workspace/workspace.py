@@ -1939,3 +1939,18 @@ class LoadFullGlyph(Scene):
 		timeline.reset()
 		timeline.play_all(self)
 		self.embed()
+
+
+class AlgebraicActionPreaddressBugHunt(Scene):
+	def construct(self):
+		A = x**2 + y**2
+		T = A >> div_(4).pread('00') >> dist_pow_div_().pread('0')
+		T.play_all(self)
+		self.clear()
+		T.reset()
+		T.play_all(self)
+
+
+AlgebraicActionPreaddressBugHunt().construct()
+
+
