@@ -1951,6 +1951,10 @@ class AlgebraicActionPreaddressBugHunt(Scene):
 		T.play_all(self)
 
 
-AlgebraicActionPreaddressBugHunt().construct()
+class BooleanTest(Scene):
+	def construct(self):
+		E = Evaluate(A^B|~C//~D, auto_scale=2)
+		E >> substitute_({A:T,B:F,C:T,D:~F})
+		E.play_all(self)
 
 

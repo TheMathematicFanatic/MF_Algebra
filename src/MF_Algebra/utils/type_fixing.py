@@ -10,6 +10,11 @@ def Smarten(input):
 	if isinstance(input, MF_Base):
 		return input.copy()
 
+	if isinstance(input, bool):
+		# must come before int because bool is a subclass of int
+		from ..logic.booleans import Boolean
+		return Boolean(input)
+
 	if isinstance(input, int):
 		from ..expressions.numbers.integer import Integer
 		return Integer(input)
