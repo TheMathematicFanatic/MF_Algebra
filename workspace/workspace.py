@@ -1958,3 +1958,13 @@ class BooleanTest(Scene):
 		E.play_all(self)
 
 
+class BooleanTest2(Scene):
+	def construct(self):
+		exp = (A^~B) ** (A+B)
+		timeline = Evaluate(auto_scale=2)
+		timeline >> exp >> substitute_({A:T,B:F})
+		timeline.play_all(self)
+
+
+
+

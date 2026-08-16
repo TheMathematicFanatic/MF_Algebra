@@ -297,12 +297,12 @@ def get_graph_mobject(expr, color='#FFFFFF', stroke_width=2, show_addresses=True
 	ad_coord_dict = _tree_layout(addresses)
 
 	def get_symbol(expr):
-		from ..expressions.numbers import Integer, Real
+		from ..expressions.numbers import Number, Real
 		from ..expressions.variables import Variable
 		from ..expressions.combiners import Combiner, Mul, Div, Pow, UnaryOperation, Subscript
 		from ..expressions.functions import Function, ApplyFunction, Rad, Log
 		type_to_symbolfunc_dict = {
-			Integer: lambda expr: str(expr.value),
+			Number: lambda expr: str(expr.value),
 			Real: lambda expr: expr.symbol if expr.symbol else str(expr),
 			Variable: lambda expr: expr.symbol,
 			Mul: lambda expr: '\\times',

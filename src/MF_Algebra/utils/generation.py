@@ -22,3 +22,66 @@ def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per
 		children = generate_children(max_depth, 2)
 	return node(*children, **kwargs)
 
+
+def random_expression(
+	leaves = [],
+	leaf_weights = None,
+	nodes = [],
+	node_weights = None,
+	max_depth = 3,
+	min_depth = 2,
+	seed = None,
+	default_number_of_children_per_node = 2,
+	**kwargs
+):
+	import random
+	random.seed(seed)
+
+	if random.random() < 1/max_depth:
+		# leaf case
+		leaf = random.choices(leaves, weights=leaf_weights)[0]
+		return leaf
+	else:
+		# node case
+		node = random.choices(nodes, weights=node_weights)[0]
+		from ..expressions.combiners.operations import Operation, UnaryOperation, BinaryOperation
+		assert issubclass(node, Operation)
+		if issubclass(node, UnaryOperation):
+			k = 1
+		elif issubclass(node, BinaryOperation):
+			k = 2
+		else:
+			k = default_number_of_children_per_node
+		children = [
+			random_expression(
+				leaves = leaves,
+				leaf_weights = leaf_weights,
+				nodes = nodes,
+				node_weights = node_weights,
+				max_depth = max_depth - 1,
+				seed = seed,
+				default_number_of_children_per_node = default_number_of_children_per_node,
+				**kwargs
+			)
+			for _ in range(k)
+		]
+		return node(*children)
+
+
+
+from functools import partial
+
+from ..logic import *
+random_bool_exp_full = partial(
+	random_expression,
+	leaves = [T,F],
+	nodes = BooleanOperation.__subclasses__()
+)
+random_bool_exp_simple = partial(
+	random_expression,
+	leaves = [T,F],
+	nodes = [Not, And, Or]
+)
+
+
+
