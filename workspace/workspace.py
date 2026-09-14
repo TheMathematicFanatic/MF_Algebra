@@ -1964,7 +1964,3 @@ class BooleanTest2(Scene):
 		timeline = Evaluate(auto_scale=2)
 		timeline >> exp >> substitute_({A:T,B:F})
 		timeline.play_all(self)
-
-
-
-
