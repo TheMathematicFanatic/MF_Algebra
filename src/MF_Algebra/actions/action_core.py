@@ -141,23 +141,6 @@ class Action(MF_Base):
 
 	### Decorators ###
 
-	def __init_subclass__(cls):
-		super().__init_subclass__()
-		if not getattr(cls, '_is_decorated', False):
-			cls._is_decorated = True
-
-			func = cls.get_output_expression
-			func = Action.preaddressfunc(func)
-			cls.get_output_expression = func
-
-			func = cls.get_addressmap
-			func = Action.autokwargmap(func)
-			func = Action.preaddressmap(func)
-			func = Action.autoparenmap(func)
-			# func = Action.autoopmap(func)
-			cls.get_addressmap = func
-
-
 	@staticmethod
 	def preaddressfunc(func):
 		@wraps(func)
@@ -202,16 +185,16 @@ class Action(MF_Base):
 
 	@staticmethod
 	def autoparenmap(getmap, mode: Literal[None, 'none', 'stupid', 'smart'] = None):
-		if mode is None:
-			mode = algebra_config['autoparenmap_mode']
-		if mode == 'none':
-			return getmap
-		if mode == 'stupid':
-			@wraps(getmap)
-			def wrapper(action, expr, *args, **kwargs):
-				addressmap = list(getmap(action, expr, *args, **kwargs))
-				in_expr = expr.copy()
-				out_expr = action.copy().get_output_expression(expr)
+		@wraps(getmap)
+		def wrapper(action, expr, *args, **kwargs):
+			if mode is None:
+				mode_ = algebra_config['autoparenmap_mode']
+			addressmap = list(getmap(action, expr, *args, **kwargs))
+			in_expr = expr.copy()
+			out_expr = action.copy().get_output_expression(expr)
+			if mode_ == 'none':
+				return addressmap
+			elif mode_ == 'stupid':
 				for in_add in in_expr.get_all_addresses():
 					if in_expr.get_subex(in_add).parentheses:
 						addressmap.append([in_add+'()', [], Action.remove_kwargs])
@@ -225,12 +208,8 @@ class Action(MF_Base):
 						if entry[1] == out_add:
 							entry[1] = entry[1] + '_'
 				return addressmap
-
-		if mode == 'smart':
-			@wraps(getmap)
-			def wrapper(action, expr, *args, **kwargs):
-				addressmap = list(getmap(action, expr, *args, **kwargs))
-				in_expr, out_expr = expr, action.get_output_expression(expr)
+			elif mode_ == 'smart':
+				raise NotImplementedError
 		return wrapper
 
 	@staticmethod
@@ -309,7 +288,34 @@ class Action(MF_Base):
 		return wrapper
 
 
+	get_output_expression_decorators = (
+		preaddressfunc,
+	)
+	get_addressmap_decorators = (
+		preaddressmap,
+		autokwargmap,
+		autoparenmap,
+		# autoopmap
+	)
 
+	def __init_subclass__(cls):
+		super().__init_subclass__()
+
+		func = cls.get_output_expression
+		original = getattr(func, '_original', func)
+		func = original
+		for deco in cls.get_output_expression_decorators:
+			func = deco(func)
+		func._original = original
+		cls.get_output_expression = func
+
+		func = cls.get_addressmap
+		original = getattr(func, '_original', func)
+		func = original
+		for deco in cls.get_addressmap_decorators:
+			func = deco(func)
+		func._original = original
+		cls.get_addressmap = func
 
 
 	### Utilities ###

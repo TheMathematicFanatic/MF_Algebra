@@ -4,17 +4,26 @@ import numpy as np
 
 
 class Real(Number):
-	decimal_places = algebra_config['decimal_precision']
-	internal_precision = 10**-8
 	value_type = float
+	internal_precision = 10**-8
 	def __init__(self, value, symbol=None, symbol_glyph_length=None, decimal_places=None, **kwargs):
+		self._decimal_places = decimal_places
+		self.symbol = symbol
+		self.symbol_glyph_length = symbol_glyph_length
 		rounded = round(value, self.decimal_places)
 		if np.abs(value - rounded) < self.internal_precision:
 			value = rounded
 		super().__init__(value, **kwargs)
-		self.symbol = symbol
-		self.symbol_glyph_length = symbol_glyph_length
-		self.decimal_places = decimal_places or self.decimal_places
+	
+	@property
+	def decimal_places(self):
+		return self._decimal_places if self._decimal_places is not None else algebra_config['decimal_places']
+	
+	@decimal_places.setter
+	def decimal_places(self, num_places):
+		if not isinstance(num_places, int) or num_places < 0:
+			raise ValueError('decimal_places must be a non-negative integer')
+		self._decimal_places = num_places
 
 	@Expression.parenthesize_glyph_count
 	def get_glyph_count(self):
@@ -24,7 +33,7 @@ class Real(Number):
 		else: # This needs work... parentheses are an issue.
 			string = self.__str__.__wrapped__(self) # Ok this might do it but still seems a little stupid
 			count = len(string)
-			if string.endswith(r'\ldots'): # Like fr? But it works lol
+			if string.endswith('\\ldots'): # Like fr? But it works lol
 				count -= 3
 			return count
 
@@ -36,7 +45,7 @@ class Real(Number):
 		if rounded == self.value:
 			return str(rounded)
 		else:
-			return f'{self.value:.{self.decimal_places}f}' + r'\ldots'
+			return f'{self.value:.{self.decimal_places}f}' + '\\ldots'
 
 	def is_negative(self):
 		return self.value < 0
