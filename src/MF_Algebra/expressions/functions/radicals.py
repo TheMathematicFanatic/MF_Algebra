@@ -12,7 +12,7 @@ class Rad(Function):
 			children = [index],
 			parentheses_mode = 'never',
 			**kwargs
-        )
+		)
 
 	def python_rule(self, x):
 		index = self.index.compute()

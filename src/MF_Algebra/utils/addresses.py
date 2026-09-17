@@ -1,7 +1,7 @@
 
 
 def apply_addressmap(address:str, addressmap:list, reverse:bool=False) -> set:
-	"""    
+	"""
 	Turns one address into another (or several), according to an addressmap.
 	If it is explicitly listed in the addressmap, it simply returns the address on the other side.
 	If it is not listed, it checks all the entries with that address as a prefix, and outputs the corresponding prefix on the other side.

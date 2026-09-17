@@ -35,7 +35,7 @@ class DifferentialQuotientOperator(DifferentialOperator, Div):
 		super().__init__(self.d_op, self.d_op(var), **kwargs)
 
 def dd(var):
-    return DifferentialQuotientOperator(var)
+	return DifferentialQuotientOperator(var)
 
 
 class PrimeOperator(DifferentialOperator):

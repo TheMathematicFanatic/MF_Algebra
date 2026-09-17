@@ -12,8 +12,8 @@ from MF_Tools.dual_compatibility import average_color
 
 
 # def average_color(*colors):
-#     rgbs = np.array(list(map(color_to_rgb, colors)))
-#     return rgb_to_color(rgbs.mean(0))
+# 	rgbs = np.array(list(map(color_to_rgb, colors)))
+# 	return rgb_to_color(rgbs.mean(0))
 
 
 # Tried ManimGL's interpolate_color_by_hsl but it gave me red+blue=green lol...

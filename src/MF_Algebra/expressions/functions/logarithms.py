@@ -14,7 +14,7 @@ class Log(Function):
 			symbol = '\\log',
 			children = [base],
 			**kwargs
-        )
+		)
 
 	def python_rule(self, x):
 		base = self.base.compute()
