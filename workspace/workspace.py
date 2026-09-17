@@ -1964,3 +1964,19 @@ class BooleanTest2(Scene):
 		timeline = Evaluate(auto_scale=2)
 		timeline >> exp >> substitute_({A:T,B:F})
 		timeline.play_all(self)
+
+
+class AbsValDebug(Scene):
+	def construct(self):
+		A = x**2+y**2
+		print(A)
+		act = apply_func_(abs_val)
+		print(act)
+		B = A >= act
+		print(B)
+		addressmap = act.get_addressmap(A)
+		print(addressmap)
+		glyphmap = act.get_glyphmap(A, B, [['', '1'], [[], '0']])
+		print(glyphmap)
+
+# AbsValDebug().construct()

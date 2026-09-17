@@ -188,7 +188,9 @@ class Action(MF_Base):
 		@wraps(getmap)
 		def wrapper(action, expr, *args, **kwargs):
 			if mode is None:
-				mode_ = algebra_config['autoparenmap_mode']
+				mode_ = algebra_config['autoparenmap_mode'] # needs a different var name for function to set internally
+			else:
+				mode_ = mode
 			addressmap = list(getmap(action, expr, *args, **kwargs))
 			in_expr = expr.copy()
 			out_expr = action.copy().get_output_expression(expr)

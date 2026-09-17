@@ -146,7 +146,7 @@ class Expression(MF_Base):
 				child = self.children[digit]
 				glyphs_within_child = child.get_glyphs_at_address(remainder)
 				shift_value = child_glyphs[0]
-				result = [glyph + shift_value for glyph in glyphs_within_child]
+				result = [glyph + shift_value for glyph in glyphs_within_child] # This is where it goes wrong for apply_func_(abs_val)
 				return sorted(list(set(result)))
 			except:
 				raise ValueError(f"Invalid address: {address}")

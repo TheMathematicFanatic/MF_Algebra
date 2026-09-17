@@ -12,7 +12,13 @@ class ParallelAction(Action):
         for action in self.actions:
             expr = action.get_output_expression(expr)
         return expr
-
+    
+    get_addressmap_decorators = ( # This application proves that this is a great architecture!
+        Action.preaddressmap, # This one is needed so that if the parallel has an additional pread it can be applied,
+		# Action.autoparenmap, # But these two are not needed because they're already handled by the constituents... I think?
+		# Action.autoopmap, # Actually I think I can imagine some crazy cases where this isn't quite sufficient.... ughhh
+		# Action.autokwargmap, # Idek about this guy
+    )
     def get_addressmap(self, input_expression=None):
         total_addressmap = []
         for i,act in enumerate(self.actions):

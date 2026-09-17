@@ -12,3 +12,6 @@ algebra_config = {
 	'fast_root_length': True,
 	'autoparenmap_mode': 'stupid'
 }
+
+from MF_Tools import normalize_tex_svg_globally
+normalize_tex_svg_globally()
