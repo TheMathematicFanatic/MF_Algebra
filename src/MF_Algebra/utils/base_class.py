@@ -25,7 +25,7 @@ class MF_Base(ABC):
 			return self.hash_key() == other.hash_key()
 
 	def __hash__(self):
-		return hash(self.hash_key())
+		return int(str(hash(self.hash_key()))[:15])
 
 	def hash_key(self):
 		raise NotImplementedError

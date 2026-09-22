@@ -15,6 +15,7 @@ class Action(MF_Base):
 	auto_morph = True
 	auto_resolve_kwargs = {}
 	preaddress = ''
+	label = '[default action label]'
 	def __init__(self,
 		introducer = None,
 		remover = None,
@@ -33,9 +34,35 @@ class Action(MF_Base):
 	def get_addressmap(self, input_expression, **kwargs):
 		# define in subclasses
 		return [['', '']]
+	
+	def get_label(self):
+		# define in subclasses
+		return self.label
 
 
 	### Animating ###
+
+	def get_universal_glyphmap(self, expA):
+		def process_entry(entry, expression:Expression):
+			if isinstance(entry, str): # Address, such as '102()'
+				return expression.get_glyphs_at_address(entry)
+			elif isinstance(entry, type): # Class, such as Write
+				return entry.__name__
+			else: # Other, such as []
+				return entry
+		
+		addressmap = self.get_addressmap(expA)
+		expB = self.get_output_expression(expA)
+
+		uv_glyphmap = [
+			(
+				process_entry(entry[0], expA),
+				process_entry(entry[1], expB),
+				deepcopy(entry[2]) if len(entry) > 2 else {} # deepcopy needed because dicts are mutable
+			)
+			for entry in addressmap
+		]
+		return uv_glyphmap
 
 	def get_glyphmap(self, expA, expB, addressmap):
 		glyphmap = [
@@ -328,6 +355,9 @@ class Action(MF_Base):
 		if len(string) > max_length:
 			string = string[:max_length-3] + '...'
 		return string
+	
+	def hash_key(self):
+		return (self.__class__, self.preaddress)
 
 
 

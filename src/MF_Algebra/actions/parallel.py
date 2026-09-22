@@ -42,4 +42,6 @@ class ParallelAction(Action):
 		else:
 			return NotImplemented
 
+	def hash_key(self):
+		return hash((self.__class__, *self.actions))
 
