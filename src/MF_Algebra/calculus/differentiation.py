@@ -90,23 +90,30 @@ Derivative_Rules = [rule() for rule in DerivativeRule.__subclasses__()]
 class Differentiate(AutoTimeline):
 	def decide_next_action(self, index):
 		last_exp = self.get_expression(-1)
-		for ad in last_exp.get_all_addresses():
-			for ruleset in [Derivative_Rules, Simplify_Rules]:
-				for rule in ruleset:
-					try:
-						action = rule.copy().pread(ad)
-						action.get_output_expression(last_exp)
-						return action
-					except IncompatibleExpression:
-						pass
+		for ad in last_exp.get_all_nonleaf_addresses():
+			for rule in Derivative_Rules:
+				try:
+					action = rule.pread(ad)
+					action.get_output_expression(last_exp)
+					return action
+				except IncompatibleExpression:
+					pass
 		for ad in last_exp.get_all_twig_addresses():
 			try:
 				from ..actions.evaluation import evaluate_
-				action = evaluate_().copy().pread(ad)
+				action = evaluate_().pread(ad)
 				action.get_output_expression(last_exp)
 				return action
 			except IncompatibleExpression:
 				pass
+		for ad in last_exp.get_all_nonleaf_addresses():
+			for rule in Simplify_Rules:
+				try:
+					action = rule.pread(ad)
+					action.get_output_expression(last_exp)
+					return action
+				except IncompatibleExpression:
+					pass
 		return None
 
 
