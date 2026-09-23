@@ -48,6 +48,18 @@ class EquationManeuver(AlgebraicAction):
 
 	def reverse_flip(self):
 		return self.reverse().flip()
+	
+	@classmethod
+	def all_actions(cls):
+		actions = []
+		for maneuver_ in cls.__subclasses__():
+			actions += [
+				maneuver_(),
+				maneuver_().reverse(),
+				maneuver_().flip(),
+				maneuver_().reverse_flip()
+			]
+		return actions
 
 
 class alg_add_R(EquationManeuver):

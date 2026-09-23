@@ -1,5 +1,6 @@
 from ..actions import Action, IncompatibleExpression
 from ..expressions import Expression
+from . import AutoTimeline
 
 
 class TimeWeb:
@@ -99,15 +100,30 @@ class TimeWeb:
 	
 	def generate_algebra_maneuvers(self):
 		from ..algebra.equations import EquationManeuver
-		actions_to_try = []
-		for maneuver_ in EquationManeuver.__subclasses__():
-			actions_to_try += [
-				maneuver_(),
-				maneuver_().reverse(),
-				maneuver_().flip(),
-				maneuver_().reverse_flip()
-			]
-		return self.generate_all(*actions_to_try)
+		return self.generate_all(*EquationManeuver.all_actions())
+	
+	def generate_from_timelines(self, *timelines, additional_actions=[], **kwargs):
+		# Not guaranteed to terminate!!!
+		touched_expressions = set()
+		untouched_expressions = self.expressions
+		while untouched_expressions:
+			for exp in untouched_expressions:
+				for TimelineClass in timelines:
+					T = TimelineClass().suspend().add_expression_to_start(exp)
+					act = T.decide_next_action(0)
+					if act:
+						self.add_new_action(act, exp, change_current=False, ignore_exception=True)
+				for act in additional_actions:
+					self.add_new_action(act, exp, change_current=False, ignore_exception=True)
+				touched_expressions.add(exp)
+			untouched_expressions = self.expressions - touched_expressions
+		return self
+	
+	def reset_caches(self):
+		for exp in self.expressions:
+			exp.reset_caches()
+		return self
+
 
 	def get_universal_json(self):
 		json = {
@@ -125,7 +141,6 @@ class TimeWeb:
 			json['graph'][exp_hash] = {'outgoing':[], 'incoming':[]}
 			for act, out_hash in outgoing:
 				act_hash = int(str(hash((act, exp_hash, out_hash)))[:15])
-				out_exp = self.expression_from_hash(out_hash)
 				uvg = act.get_universal_glyphmap(exp)
 				label = act.get_label()
 				json['actions'][act_hash] = {
