@@ -1,4 +1,5 @@
-import numpy as np
+import numpy as numpy
+from .type_fixing import Smarten
 
 def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per_node=2, seed=None, **kwargs):
 	import random
@@ -36,11 +37,10 @@ def random_expression(
 ):
 	import random
 	random.seed(seed)
-
-	if random.random() < 1/max_depth:
+	if random.random() < 1/max_depth and max_depth < min_depth:
 		# leaf case
 		leaf = random.choices(leaves, weights=leaf_weights)[0]
-		return leaf
+		return Smarten(leaf)
 	else:
 		# node case
 		node = random.choices(nodes, weights=node_weights)[0]
@@ -59,6 +59,7 @@ def random_expression(
 				nodes = nodes,
 				node_weights = node_weights,
 				max_depth = max_depth - 1,
+				min_depth = min_depth,
 				seed = seed,
 				default_number_of_children_per_node = default_number_of_children_per_node,
 				**kwargs
