@@ -1,4 +1,4 @@
-from .action_core import Action
+from .action_core import Action, IncompatibleExpression
 from typing import Literal
 from ..expressions import Expression
 
@@ -124,3 +124,16 @@ class swap_children_(Action):
 		]
 
 swap = swap_children_()
+
+
+class commute_(swap_children_):
+	def get_output_expression(self, input_expression):
+		from ..expressions.combiners import Add, Mul
+		from ..logic.operations import And, Or, Xor, Iff
+		if isinstance(input_expression, (Add, Mul, And, Or, Xor, Iff)):
+			assert len(input_expression.children) == 2
+			left,right = input_expression.children
+			exp_type = type(input_expression)
+			return exp_type(right, left)
+		else:
+			raise IncompatibleExpression
