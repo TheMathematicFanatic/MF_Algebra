@@ -1,16 +1,18 @@
 from ..actions import Action, IncompatibleExpression
 from ..expressions import Expression
-from . import AutoTimeline
+from .timeline_core import Timeline
+from ..utils import MF_Base, Smarten
 
 
-class TimeWeb:
-	def __init__(self, starting_expression):
+class TimeWeb(MF_Base):
+	def __init__(self, starting_expression, title=''):
 		current_hash = hash(starting_expression)
 		self.web = {
 			# hash : [Expression, {(Action, to_hash), ...}, { (Action, from_hash), ...} ]
-			current_hash : [starting_expression, set(), set() ]
+			current_hash : [starting_expression, set(), set()]
 		}
 		self.current_hash = current_hash
+		self.title = title
 	
 	def __getitem__(self, key):
 		if isinstance(key, Expression):
@@ -48,6 +50,7 @@ class TimeWeb:
 		return self.web[key][0]
 	
 	def add_new_expression(self, expression):
+		expression = Smarten(expression)
 		if not expression in self:
 			self.web[hash(expression)] = [expression, set(), set()]
 		return self
@@ -71,9 +74,28 @@ class TimeWeb:
 		if change_current:
 			self.current_hash = out_hash
 		return self
+	
+	def add_new_action_to_all(self, action):
+		for exp in self.expressions:
+			self.add_new_action(actiion, exp, change_current=False, ignore_exception=True)
 
-	def __rshift__(self, act):
-		return self.add_new_action(act)
+	def __rshift__(self, obj):
+		if isinstance(obj, Action):
+			return self.add_new_action(obj)
+		elif isinstance(obj, Expression):
+			return self.add_new_expression(obj)
+		elif isinstance(obj, Timeline):
+			return self.add_timeline(obj)
+		else:
+			raise TypeError(f'Unexpected type of {obj}: {type(obj)}')
+
+	def add_timeline(self, timeline:Timeline):
+		for i, (exp, act) in enumerate(timeline.steps):
+			if exp:
+				self.add_new_expression(exp)
+			if act:
+				out_exp = timeline.get_expression(i+1) # returns None if nonexistent
+				self.add_new_action(act, exp, out_exp) # receives None to autocreate. Perfect!
 
 	def generate_all(self, *actions, at_all_preaddresses=False, at_twig_preaddresses=False, bailsize=None):
 		# Not guaranteed to terminate!!!
@@ -100,7 +122,8 @@ class TimeWeb:
 	
 	def generate_algebra_maneuvers(self):
 		from ..algebra.equations import EquationManeuver
-		return self.generate_all(*EquationManeuver.all_actions())
+		from ..actions.permutations import commute_
+		return self.generate_all(*EquationManeuver.all_actions(), commute_())
 	
 	def generate_from_timelines(self, *timelines, additional_actions=[], **kwargs):
 		# Not guaranteed to terminate!!!
@@ -124,9 +147,9 @@ class TimeWeb:
 			exp.reset_caches()
 		return self
 
-
 	def get_universal_json(self):
 		json = {
+			'title'       : self.title,
 			'expressions' : {},  # exp_hash : {'latex':texstr, 'xml':svgstr} 
 			'actions'     : {},  # act_hash : {'action':classname, 'label':divide by 3, 'from_exp':hash, 'to_exp':hash, 'preaddress':preaddress, 'glyphmap':uvgm}
 			'graph'       : {},  # exp_hash : {'outgoing': [(act_hash,exp_hash),...], 'incoming': [(act_hash,exp_hash),...]}
@@ -143,12 +166,14 @@ class TimeWeb:
 				act_hash = int(str(hash((act, exp_hash, out_hash)))[:15])
 				uvg = act.get_universal_glyphmap(exp)
 				label = act.get_label()
+				trigger_glyphs = act.get_trigger_glyphs(exp)
 				json['actions'][act_hash] = {
 					'action'         : act.__class__.__name__,
 					'label'          : label,
 					'from_exp'       : exp_hash,
 					'to_exp'         : out_hash,
 					'glyphmap'       : uvg,
+					'trigger_glyphs' : trigger_glyphs,
 				}
 				json['graph'][exp_hash]['outgoing'].append((act_hash, out_hash))
 			for act, in_hash in incoming:
@@ -156,30 +181,10 @@ class TimeWeb:
 				json['graph'][exp_hash]['incoming'].append((act_hash, in_hash))
 		return json
 
+	@property
+	def mob(self):
+		return self.current_expression.mob
 
-
-class TimeWeb2:
-	def __init__(self, starting_expression=None):
-		self.expressions = {} # hash_exp : expression
-		self.actions = {} # hash_act : (action, in_exp, out_exp, glyphmap)
-		self.connections = {} # hash_exp : [act_hashes]
-		if starting_expression is not None:
-			self.add_expression(starting_expression)
-	
-	def add_expression(self, expression):
-		hash_exp = hash(expression)
-		self.expressions[hash_exp] = expression
-	
-	def add_action(self, action:Action, in_exp):
-		hash_exp = hash(in_exp)
-		assert hash_exp in self.expressions
-		out_exp = action.get_output_expression(in_exp)
-		self.add_expression(out_exp)
-		addressmap = action.get_addressmap(in_exp)
-		glyphmap = action.get_glyphmap(in_exp, out_exp, addressmap)
-		hash_act = hash((action, in_exp, out_exp))
-		self.actions[hash_act] = (action, in_exp, out_exp, glyphmap)
-		# self.connections[hash_exp]
 
 
 

@@ -1979,4 +1979,11 @@ class AbsValDebug(Scene):
 		glyphmap = act.get_glyphmap(A, B, [['', '1'], [[], '0']])
 		print(glyphmap)
 
-# AbsValDebug().construct()
+
+class WebTest(Scene):
+	def construct(self):
+		W = TimeWeb(x**3/(y+5)).generate_all(swap_children_(), at_all_preaddresses=True)
+		V = TimeWeb(4*z+3|20).generate_algebra_maneuvers()
+		
+		print(W.web)
+		self.embed()
