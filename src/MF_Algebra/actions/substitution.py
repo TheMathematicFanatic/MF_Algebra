@@ -71,6 +71,13 @@ class substitute_(Action):
 	def __repr__(self):
 		return type(self).__name__ + '(' + str(self.sub_dict) + (',' + self.preaddress if self.preaddress else '') + ')'
 
+	def get_trigger_addresses(self, input_expression):
+		target_addresses = []
+		for var in self.sub_dict:
+			target_addresses += input_expression.get_addresses_of_subex(var)
+		return target_addresses
+
+
 
 class substitute_into_(Action):
 	def __init__(self,

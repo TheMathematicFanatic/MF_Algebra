@@ -5,6 +5,7 @@ from typing import Type, Literal
 
 
 class evaluate_(Action):
+	label = 'evaluate'
 	def __init__(
 		self,
 		allowed_type: Type[Expression] = None,
@@ -33,4 +34,7 @@ class evaluate_(Action):
 		return [
 			['', ''] # Extension by preaddress is done by decorator!
 		]
+	
+	def get_trigger_addresses(self, input_expression):
+		return [self.preaddress]
 	

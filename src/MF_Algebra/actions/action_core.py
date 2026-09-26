@@ -39,6 +39,13 @@ class Action(MF_Base):
 		# define in subclasses
 		return self.label
 
+	def get_trigger_glyphs(self, input_expression):
+		# define in subclasses
+		return input_expression.get_glyphs_at_addresses(*self.get_trigger_addresses(input_expression))
+	
+	def get_trigger_addresses(self, input_expression):
+		# define in subclasses
+		return []
 
 	### Animating ###
 

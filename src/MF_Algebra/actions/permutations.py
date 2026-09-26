@@ -122,6 +122,9 @@ class swap_children_(Action):
 			['0', '1', {'path_arc':self.arc_size}],
 			['1', '0', {'path_arc':self.arc_size}],
 		]
+	
+	def get_trigger_addresses(self, input_expression):
+		return ['+']
 
 swap = swap_children_()
 

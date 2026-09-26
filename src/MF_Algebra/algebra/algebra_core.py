@@ -15,6 +15,7 @@ class AlgebraicAction(Action):
 	var_condition_dict = {}       # Example {c: lambda exp: isinstance(exp, Number)}
 	var_kwarg_dict = {}           # Example {a:{'path_arc':PI}}
 	auto_morph = True
+	trigger_var = None
 
 	def __init__(self,
 		template1=None,
@@ -23,6 +24,7 @@ class AlgebraicAction(Action):
 		var_condition_dict={},
 		var_kwarg_dict={},
 		auto_addressmap=True,
+		trigger_var=None,
 		**kwargs
 	):
 		super().__init__(**kwargs)
@@ -32,6 +34,7 @@ class AlgebraicAction(Action):
 		self.var_condition_dict = self.var_condition_dict or var_condition_dict
 		self.var_kwarg_dict = self.var_kwarg_dict or var_kwarg_dict
 		self.auto_addressmap = self.auto_addressmap or auto_addressmap
+		self.trigger_var = Smarten(self.trigger_var) or Smarten(trigger_var)
 
 	def get_output_expression(self, input_expression=None):
 		var_dict = match_expressions(self.template1, input_expression, self.var_condition_dict)
@@ -63,6 +66,10 @@ class AlgebraicAction(Action):
 					addressmap += [[t1ad, t2ad, kwargs]]
 		
 		return addressmap
+	
+	def get_trigger_addresses(self, input_expression):
+		addresses = self.template1.get_addresses_of_subex(self.trigger_var)
+		return [self.preaddress + address for address in addresses]
 
 	def __repr__(self):
 		return f'{self.__class__.__name__}({self.template1}, {self.template2})'
