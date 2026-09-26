@@ -1,4 +1,3 @@
-from MF_Tools.dual_compatibility import average_color
 # from MF_Tools.dual_compatibility import color_to_rgb, rgb_to_color
 # from MF_Tools.dual_compatibility import interpolate_color_by_hsl
 # import numpy as np
@@ -31,6 +30,10 @@ from MF_Tools.dual_compatibility import average_color
 # What about RGB mean but then shift away from the r=g=b gray line? Need some vector math, could be a good idea.
 # Accepting manim's native for now, which is rgb rms on manimgl and rgb straight on manimce.
 
+
+def average_color(*args, **kwargs):
+	from MF_Tools.dual_compatibility import average_color # lazy so it doesn't require manim unnecessarily
+	return average_color(*args, **kwargs)
 
 
 '#ff0000'

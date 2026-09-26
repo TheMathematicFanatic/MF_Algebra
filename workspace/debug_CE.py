@@ -7,9 +7,9 @@ from MF_Algebra import *
 
 
 class CheckStuff(Scene):
-    def construct(self):
-        A = x**2 + y**2
-        self.add(A.mob)
-        A['10'].set_color(RED)
+	def construct(self):
+		A = x**2 + y**2
+		self.add(A.mob)
+		A['10'].set_color(RED)
 
 CheckStuff().render()

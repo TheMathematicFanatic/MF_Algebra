@@ -4,7 +4,7 @@ from ..expressions.combiners.operations import BinaryOperation, Add, Sub, Mul, D
 from ..expressions.combiners.relations import Equation
 from ..expressions.functions.functions import ApplyFunction
 from ..utils import Smarten
-from MF_Tools.dual_compatibility import Write
+from ..utils.api import Write
 from typing import Literal, Type
 
 

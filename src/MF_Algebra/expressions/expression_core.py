@@ -1,5 +1,5 @@
-from MF_Tools.dual_compatibility import dc_Tex, MANIM_TYPE, VGroup
-from ..utils import MF_Base, Smarten, add_spaces_around_brackets, algebra_config
+from MF_Tools.dual_compatibility import MANIM_TYPE, VGroup
+from ..utils import MF_Base, Smarten, algebra_config
 from functools import wraps
 
 
@@ -30,11 +30,11 @@ class Expression(MF_Base):
 	def mob(self):
 		if self._mob is None:
 			self.init_mob()
-		return self._mob
+		return self._mob.mobject
 
 	def init_mob(self, **kwargs):
-		string = add_spaces_around_brackets(str(self))
-		self._mob = dc_Tex(string, **kwargs)
+		from ..utils.api import MobHolder
+		self._mob = MobHolder(self)
 		if self.color:
 			self._mob.set_color(self.color)
 		else:
@@ -45,21 +45,11 @@ class Expression(MF_Base):
 	def __getitem__(self, key):
 		# Returns a VGroup of the glyphs at the given addresses
 		# Or if key is an Expression, returns the glyphs of that subexpression!
-		if MANIM_TYPE == 'GL':
-			parent = self.mob
-		elif MANIM_TYPE == 'CE':
-			parent = self.mob[0]
-		else:
-			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
-		
 		result = VGroup()
 		if isinstance(key, int):
-			# result.add(parent[key]) # Turning to Expression instead
 			result.add(*self[Smarten(key)])
-		elif isinstance(key, slice):
-			result.add(*parent[key]) # Slice will still do mob I guess
 		elif isinstance(key, str):
-			result.add(*[parent[g] for g in self.get_glyphs_at_address(key)])
+			result.add(*[self.mob[g] for g in self.get_glyphs_at_address(key)])
 		elif isinstance(key, (list, tuple)):
 			for k in key:
 				result.add(*self[k])
@@ -100,13 +90,7 @@ class Expression(MF_Base):
 		raise NotImplementedError
 
 	def get_glyph_count_from_mob(self):	
-		if MANIM_TYPE == 'GL':
-			parent = self.mob
-		elif MANIM_TYPE == 'CE':
-			parent = self.mob[0]
-		else:
-			raise Exception(f"Unknown manim type: {MANIM_TYPE}")
-		return len(parent)
+		return len(self.mob)
 
 	special_character_to_glyph_method_dict = {
 		# Class dictionary mapping special characters to methods

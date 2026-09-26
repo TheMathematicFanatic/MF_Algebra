@@ -1,6 +1,7 @@
 from ..expressions.expression_core import Expression
 from ..expressions.combiners.operations import Mul
-from MF_Tools import TransformByGlyphMap, AnimationGroup, Write, FadeIn, FadeOut, TransformMatchingTex
+from MF_Tools import TransformByGlyphMap, AnimationGroup, TransformMatchingTex
+from ..utils.api import Write, FadeIn, FadeOut
 from ..utils import MF_Base, apply_addressmap, algebra_config
 from functools import wraps
 from copy import deepcopy
@@ -40,11 +41,11 @@ class Action(MF_Base):
 		return self.label
 
 	def get_trigger_glyphs(self, input_expression):
-		# define in subclasses
+		# define one of these in subclasses
 		return input_expression.get_glyphs_at_addresses(*self.get_trigger_addresses(input_expression))
 	
 	def get_trigger_addresses(self, input_expression):
-		# define in subclasses
+		# define one of these in subclasses
 		return []
 
 	### Animating ###

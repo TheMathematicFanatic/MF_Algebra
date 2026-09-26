@@ -1,6 +1,6 @@
 from ..expressions import *
 from ..actions import *
-from MF_Tools.dual_compatibility import Mobject, TransformMatchingTex, UP, smooth, Scene
+from MF_Tools.dual_compatibility import TransformMatchingTex, UP, smooth, Scene
 
 
 class Timeline(MF_Base):
@@ -173,7 +173,7 @@ class Timeline(MF_Base):
 		return self.get_vgroup()
 
 	@property
-	def mob(self) -> Mobject:
+	def mob(self):
 		return self.exp.mob
 
 	@property

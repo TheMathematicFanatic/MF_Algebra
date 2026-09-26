@@ -1,6 +1,6 @@
 from .action_core import Action
 from ..expressions.expression_core import Expression
-from MF_Tools.dual_compatibility import PI, DOWN, FadeIn, FadeOut
+from ..utils.api import PI, DOWN, FadeIn, FadeOut
 from ..utils import Smarten
 from typing import Literal
 
