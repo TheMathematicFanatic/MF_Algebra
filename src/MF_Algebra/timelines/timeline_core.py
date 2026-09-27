@@ -1,7 +1,8 @@
-from ..expressions import *
-from ..actions import *
-from MF_Tools.dual_compatibility import TransformMatchingTex, UP, smooth, Scene
-
+from ..expressions import Expression
+from ..actions import Action
+from ..utils.base_class import MF_Base
+from ..utils.api import TransformMatchingTex, UP, Scene, VGroup, Write
+import numpy as np
 
 class Timeline(MF_Base):
 	def __init__(
@@ -16,7 +17,6 @@ class Timeline(MF_Base):
 		past_steps_direction = UP,
 		past_steps_buff = 1,
 		past_steps_shift_run_time = 1,
-		past_steps_shift_rate_func = smooth
 	):
 		self.steps = [] # Elements of this list are of the form [expression, action]
 		self.current_exp_index = 0
@@ -32,7 +32,6 @@ class Timeline(MF_Base):
 			self.past_steps_direction = past_steps_direction
 			self.past_steps_buff = past_steps_buff
 			self.past_steps_shift_run_time = past_steps_shift_run_time
-			self.past_steps_shift_rate_func = past_steps_shift_rate_func
 
 	def get_expression(self, index: int) -> Expression:
 		try:
@@ -116,6 +115,7 @@ class Timeline(MF_Base):
 		if action:
 			Animation = action.get_animation()(expA, expB, **kwargs)
 		else:
+			from ..utils.api import TransformMatchingTex
 			Animation = TransformMatchingTex(expA.mob, expB.mob, **kwargs)
 		return Animation
 	
@@ -158,8 +158,7 @@ class Timeline(MF_Base):
 		scene.add(self.past_steps_vgroup)
 		scene.play(
 			self.past_steps_vgroup.animate.shift(shift_distance * self.past_steps_direction),
-			run_time = self.past_steps_shift_run_time,
-			rate_func = self.past_steps_shift_rate_func
+			run_time = self.past_steps_shift_run_time
 		)
 
 	def __repr__(self):
@@ -234,6 +233,7 @@ class Timeline(MF_Base):
 			print(entry)
 		self.play_animation(scene, i)
 		self.reset()
+		from ..utils.api import TransformByGlyphMap
 		scene.play(TransformByGlyphMap(
 			exp.copy().mob.shift([-3,0,0]),
 			out_exp.copy().mob,

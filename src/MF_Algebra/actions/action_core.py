@@ -1,11 +1,10 @@
 from ..expressions.expression_core import Expression
 from ..expressions.combiners.operations import Mul
-from MF_Tools import TransformByGlyphMap, AnimationGroup, TransformMatchingTex
-from ..utils.api import Write, FadeIn, FadeOut
+from ..utils.api import Write, FadeOut, TransformByGlyphMap, AnimationGroup, TransformMatchingTex
 from ..utils import MF_Base, apply_addressmap, algebra_config
 from functools import wraps
 from copy import deepcopy
-from typing import Literal
+from typing import Any, Literal
 
 
 class Action(MF_Base):
@@ -28,23 +27,23 @@ class Action(MF_Base):
 		self.preaddress = preaddress or self.preaddress
 		self.extra_animations = extra_animations
 
-	def get_output_expression(self, input_expression):
+	def get_output_expression(self, input_expression:Expression) -> Expression:
   		# define in subclasses
-		return None
+		return input_expression
 
-	def get_addressmap(self, input_expression, **kwargs):
+	def get_addressmap(self, input_expression, **kwargs) -> list[list[str]]:
 		# define in subclasses
 		return [['', '']]
 	
-	def get_label(self):
+	def get_label(self) -> str:
 		# define in subclasses
 		return self.label
 
-	def get_trigger_glyphs(self, input_expression):
+	def get_trigger_glyphs(self, input_expression) -> list[int]:
 		# define one of these in subclasses
 		return input_expression.get_glyphs_at_addresses(*self.get_trigger_addresses(input_expression))
 	
-	def get_trigger_addresses(self, input_expression):
+	def get_trigger_addresses(self, input_expression) -> list[str]:
 		# define one of these in subclasses
 		return []
 
@@ -93,7 +92,7 @@ class Action(MF_Base):
 			def get_TBGM(input_exp, output_exp):
 				return TransformByGlyphMap(
 					input_exp.mob,
-					output_exp.mob,
+					output_exp.mob,  # pyright: ignore[reportCallIssue]
 					*glyphmap,
 					default_introducer = self.introducer,
 					default_introducer_kwargs = self.introduce_kwargs,

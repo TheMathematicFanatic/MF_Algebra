@@ -1,22 +1,40 @@
 from .api_core import MobHolderBase
+import numpy as np
 
+def blank_class():
+	class blank:
+		def __init__(self, label=None, *args, **kwargs):
+			self.label = label
+		
+		def __repr__(self):
+			return self.label
+		
+		def __str__(self):
+			return self.label
 
+		def __getattr__(self, name):
+			return None
+	return blank
 
 # Universal to blank objects mapping
-Scene = type
-Tex = type
-VGroup = type
-Write = type
-Create = type
-Uncreate = type
-FadeIn = type
-FadeOut = type
-UP = [0, 1, 0]
-DOWN = [0, -1, 0]
-LEFT = [-1, 0, 0]
-RIGHT = [1, 0, 0]
-PI = 3.14159265358979
-TAU = 2*PI
+Scene = blank_class()
+Tex = blank_class()
+VGroup = blank_class()
+Write = blank_class()
+Create = blank_class()
+Uncreate = blank_class()
+FadeIn = blank_class()
+FadeOut = blank_class()
+UP = np.array([0, 1, 0])
+DOWN = np.array([0, -1, 0])
+LEFT = np.array([-1, 0, 0])
+RIGHT = np.array([1, 0, 0])
+PI = np.pi
+TAU = 2*np.pi
+TransformByGlyphMap = blank_class()
+TransformMatchingTex = blank_class()
+AnimationGroup = blank_class()
+
 
 
 
@@ -31,7 +49,14 @@ class MobHolder(MobHolderBase):
 		return None
 	
 	def __getattr__(self, name):
+		if name.startswith('__'):
+			raise AttributeError
+		else:
+			return lambda *a, **k: None
+
+	def set_color(self, *args, **kwargs):
 		return None
+		
 	
 	
 

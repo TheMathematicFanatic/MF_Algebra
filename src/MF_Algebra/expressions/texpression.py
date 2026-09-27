@@ -1,6 +1,6 @@
 from .expression_core import Expression
-from MF_Tools.dual_compatibility import dc_Tex
 from ..utils import Smarten
+from ..utils.api import Tex
 
 '''
 This is a spoof Expression wrapper for what is actually just a Tex mobject.
@@ -12,7 +12,7 @@ class Texpression(Expression):
 		super().__init__(**kwargs)
 	
 	def init_mob(self, **kwargs):
-		self._mob = dc_Tex(self.latex_string)
+		self._mob = Tex(self.latex_string)
 
 	def init_glyph_count(self):
 		self._glyph_count = self.get_glyph_count_from_mob()

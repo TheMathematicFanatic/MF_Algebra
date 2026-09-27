@@ -374,7 +374,7 @@ def get_graph_mobject(expr, color='#FFFFFF', stroke_width=2, show_addresses=True
 
 
 def debug_expression(expr, scene):
-	from MF_Tools.dual_compatibility import VGroup, DOWN, Write
+	from ..utils.api import VGroup, DOWN, Write
 	scene.clear()
 	graph = get_graph_mobject(expr)
 	VGroup(expr.mob, graph).arrange(DOWN,buff=1)

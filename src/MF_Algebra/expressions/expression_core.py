@@ -1,7 +1,5 @@
-from MF_Tools.dual_compatibility import MANIM_TYPE, VGroup
 from ..utils import MF_Base, Smarten, algebra_config
 from functools import wraps
-
 
 
 class Expression(MF_Base):
@@ -32,9 +30,12 @@ class Expression(MF_Base):
 			self.init_mob()
 		return self._mob.mobject
 
-	def init_mob(self, **kwargs):
+	def init_mob(self):
 		from ..utils.api import MobHolder
 		self._mob = MobHolder(self)
+		self.init_mob_colors()
+
+	def init_mob_colors(self):
 		if self.color:
 			self._mob.set_color(self.color)
 		else:
@@ -45,6 +46,7 @@ class Expression(MF_Base):
 	def __getitem__(self, key):
 		# Returns a VGroup of the glyphs at the given addresses
 		# Or if key is an Expression, returns the glyphs of that subexpression!
+		from ..utils.api import VGroup
 		result = VGroup()
 		if isinstance(key, int):
 			result.add(*self[Smarten(key)])

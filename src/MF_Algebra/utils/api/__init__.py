@@ -1,4 +1,4 @@
-api_mode = 'None'
+api_mode = 'ManimGL'
 
 if api_mode is None:
     from MF_Tools.dual_compatibility import MANIM_TYPE
