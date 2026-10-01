@@ -91,7 +91,7 @@ class Expression(MF_Base):
 		# Override in subclasses
 		raise NotImplementedError
 
-	def get_glyph_count_from_mob(self):	
+	def get_glyph_count_from_mob(self):
 		return len(self.mob)
 
 	special_character_to_glyph_method_dict = {

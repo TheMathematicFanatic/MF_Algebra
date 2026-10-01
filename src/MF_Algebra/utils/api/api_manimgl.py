@@ -3,7 +3,7 @@ from ..tex_strings import add_spaces_around_brackets
 import manimlib
 import MF_Tools
 
-normalize_tex_svg_globally()
+MF_Tools.normalize_tex_svg_globally()
 
 
 # Universal to ManimGL mapping

@@ -19,8 +19,25 @@ class MobHolderBase(ABC):
 	def get_mob_from_expression(cls, latex):
 		pass
 
+	def __len__(self):
+		return len(self.mobject)
 
 
-class AnimationHolder(ABC):
+
+class AnimationHolderBase(ABC):
 	pass
 
+
+
+
+def decide_api_mode_from_env():
+	from importlib.util import find_spec
+	if find_spec('manimlib'):
+		return 'ManimGL'
+	if find_spec('manim'):
+		return 'ManimCE'
+	import sys
+	if sys.platform == 'emscripten':
+		# return 'Web'
+		return 'None'
+	return 'None'

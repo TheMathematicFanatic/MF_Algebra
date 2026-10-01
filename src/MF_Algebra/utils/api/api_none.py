@@ -1,6 +1,7 @@
 from .api_core import MobHolderBase
 import numpy as np
 
+
 def blank_class():
 	class blank:
 		def __init__(self, label=None, *args, **kwargs):
@@ -15,6 +16,7 @@ def blank_class():
 		def __getattr__(self, name):
 			return None
 	return blank
+
 
 # Universal to blank objects mapping
 Scene = blank_class()
@@ -37,7 +39,6 @@ AnimationGroup = blank_class()
 
 
 
-
 # MobHolder, will behave like a mobject
 class MobHolder(MobHolderBase):
 	@classmethod
@@ -56,9 +57,6 @@ class MobHolder(MobHolderBase):
 
 	def set_color(self, *args, **kwargs):
 		return None
-		
-	
-	
 
 
 

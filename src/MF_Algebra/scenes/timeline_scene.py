@@ -1,3 +1,0 @@
-from manimlib import InteractiveScene
-
-

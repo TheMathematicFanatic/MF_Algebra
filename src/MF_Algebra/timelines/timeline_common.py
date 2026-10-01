@@ -1,10 +1,8 @@
-from .timeline_core import *
-from .timeline_variants import *
-from ..expressions.variables import Variable
-from ..actions.evaluation import evaluate_
-from ..expressions.combiners.relations import Relation
+from .timeline_core import Timeline
+from .timeline_variants import AutoTimeline, CombinedRuleTimeline
+from ..expressions import Expression, Relation
+from ..actions import evaluate_, swap_children_, IncompatibleExpression
 from typing import Literal, Type
-from ..expressions.expression_core import Expression
 
 
 class Evaluate(AutoTimeline):

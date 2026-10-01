@@ -1,9 +1,9 @@
 from .api_core import MobHolderBase
 from ..tex_strings import add_spaces_around_brackets
 import manim
-from MF_Tools import normalize_tex_svg_globally
+import MF_Tools
 
-normalize_tex_svg_globally()
+MF_Tools.normalize_tex_svg_globally()
 
 
 # Universal to ManimCE mapping
@@ -21,6 +21,9 @@ LEFT = manim.LEFT
 RIGHT = manim.RIGHT
 PI = manim.PI
 TAU = manim.TAU
+TransformByGlyphMap = MF_Tools.TransformByGlyphMap
+TransformMatchingTex = manim.TransformMatchingTex
+AnimationGroup = manim.AnimationGroup
 
 
 # MobHolder, will behave like a mobject

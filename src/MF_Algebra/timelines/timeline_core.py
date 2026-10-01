@@ -1,7 +1,7 @@
 from ..expressions import Expression
 from ..actions import Action
 from ..utils.base_class import MF_Base
-from ..utils.api import TransformMatchingTex, UP, Scene, VGroup, Write
+from ..utils.api import UP, Scene, VGroup, Write
 import numpy as np
 
 class Timeline(MF_Base):

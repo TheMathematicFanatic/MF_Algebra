@@ -4,7 +4,7 @@ from ..utils.api import Write, FadeOut, TransformByGlyphMap, AnimationGroup, Tra
 from ..utils import MF_Base, apply_addressmap, algebra_config
 from functools import wraps
 from copy import deepcopy
-from typing import Any, Literal
+from typing import Literal
 
 
 class Action(MF_Base):

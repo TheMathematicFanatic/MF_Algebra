@@ -77,7 +77,7 @@ class TimeWeb(MF_Base):
 	
 	def add_new_action_to_all(self, action):
 		for exp in self.expressions:
-			self.add_new_action(actiion, exp, change_current=False, ignore_exception=True)
+			self.add_new_action(action, exp, change_current=False, ignore_exception=True)
 
 	def __rshift__(self, obj):
 		if isinstance(obj, Action):
@@ -90,6 +90,8 @@ class TimeWeb(MF_Base):
 			raise TypeError(f'Unexpected type of {obj}: {type(obj)}')
 
 	def add_timeline(self, timeline:Timeline):
+		if len(timeline.expressions) == 0:
+			timeline >> self.current_expression
 		for i, (exp, act) in enumerate(timeline.steps):
 			if exp:
 				self.add_new_expression(exp)
@@ -152,11 +154,11 @@ class TimeWeb(MF_Base):
 			'title'       : self.title,
 			'expressions' : {},  # exp_hash : {'latex':texstr, 'xml':svgstr} 
 			'actions'     : {},  # act_hash : {'action':classname, 'label':divide by 3, 'from_exp':hash, 'to_exp':hash, 'preaddress':preaddress, 'glyphmap':uvgm}
-			'graph'       : {},  # exp_hash : {'outgoing': [(act_hash,exp_hash),...], 'incoming': [(act_hash,exp_hash),...]}
+			'graph'       : {},  # exp_hash : {'outgoing':[(act_hash,exp_hash),...], 'incoming':[(act_hash,exp_hash),...]}
 		}
 		for exp_hash, (exp, outgoing, incoming) in self.web.items():
 			latex = str(exp) # convert Expression to latex string
-			xml = exp.mob.get_svg_string()
+			xml = exp._mob.get_svg_string()
 			json['expressions'][exp_hash] = {
 				'latex':latex,
 				'xml':xml
@@ -172,6 +174,7 @@ class TimeWeb(MF_Base):
 					'label'          : label,
 					'from_exp'       : exp_hash,
 					'to_exp'         : out_hash,
+					'preaddress'     : act.preaddress,
 					'glyphmap'       : uvg,
 					'trigger_glyphs' : trigger_glyphs,
 				}
