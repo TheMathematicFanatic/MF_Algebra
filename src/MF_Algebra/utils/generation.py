@@ -1,5 +1,6 @@
-import numpy as numpy
 from .type_fixing import Smarten
+
+
 
 def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per_node=2, seed=None, **kwargs):
 	import random

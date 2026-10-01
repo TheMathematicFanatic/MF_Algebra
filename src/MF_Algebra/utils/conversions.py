@@ -1,11 +1,11 @@
-from sympy import Expr, E, symbols
-from sympy.parsing.latex import parse_latex
 import re
 import asteval
 
 
 
 def MF_Algebra_to_sympy(exp):
+	from sympy import Expr, E, symbols # In here because this is rarely used and sympy is 72MB
+	from sympy.parsing.latex import parse_latex
 	latex = str(exp)
 	sympy_expr = parse_latex(latex)
 

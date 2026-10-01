@@ -1,5 +1,5 @@
 from .api_core import MobHolderBase
-import numpy as np
+import math
 
 
 def blank_class():
@@ -18,6 +18,11 @@ def blank_class():
 	return blank
 
 
+class numpy_like_array(list):
+	def __mul__(self, other):
+		return numpy_like_array([element*other for element in self])
+
+
 # Universal to blank objects mapping
 Scene = blank_class()
 Tex = blank_class()
@@ -27,12 +32,12 @@ Create = blank_class()
 Uncreate = blank_class()
 FadeIn = blank_class()
 FadeOut = blank_class()
-UP = np.array([0, 1, 0])
-DOWN = np.array([0, -1, 0])
-LEFT = np.array([-1, 0, 0])
-RIGHT = np.array([1, 0, 0])
-PI = np.pi
-TAU = 2*np.pi
+UP = numpy_like_array([0, 1, 0])
+DOWN = numpy_like_array([0, -1, 0])
+LEFT = numpy_like_array([-1, 0, 0])
+RIGHT = numpy_like_array([1, 0, 0])
+PI = math.pi
+TAU = 2*math.pi
 TransformByGlyphMap = blank_class()
 TransformMatchingTex = blank_class()
 AnimationGroup = blank_class()

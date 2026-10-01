@@ -1,6 +1,6 @@
 from ..expression_core import *
 from .number import Number
-import numpy as np
+import math
 
 
 class Real(Number):
@@ -11,7 +11,7 @@ class Real(Number):
 		self.symbol = symbol
 		self.symbol_glyph_length = symbol_glyph_length
 		rounded = round(value, self.decimal_places)
-		if np.abs(value - rounded) < self.internal_precision:
+		if abs(value - rounded) < self.internal_precision:
 			value = rounded
 		super().__init__(value, **kwargs)
 	
@@ -57,6 +57,6 @@ class Real(Number):
 			return self.value
 
 
-e = Real(np.e, 'e', 1)
-pi = Real(np.pi, '\\pi', 1)
-tau = Real(np.pi*2, '\\tau', 1)
+e = Real(math.e, 'e', 1)
+pi = Real(math.pi, '\\pi', 1)
+tau = Real(math.pi*2, '\\tau', 1)

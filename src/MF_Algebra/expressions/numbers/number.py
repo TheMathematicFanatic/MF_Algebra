@@ -1,5 +1,5 @@
 from ..expression_core import *
-import numpy as np
+
 
 
 class Number(Expression):

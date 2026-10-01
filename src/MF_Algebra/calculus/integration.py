@@ -4,8 +4,8 @@ from ..timelines import AutoTimeline
 from ..expressions import Variables, f, g, e, ln, Number
 from .integrals import *
 from .differentials import DifferentialOperator, d, du, dv, dx
-from numpy import pi as PI
-TAU = PI*2
+
+
 
 a,b,c,n,u,v,x,C = Variables('abcnuvxC')
 

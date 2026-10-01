@@ -18,7 +18,7 @@ class Factorial(Function):
 	string_code = [arg, '!']
 	glyph_code = [arg, 1]
 	def __init__(self, **kwargs):
-		from scipy.special import gamma
+		from math import gamma # Real values only, scipy not worth 20MB, should upgrade in the future
 		super().__init__(
 			symbol = '!',
 			python_rule = lambda z: gamma(z+1),

@@ -1,6 +1,6 @@
 from ..expressions import Function
 from .unit_circle import unit_circle_dict
-import numpy as np
+import math
 
 
 
@@ -39,7 +39,7 @@ class Sine(TrigFunction):
 		super().__init__(
 			symbol = '\\sin',
 			symbol_glyph_length = 3,
-			python_rule = np.sin,
+			python_rule = math.sin,
 			**kwargs
 		)
 
@@ -55,7 +55,7 @@ class Cosine(TrigFunction):
 		super().__init__(
 			symbol = '\\cos',
 			symbol_glyph_length = 3,
-			python_rule = np.cos,
+			python_rule = math.cos,
 			**kwargs
 		)
 
@@ -71,7 +71,7 @@ class Tangent(TrigFunction):
 		super().__init__(
 			symbol = '\\tan',
 			symbol_glyph_length = 3,
-			python_rule = np.tan,
+			python_rule = math.tan,
 			**kwargs
 		)
 
@@ -87,7 +87,7 @@ class Cosecant(TrigFunction):
 		super().__init__(
 			symbol = '\\csc',
 			symbol_glyph_length = 3,
-			python_rule = lambda x: 1/np.sin(x),
+			python_rule = lambda x: 1/math.sin(x),
 			**kwargs
 		)
 
@@ -103,7 +103,7 @@ class Secant(TrigFunction):
 		super().__init__(
 			symbol = '\\sec',
 			symbol_glyph_length = 3,
-			python_rule = lambda x: 1/np.cos(x),
+			python_rule = lambda x: 1/math.cos(x),
 			**kwargs
 		)
 
@@ -119,7 +119,7 @@ class Cotangent(TrigFunction):
 		super().__init__(
 			symbol = '\\cot',
 			symbol_glyph_length = 3,
-			python_rule = lambda x: 1/np.tan(x),
+			python_rule = lambda x: 1/math.tan(x),
 			**kwargs
 		)
 

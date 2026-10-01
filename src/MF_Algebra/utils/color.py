@@ -1,6 +1,5 @@
 # from MF_Tools.dual_compatibility import color_to_rgb, rgb_to_color
 # from MF_Tools.dual_compatibility import interpolate_color_by_hsl
-# import numpy as np
 
 # manim's built in color averaging function averages them in rgb space with some kinda root mean square
 # might be better to implement our own and/or use hsv space but let's try this first

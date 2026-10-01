@@ -1,5 +1,6 @@
-import numpy as np
 from .config import algebra_config
+import math
+
 
 
 def Smarten(input):
@@ -20,10 +21,10 @@ def Smarten(input):
 		return Integer(input)
 
 	if isinstance(input, float):
-		if input == np.inf:
+		if input == math.inf:
 			from ..calculus.limits import inf
 			return inf
-		if input == np.nan:
+		if input == math.nan:
 			return None
 		from math import isclose
 		if isclose(input, round(input), rel_tol=0, abs_tol=algebra_config['integer_tolerance']):

@@ -4,8 +4,8 @@ from ..timelines import AutoTimeline
 from ..expressions import Variables, f, g, e, ln, Number
 from ..trigonometry import *
 from .differentials import *
-from numpy import pi as PI
-TAU = PI*2
+
+
 
 x,y,n = Variables('xyn')
 
@@ -47,7 +47,7 @@ class PowerRule_(DerivativeRule):
 	template1 =	d(x**n)
 	template2 =	n * x**(n-1) * d(x)
 	addressmap = [['11', '0110'], [[], '011-1']]
-	var_kwarg_dict = {n:{'path_arc':TAU/3}}
+	var_kwarg_dict = {n:{'path_arc':2}}
 
 class ExponentialRule_(DerivativeRule):
 	template1 =	d(n**x)

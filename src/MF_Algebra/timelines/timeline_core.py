@@ -2,7 +2,7 @@ from ..expressions import Expression
 from ..actions import Action
 from ..utils.base_class import MF_Base
 from ..utils.api import UP, Scene, VGroup, Write
-import numpy as np
+import math
 
 class Timeline(MF_Base):
 	def __init__(
@@ -151,7 +151,7 @@ class Timeline(MF_Base):
 	def shift_past_steps(self, scene, expA, expB):
 		mobA_radius = expA.mob.get_critical_point(self.past_steps_direction) - expA.mob.get_center()
 		mobB_radius = expB.mob.get_center() - expB.mob.get_critical_point(-self.past_steps_direction)
-		shift_distance = np.linalg.norm(mobA_radius) + np.linalg.norm(mobB_radius) + self.past_steps_buff
+		shift_distance = math.hypot(mobA_radius) + math.hypot(mobB_radius) + self.past_steps_buff
 		self.past_steps_vgroup.add(
 			self.mob.copy().set_opacity(0.25)
 		)
@@ -205,6 +205,7 @@ class Timeline(MF_Base):
 			self.set_expression(i, exp)
 
 	def align_on_equals(self, strength=1):
+		import numpy as np # manim only
 		self.get_vgroup()
 		equals_positions = [exp['='].get_center() for exp in self.expressions]
 		avg = np.mean(np.stack(equals_positions), axis=0)
