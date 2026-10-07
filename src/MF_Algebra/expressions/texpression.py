@@ -1,18 +1,20 @@
 from .expression_core import Expression
 from ..utils import Smarten
-from ..utils.api import Tex
 
 '''
 This is a spoof Expression wrapper for what is actually just a Tex mobject.
 This only exists so that Tex mobjects can go straight into a Timeline and stuff.
+Maybe we should simply use a Variable instead? No reason why a Variable can't hold an arbitrarily large latex.
 '''
 class Texpression(Expression):
 	def __init__(self, latex_string, **kwargs):
 		self.latex_string = latex_string
 		super().__init__(**kwargs)
 	
-	def init_mob(self, **kwargs):
-		self._mob = Tex(self.latex_string)
+	def init_mob(self):
+		from ..utils.api import MobHolder
+		self._mob = MobHolder(self)
+		# don't try to set colors
 
 	def init_glyph_count(self):
 		self._glyph_count = self.get_glyph_count_from_mob()

@@ -5,12 +5,21 @@ from typing import Literal
 class AbsoluteValue(Function):
 	string_code = ['\\left|', arg, '\\right|']
 	glyph_code = [1, arg, 1]
+	# string_code = [arg]
+	# glyph_code = [arg]
 	def __init__(self, **kwargs):
 		super().__init__(
 			python_rule = abs,
 			parentheses_mode = 'never',
 			**kwargs
 		)
+	
+	# def __call__(self, other):
+	# 	result = super().__call__(other)
+	# 	result.children[1].give_parentheses(symbols=('\\left|', '\\right|'))
+	# 	return result
+
+
 abs_val = AbsoluteValue()
 
 

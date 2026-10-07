@@ -108,7 +108,7 @@ class Function(Expression):
 	def get_main_func_glyphs(self):
 		return sorted(list(set(self.get_all_func_glyphs()) - set(self.get_all_child_glyphs())))
 
-	def get_all_func_glyphs(self): # Needs glyph_code rework...
+	def get_all_func_glyphs(self): # TODO Needs glyph_code rework...
 		# The trouble is we need the glyph counts for the argument(s) in case there are after them like n!
 		return list(range(0, self.glyph_count))
 
@@ -257,9 +257,9 @@ class ApplyFunction(BinaryOperation):
 		return self
 
 	def is_function(self):
-		# This should always be False because it can no longer be called on something
-		# Maybe not in very bold circumstances, but this will do for now
-		return False
+		# This should usually be false, like f(x) or sin(pi) are not callable functions anymore,
+		# But L(f) or f' are both callable functions, so seems like a function of a function is usually a function?
+		return self.children[1].is_function()
 
 	def expand_on_args(self):
 		return self.func.expand_on_args(*self.args_list)

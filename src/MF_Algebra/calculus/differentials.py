@@ -42,3 +42,4 @@ class PrimeOperator(DifferentialOperator):
 	string_code = [arg, '^\\prime']
 	glyph_code = [arg, 1]
 prime = PrimeOperator()
+prime.parentheses_mode = 'strong'

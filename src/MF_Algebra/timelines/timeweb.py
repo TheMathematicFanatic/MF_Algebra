@@ -158,7 +158,7 @@ class TimeWeb(MF_Base):
 		}
 		for exp_hash, (exp, outgoing, incoming) in self.web.items():
 			latex = str(exp) # convert Expression to latex string
-			xml = exp._mob.get_svg_string()
+			xml = exp.mob.get_svg_string()
 			json['expressions'][exp_hash] = {
 				'latex':latex,
 				'xml':xml
