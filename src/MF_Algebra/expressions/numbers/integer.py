@@ -25,26 +25,28 @@ class Integer(Number):
 	def GCF(*smartnums):
 		smartnums = list(map(Smarten, smartnums))
 		nums = list(map(lambda N: N.value, smartnums))
+		import numpy as np
 		return Smarten(int(np.gcd.reduce(nums)))
 
 	@staticmethod
 	def LCM(*smartnums):
 		smartnums = list(map(Smarten, smartnums))
 		nums = list(map(lambda N: N.value, smartnums))
+		import numpy as np
 		return Smarten(int(np.lcm.reduce(nums)))
 
 	def prime_factorization(self):
 		pass
 
 
-zero = Integer(0)
-one = Integer(1)
-two = Integer(2)
-three = Integer(3)
-four = Integer(4)
-five = Integer(5)
-six = Integer(6)
-seven = Integer(7)
-eight = Integer(8)
-nine = Integer(9)
-ten = Integer(10)
+zero    = Integer(0)
+one     = Integer(1)
+two     = Integer(2)
+three   = Integer(3)
+four    = Integer(4)
+five    = Integer(5)
+six     = Integer(6)
+seven   = Integer(7)
+eight   = Integer(8)
+nine    = Integer(9)
+ten     = Integer(10)

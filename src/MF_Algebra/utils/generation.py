@@ -10,7 +10,7 @@ def random_number_expression(leaves=range(-5, 10), max_depth=3, max_children_per
 	random.seed(seed)
 	node = random.choice(nodes)
 	def generate_child(current_depth):
-		if np.random.random() < 1 / (current_depth + 1):
+		if random.random() < 1 / (current_depth + 1):
 			return Integer(random.choice(leaves))
 		else:
 			return random_number_expression(leaves, max_depth - 1)
