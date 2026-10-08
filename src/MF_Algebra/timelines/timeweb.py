@@ -46,6 +46,14 @@ class TimeWeb(MF_Base):
 	def expressions(self):
 		return {val[0] for val in self.web.values()}
 	
+	@property
+	def actions(self):
+		results = set()
+		for exp, from_acts, to_acts in self.web.values():
+			for act, to_hash in from_acts:
+				results |= {(act, exp, self.expression_from_hash(to_hash))}
+		return results
+
 	def expression_from_hash(self, key):
 		return self.web[key][0]
 	
