@@ -52,6 +52,6 @@ def combine_to_timeline(A, B):
 	elif isinstance(A, Timeline) and isinstance(B, Action):
 		return A.add_action_to_end(B)
 	elif isinstance(A, Timeline) and isinstance(B, Timeline):
-		return A.combine_timelines(B) #TODO
+		return A.combine_timelines(B)
 	else:
 		raise NotImplementedError(f"Unsupported combination of types {type(A)} and {type(B)}")

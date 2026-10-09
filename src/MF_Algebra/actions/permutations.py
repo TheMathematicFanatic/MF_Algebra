@@ -124,7 +124,7 @@ class swap_children_(Action):
 		]
 	
 	def get_trigger_addresses(self, input_expression):
-		return ['+']
+		return [self.preaddress + '+']
 
 swap = swap_children_()
 
