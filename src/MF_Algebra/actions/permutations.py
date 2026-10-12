@@ -112,11 +112,12 @@ class swap_children_(Action):
 		super().__init__(**kwargs)
 	
 	def get_output_expression(self, input_expression):
-		assert len(input_expression.children) == 2
+		if len(input_expression.children) != 2:
+			raise IncompatibleExpression(f'Cannot swap other than 2 children')
 		left,right = input_expression.children
 		exp_type = type(input_expression)
 		return exp_type(right, left)
-	
+
 	def get_addressmap(self, input_expression):
 		return [
 			['0', '1', {'path_arc':self.arc_size}],
@@ -134,7 +135,8 @@ class commute_(swap_children_):
 		from ..expressions.combiners import Add, Mul, Equation
 		from ..logic.operations import And, Or, Xor, Iff
 		if isinstance(input_expression, (Add, Mul, Equation, And, Or, Xor, Iff)):
-			assert len(input_expression.children) == 2
+			if len(input_expression.children) != 2:
+				raise IncompatibleExpression(f'Cannot swap other than 2 children')
 			left,right = input_expression.children
 			exp_type = type(input_expression)
 			return exp_type(right, left)

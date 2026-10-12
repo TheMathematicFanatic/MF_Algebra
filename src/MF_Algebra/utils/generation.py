@@ -74,15 +74,17 @@ def random_expression(
 def random_bool_exp(mode='simple', **kwargs):
 	from ..logic import T,F,Not,And,Or,BooleanOperation
 	if mode == 'simple':
-		leaves = [T,F],
-		nodes = [Not, And, Or]
+		return random_expression(
+			leaves = [T,F],
+			nodes = [Not, And, Or],
+			**kwargs
+		)
 	elif mode == 'full':
-		leaves = [T,F]
-		nodes = BooleanOperation.__subclasses__()
+		return random_expression(
+			leaves = [T,F],
+			nodes = BooleanOperation.__subclasses__(),
+			**kwargs
+		)
 	else:
 		raise ValueError('Invalid mode')
-	return random_expression(
-		leaves = leaves,
-		nodes = nodes,
-		**kwargs
-	)
+

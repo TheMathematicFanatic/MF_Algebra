@@ -51,7 +51,7 @@ class TimeWeb(MF_Base):
 		results = set()
 		for exp, from_acts, to_acts in self.web.values():
 			for act, to_hash in from_acts:
-				results |= {(act, exp, self.expression_from_hash(to_hash))}
+				results |= {(act.__class__.__name__, exp, self.expression_from_hash(to_hash))}
 		return results
 
 	def expression_from_hash(self, key):
@@ -126,14 +126,14 @@ class TimeWeb(MF_Base):
 			untouched_expressions = self.expressions - touched_expressions
 		return self
 	
-	def generate_evaluate(self):
+	def generate_evaluate(self, **kwargs):
 		from ..actions.evaluation import evaluate_
-		return self.generate_all(evaluate_(), at_twig_preaddresses=True)
+		return self.generate_all(evaluate_(), at_twig_preaddresses=True, **kwargs)
 	
-	def generate_algebra_maneuvers(self):
+	def generate_algebra_maneuvers(self, **kwargs):
 		from ..algebra.equations import EquationManeuver
 		from ..actions.permutations import commute_
-		return self.generate_all(*EquationManeuver.all_actions(), commute_())
+		return self.generate_all(*EquationManeuver.all_actions(), commute_(), **kwargs)
 	
 	def generate_from_timelines(self, *timelines, additional_actions=[], **kwargs):
 		# Not guaranteed to terminate!!!
@@ -157,7 +157,7 @@ class TimeWeb(MF_Base):
 			exp.reset_caches()
 		return self
 
-	def get_universal_json(self):
+	def get_universal_json(self, skip_svg=False):
 		json = {
 			'title'       : self.title,
 			'expressions' : {},  # exp_hash : {'latex':texstr, 'xml':svgstr} 
@@ -166,7 +166,7 @@ class TimeWeb(MF_Base):
 		}
 		for exp_hash, (exp, outgoing, incoming) in self.web.items():
 			latex = str(exp) # convert Expression to latex string
-			xml = exp.mob.get_svg_string()
+			xml = exp.mob.get_svg_string() if not skip_svg else ''
 			json['expressions'][exp_hash] = {
 				'latex':latex,
 				'xml':xml
@@ -196,7 +196,13 @@ class TimeWeb(MF_Base):
 	def mob(self):
 		return self.current_expression.mob
 
-
+	def __repr__(self):
+		return (
+			self.__class__.__name__ + '(' +
+			str(self.current_expression) + ', ' + 
+			str(len(self.expressions)) + ' expressions, ' +
+			str(len(self.actions)) + ' actions)'
+		)
 
 
 

@@ -267,6 +267,13 @@ class Timeline(MF_Base):
 
 		return self
 
+	def pread(self, *preads):
+		for act in self.actions:
+			if act is not None:
+				act.pread(*preads)
+		return self
+
+
 
 class TimelineScene(Scene):
 	def __init__(self, *args, **kwargs):
