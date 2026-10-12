@@ -68,7 +68,7 @@ class EquationManeuver(AlgebraicAction):
 class alg_add_R(EquationManeuver):
 	template1 = a + b | c
 	template2 = a | c - b
-	trigger_var = b
+	trigger_vars = [b]
 	addressmap = (
 		['01', '11', {'path_arc':3}],
 		['0+', '1-', {'path_arc':3}],
@@ -78,7 +78,7 @@ class alg_add_R(EquationManeuver):
 class alg_add_L(EquationManeuver):
 	template1 = a + b | c
 	template2 = b | c - a
-	trigger_var = a
+	trigger_vars = [a]
 	addressmap = (
 		['00', '11', {'path_arc':3}],
 		['0+', '1-', {'path_arc':3}]
@@ -88,7 +88,7 @@ class alg_add_L(EquationManeuver):
 class alg_mul_R(EquationManeuver):
 	template1 =	a * b | c
 	template2 = a | c / b
-	trigger_var = b
+	trigger_vars = [b]
 	addressmap = (
 		['01', '11', {'path_arc':3}],
 		['0*', [], {'run_time':0.5}],
@@ -108,7 +108,7 @@ class alg_mul_R(EquationManeuver):
 class alg_mul_L(EquationManeuver):
 	template1 = a * b | c
 	template2 = b | c / a
-	trigger_var = a
+	trigger_vars = [a]
 	addressmap = (
 		['00', '11', {'path_arc':3}],
 		['0*', [], {'run_time':0.5}],
@@ -128,7 +128,7 @@ class alg_mul_L(EquationManeuver):
 class alg_pow_2_R(EquationManeuver):
 	template1 = a**2 | b
 	template2 = a | PositiveNegative(sqrt(b))
-	trigger_var = 2
+	trigger_vars = [2]
 	addressmap = (
 		['01', '100f', {'path_arc':-1}],
 		[[], '1~', {'delay':0.75, 'run_time':0.75}]
@@ -145,7 +145,7 @@ class alg_pow_2_R(EquationManeuver):
 class alg_pow_R(EquationManeuver):
 	template1 = a**b | c
 	template2 = a | Rad(b)(c)
-	trigger_var = b
+	trigger_vars = [b]
 	addressmap = (
 		['01', '100', {'path_arc':-1}],
 		[[], '10f', {'delay':0.25, 'run_time':0.75}],
@@ -163,7 +163,7 @@ class alg_pow_R(EquationManeuver):
 class alg_pow_e_L(EquationManeuver):
 	template1 = e**a | b
 	template2 = a | ln(b)
-	trigger_var = e
+	trigger_vars = [e]
 	addressmap = (
 		['00', '10f', {'path_arc':1.5}],
 	)
@@ -179,7 +179,7 @@ class alg_pow_e_L(EquationManeuver):
 class alg_pow_L(EquationManeuver):
 	template1 = a**b | c
 	template2 = b | Log(a)(c)
-	trigger_var = a
+	trigger_vars = [a]
 	addressmap = (
 		['00', '100', {'path_arc':1.5}],
 		[[], '10f', {'delay':0.75, 'run_time':0.75}],
@@ -197,10 +197,26 @@ class alg_pow_L(EquationManeuver):
 class alg_neg_R(EquationManeuver):
 	template1 = -a | b
 	template2 = a | -b
-	trigger_var = None
+	trigger_addresses = ['0-']
 	addressmap = (
 		['0-', '1-', {'path_arc':3}],
 	)
 
-	def get_trigger_addresses(self, input_expression):
-		return ['0-']
+
+	# class alg_swap_sub_L(EquationManeuver):
+	# 	template1 = a - b | c
+	# 	template2 = b - a | -c
+	# 	var_condition_dict = {c: lambda c: not c.is_negative()}
+	# 	var_kwarg_dict = {a:{'path_arc':3}, b:{'path_arc':3}}
+	# 	trigger_addresses = ['0-']
+
+
+	# class alg_sub_L(EquationManeuver):
+	# 	template1 = a - b | c
+	# 	template2 = -b | c - a
+	# 	addressmap = (
+	# 		['0-', '0-'],
+	# 		[[], '1-', {'delay':0.5, 'run_time':0.5}],
+	# 		['00', '11', {'path_arc':-3}]
+	# 	)
+	# 	trigger_vars = [a]

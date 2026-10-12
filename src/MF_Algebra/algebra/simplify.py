@@ -165,7 +165,7 @@ class dist_mul_add_L_(SimplificationRule):
 	template2 = a*x+a*y
 	addressmap = [['*', []], [[], '0*'], [[], '1*']]
 	var_kwarg_dict = {a:{'path_arc':-3}}
-	trigger_var = a
+	trigger_vars = [a]
 	label = 'distribute'
 
 class dist_mul_add_R_(SimplificationRule):
@@ -173,7 +173,7 @@ class dist_mul_add_R_(SimplificationRule):
 	template2 = x*a+y*a
 	addressmap = [['*', []], [[], '0*'], [[], '1*']]
 	var_kwarg_dict = {a:{'path_arc':3}}
-	trigger_var = a
+	trigger_vars = [a]
 	label = 'distribute'
 
 class dist_mul_sub_L_(SimplificationRule):
@@ -181,7 +181,7 @@ class dist_mul_sub_L_(SimplificationRule):
 	template2 = a*x-a*y
 	addressmap = [['*', []], [[], '0*'], [[], '1*']]
 	var_kwarg_dict = {a:{'path_arc':-3}}
-	trigger_var = a
+	trigger_vars = [a]
 	label = 'distribute'
 
 class dist_mul_sub_R_(SimplificationRule):
@@ -189,7 +189,7 @@ class dist_mul_sub_R_(SimplificationRule):
 	template2 = x*a-y*a
 	addressmap = [['*', []], [[], '0*'], [[], '1*']]
 	var_kwarg_dict = {a:{'path_arc':3}}
-	trigger_var = a
+	trigger_vars = [a]
 	label = 'distribute'
 
 class dist_neg_add_(SimplificationRule):
@@ -206,25 +206,25 @@ class dist_div_add_(SimplificationRule):
 	template1 = (x+y)/a
 	template2 = x/a+y/a
 	addressmap = [['/', '0/', {'run_time':0.8}], ['/', '1/', {'run_time':0.8}]]
-	trigger_var = a
+	trigger_vars = [a]
 
 class dist_div_sub_(SimplificationRule):
 	template1 = (x-y)/a
 	template2 = x/a-y/a
 	addressmap = [['/', '0/', {'run_time':0.8}], ['/', '1/', {'run_time':0.8}]]
-	trigger_var = a
+	trigger_vars = [a]
 
 class dist_pow_mul_(SimplificationRule):
 	template1 = (x*y)**a
 	template2 = x**a * y**a
 	addressmap = [['0*', '*']]
-	trigger_var = a
+	trigger_vars = [a]
 
 class dist_pow_div_(SimplificationRule):
 	template1 = (x/y)**a
 	template2 = x**a / y**a
 	addressmap = [['0/', '/']]
-	trigger_var = a
+	trigger_vars = [a]
 
 
 
