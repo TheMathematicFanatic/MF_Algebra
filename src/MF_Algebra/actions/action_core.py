@@ -150,6 +150,14 @@ class Action(MF_Base):
 		# Can be passed a number to apply to more than 2 children for, say, a triple equation or inequality.
 		return self.pread(*[str(i) for i in range(number_of_children)], **kwargs)
 
+	def __matmul__(self, address):
+		if isinstance(address, int):
+			return self.pread(str(address))
+		if isinstance(address, str):
+			return self.pread(address)
+		elif isinstance(address, (list, tuple, set)):
+			return self.pread(*address)
+
 
 	### Combinations ###
 
