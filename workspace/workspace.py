@@ -1987,3 +1987,22 @@ class WebTest(Scene):
 		
 		print(W.web)
 		self.embed()
+
+
+
+class MixedNumber(SilentAdd):
+	def __init__(self, W, N, D):
+		super().__init__(W, Rational(N,D))
+
+
+
+class NewScene(Scene):
+	def construct(self):
+		A = MixedNumber(3,7,8)
+		B = MixedNumber(2,1,5)
+
+		mixed_to_improper = AlgebraicAction()
+
+		W = TimeWeb(A+B)
+		self.embed()
+
