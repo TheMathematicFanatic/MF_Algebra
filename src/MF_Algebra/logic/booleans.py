@@ -1,6 +1,7 @@
 from ..expressions.expression_core import Expression, ExpressionContainer
 from ..expressions.numbers import Number
 from ..expressions.variables import Variable
+from ..utils.type_fixing import Smarten
 
 
 
@@ -26,6 +27,9 @@ class BooleanExpression(Expression):
 		return Or(self, other)
 
 	def __xor__(self, other):
+		other = Smarten(other)
+		if not isinstance(other, Expression):
+			return super().__xor__(other)
 		from .operations import Xor
 		return Xor(self, other)
 

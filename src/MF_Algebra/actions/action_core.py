@@ -176,10 +176,6 @@ class Action(MF_Base):
 	def __add__(self, other):
 		return self.create_parallel(other)
 
-	def __le__(self, expr):
-		assert isinstance(expr, Expression), "Can only apply expression >= action"
-		return self.get_output_expression(expr)
-
 
 	### Decorators ###
 

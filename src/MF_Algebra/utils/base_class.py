@@ -21,6 +21,14 @@ class MF_Base(ABC):
 		other = Smarten(other)
 		return apply_action_to_expression(self, other)
 
+	def __ge__(self, other):
+		other = Smarten(other)
+		return apply_action_to_expression(self, other)
+
+	def __le__(self, other):
+		other = Smarten(other)
+		return other.__ge__(self)
+
 	def __eq__(self, other):
 		other = Smarten(other)
 		if type(self) != type(other):
@@ -35,13 +43,17 @@ class MF_Base(ABC):
 		raise NotImplementedError
 
 
-def apply_action_to_expression(exp, act):
+def apply_action_to_expression(A,B):
 	from ..expressions.expression_core import Expression
 	from ..actions.action_core import Action
-	if isinstance(exp, Expression) and isinstance(act, Action):
-		return act.get_output_expression(exp)
+	from ..timelines.timeline_core import Timeline
+	if isinstance(A, Expression) and isinstance(B, Action):
+		return B.get_output_expression(A)
+	elif isinstance(A, Expression) and isinstance(B, Timeline):
+		timeline = B.copy() >> A
+		return timeline.expressions[-1]
 	else:
-		raise NotImplementedError(f"Unsupported combination of types {type(exp)} and {type(act)}.")
+		raise NotImplementedError(f"Unsupported combination of types {type(A)} and {type(B)}.")
 
 def combine_to_timeline(A, B):
 	from ..expressions.expression_core import Expression

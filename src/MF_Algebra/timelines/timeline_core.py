@@ -241,12 +241,6 @@ class Timeline(MF_Base):
 			show_indices=True
 		))
 
-	def __le__(self, expr):
-		assert isinstance(expr, Expression), "Can only apply expression >= timeline"
-		timeline = self.copy()
-		timeline >> expr
-		return timeline.expressions[-1]
-
 	def combine_timelines(self, other):
 		last_exp = self.expressions[-1]
 		other = last_exp >> other

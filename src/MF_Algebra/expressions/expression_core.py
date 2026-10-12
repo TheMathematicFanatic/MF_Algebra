@@ -354,6 +354,9 @@ class Expression(MF_Base):
 		return LessThan(self, other)
 
 	def __le__(self, other):
+		other = Smarten(other)
+		if not isinstance(other, Expression):
+			return super().__le__(other)
 		from .combiners.relations import LessThanOrEqualTo
 		return LessThanOrEqualTo(self, other)
 
@@ -363,11 +366,10 @@ class Expression(MF_Base):
 
 	def __ge__(self, other):
 		other = Smarten(other)
-		if isinstance(other, Expression):
-			from .combiners.relations import GreaterThanOrEqualTo
-			return GreaterThanOrEqualTo(self, other)
-		else:
-			return NotImplemented
+		if not isinstance(other, Expression):
+			return super().__ge__(other)
+		from .combiners.relations import GreaterThanOrEqualTo
+		return GreaterThanOrEqualTo(self, other)
 
 	def __matmul__(self, other):
 		if isinstance(other, dict):
@@ -613,7 +615,7 @@ class Expression(MF_Base):
 
 
 
-class Address:
+class Address(str):
 	def __init__(self, *address_parts):
 		if len(address_parts) == 1:
 			arg = address_parts[0]
