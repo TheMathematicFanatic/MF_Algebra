@@ -17,6 +17,10 @@ class MF_Base(ABC):
 		other = Smarten(other)
 		return other.__rshift__(self)
 
+	def __xor__(self, other):
+		other = Smarten(other)
+		return apply_action_to_expression(self, other)
+
 	def __eq__(self, other):
 		other = Smarten(other)
 		if type(self) != type(other):
@@ -30,6 +34,14 @@ class MF_Base(ABC):
 	def hash_key(self):
 		raise NotImplementedError
 
+
+def apply_action_to_expression(exp, act):
+	from ..expressions.expression_core import Expression
+	from ..actions.action_core import Action
+	if isinstance(exp, Expression) and isinstance(act, Action):
+		return act.get_output_expression(exp)
+	else:
+		raise NotImplementedError(f"Unsupported combination of types {type(exp)} and {type(act)}.")
 
 def combine_to_timeline(A, B):
 	from ..expressions.expression_core import Expression

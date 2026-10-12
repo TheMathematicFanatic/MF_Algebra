@@ -15,6 +15,7 @@ class EquationManeuver(AlgebraicAction):
 	label = 'move to other side'
 
 	def reverse(self):
+		self = self.copy()
 		# swaps input and output templates
 		self.template1, self.template2 = self.template2, self.template1
 		# modifies addressmap accordingly
@@ -29,10 +30,11 @@ class EquationManeuver(AlgebraicAction):
 		return self
 
 	def flip(self):
+		self = self.copy()
 		# flips the equations of both templates
-		s = swap_children_()
-		self.template1 = s.get_output_expression(self.template1)
-		self.template2 = s.get_output_expression(self.template2)
+		swap = swap_children_()
+		self.template1 ^= swap
+		self.template2 ^= swap
 		# modifies addressmap accordingly
 		# (swap first character of addresses and negate path_arcs)
 		admap_copy = deepcopy(self.addressmap)
