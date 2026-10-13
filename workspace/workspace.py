@@ -1,9 +1,20 @@
-import sys
-import os
-# Add the src directory to the sys.path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-from MF_Tools.dual_compatibility import *
-from MF_Algebra import *
+if __name__ == '__main__':
+	try:
+		from ..src.MF_Algebra import *	
+	except:
+		import sys
+		import os
+		# Add the src directory to the sys.path
+		sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+		from MF_Tools.dual_compatibility import *
+		from MF_Algebra import *
+else:
+	import sys
+	import os
+	# Add the src directory to the sys.path
+	sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+	from MF_Tools.dual_compatibility import *
+	from MF_Algebra import *
 
 
 
@@ -1989,11 +2000,9 @@ class WebTest(Scene):
 		self.embed()
 
 
-
 class MixedNumber(SilentAdd):
 	def __init__(self, W, N, D):
 		super().__init__(W, Rational(N,D))
-
 
 
 class NewScene(Scene):
@@ -2005,4 +2014,16 @@ class NewScene(Scene):
 
 		W = TimeWeb(A+B)
 		self.embed()
+
+
+class DistributeTest(Scene):
+	def construct(self):
+		algebra_config['autoparenmap_mode'] = 'stupid'
+		d = distribute_()
+		e = evaluate_()
+		A = Sub(1,2,3,4,5,6)/9
+		T = A >> d >> e@'1'
+		T.play_all(self)
+		self.embed()
+
 

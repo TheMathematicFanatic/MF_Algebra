@@ -1,59 +1,90 @@
-from ..actions.action_core import Action
+from ..actions.action_core import Action, IncompatibleExpression
+from ..expressions.expression_core import Address
 from ..expressions.combiners.operations import Add, Sub, Mul, Div, Pow
+from ..logic.operations import And, Or, Implies, Xor
+from ..sets.operations import Union, Intersection, Difference, CartesianProduct
 from typing import Literal
 
 
+both_distribute_table = {
+	Mul: (Add, Sub),
+	And: (Or, Xor),
+	Or: (And,),
+	Intersection: (Union, Difference),
+	Union: (Intersection,),
+	CartesianProduct: (Union, Intersection, Difference)
+}
+
+left_distribute_table = {
+	Implies: (And, Or)
+}
+
+right_distribute_table = {
+	Div: (Add, Sub),
+	Pow: (Mul, Div),
+}
+
+
+
 class distribute_(Action):
-	# Not done yet, multilayer does not work... this is so necessary but rather nontrivial... hm...
-	def __init__(self, mode: Literal['auto', 'left', 'right'] = 'auto', multilayer=False, **kwargs):
+	def __init__(self, mode: Literal['auto', 'left', 'right'] = 'auto', **kwargs):
 		self.mode = mode
 		super().__init__(**kwargs)
+	
+	def determine_mode(self, input_expression):
+		input_expression = input_expression.get_subex(self.preaddress)
+		Outer = type(input_expression)
+		distribute_table = {**both_distribute_table, **left_distribute_table}
+		if Outer in distribute_table:
+			Inner = type(input_expression.children[1])
+			if Inner in distribute_table[Outer]:
+				self.mode = 'left'
+				return self.mode, Outer, Inner
+		distribute_table = {**both_distribute_table, **right_distribute_table}
+		if Outer in distribute_table:
+			Inner = type(input_expression.children[0])
+			if Inner in distribute_table[Outer]:
+				self.mode = 'right'
+				return self.mode, Outer, Inner
+		raise IncompatibleExpression(f'Cannot distribute {input_expression}')
 
 	def get_output_expression(self, input_expression=None):
-		if self.mode == 'auto':
-			self.determine_direction(input_expression)
-		if self.mode == 'left':
-			new_children = [
-				type(input_expression)(input_expression.children[0], child)
-				for child in input_expression.children[-1].children
-				]
-			return type(input_expression.children[-1])(*new_children)
-		elif self.mode == 'right':
-			new_children = [
-				type(input_expression)(child, input_expression.children[-1])
-				for child in input_expression.children[0].children
-				]
-			return type(input_expression.children[0])(*new_children)
-
-	def determine_direction(self, input_expression=None):
-		if self.mode == 'auto':
-			if isinstance(input_expression, Mul):
-				left_distributable = isinstance(input_expression.children[-1], (Add, Sub))
-				right_distributable = isinstance(input_expression.children[0], (Add, Sub))
-				if left_distributable and right_distributable:
-					raise ValueError('Cannot auto-distribute if both sides are distributable, please set mode manually.')
-				elif left_distributable:
-					self.mode = 'left'
-				elif right_distributable:
-					self.mode = 'right'
-				else:
-					raise ValueError('Cannot distribute, neither side is distributable.')
-			elif isinstance(input_expression, Div):
-				right_distributable = isinstance(input_expression.children[0], (Add, Sub))
-				if right_distributable:
-					self.mode = 'right'
-				else:
-					raise ValueError('Cannot distribute, right side is not distributable.')
-			elif isinstance(input_expression, Pow):
-				right_distributable = isinstance(input_expression.children[0], (Mul, Div))
-				if right_distributable:
-					self.mode = 'right'
-				else:
-					raise ValueError('Cannot distribute, right side is not distributable.')
-			else:
-				raise ValueError('Cannot auto-distribute, must be a multiplication or division.')
-
+		self.mode, Outer, Inner = self.determine_mode(input_expression)
+		try:
+			if self.mode == 'left':
+				return Inner(*[Outer(input_expression.children[0],child) for child in input_expression.children[1].children])
+			if self.mode == 'right':
+				return Inner(*[Outer(child, input_expression.children[1]) for child in input_expression.children[0].children])
+		except:
+			pass
+		raise IncompatibleExpression(f'Cannot distribute {input_expression}')
+	
 	def get_addressmap(self, input_expression=None):
-		return [
-			['', ''] #standin idk what the fuck im doing here
-		]
+		self.mode, Outer, Inner = self.determine_mode(input_expression)
+		if self.mode == 'left':
+			num_children = len(input_expression.children[1].children)
+			return [
+				*[['0', Address(i)+'0', {'path_arc':-3}] for i in range(num_children)],
+				['1+', '+'],
+				# ['*', []],
+				*[['*', Address(i)+'*'] for i in range(num_children)]
+			]
+		elif self.mode == 'right':
+			num_children = len(input_expression.children[0].children)
+			return [
+				*[['1', Address(i)+'1'] for i in range(num_children)],
+				['0+', '+'],
+				# ['*', []],
+				*[['*', Address(i)+'*', {'run_time':0.75}] for i in range(num_children)]
+			]
+		else:
+			raise ValueError(f"Invalid mode: {self.mode}")
+	
+	def get_trigger_addresses(self):
+		if self.mode == 'left':
+			return ['0']
+		elif self.mode == 'right':
+			return ['1']
+
+
+
