@@ -2027,3 +2027,9 @@ class DistributeTest(Scene):
 		self.embed()
 
 
+class TimeWebTest(Scene):
+	def construct(self):
+		TimeWeb(5).generate_all(add_(4), bailsize=3)
+
+# TimeWebTest().construct()
+

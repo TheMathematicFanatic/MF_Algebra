@@ -6,6 +6,7 @@ from ..utils import MF_Base, Smarten
 
 class TimeWeb(MF_Base):
 	def __init__(self, starting_expression, title=''):
+		starting_expression = Smarten(starting_expression)
 		current_hash = hash(starting_expression)
 		self.web = {
 			# hash : [Expression, {(Action, to_hash), ...}, { (Action, from_hash), ...} ]
@@ -111,7 +112,7 @@ class TimeWeb(MF_Base):
 		# Not guaranteed to terminate!!!
 		touched_expressions = set()
 		untouched_expressions = self.expressions
-		while untouched_expressions and (bailsize is None or len(untouched_expressions) < bailsize):
+		while untouched_expressions and (bailsize is None or len(touched_expressions) < bailsize):
 			for exp in untouched_expressions:
 				if at_all_preaddresses:
 					preaddresses = exp.get_all_nonleaf_addresses()
