@@ -36,6 +36,8 @@ def decide_api_mode_from_env():
 		return 'ManimGL'
 	if find_spec('manim'):
 		return 'ManimCE'
+	if find_spec('bpy'):
+		return 'Blender'
 	import sys
 	if sys.platform == 'emscripten':
 		# return 'Web'

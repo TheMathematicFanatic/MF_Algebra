@@ -62,6 +62,9 @@ class MobHolder(MobHolderBase):
 
 	def set_color(self, *args, **kwargs):
 		return None
+	
+	def get_svg_string(self, *args, **kwargs):
+		return ''
 
 
 

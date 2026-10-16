@@ -11,6 +11,9 @@ if api_mode == 'ManimCE':
 if api_mode == 'Web':
 	from .api_web import *
 
+if api_mode == 'Blender':
+	from .api_blender import *
+
 if api_mode == 'None':
 	from .api_none import *
 
