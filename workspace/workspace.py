@@ -2029,7 +2029,12 @@ class DistributeTest(Scene):
 
 class TimeWebTest(Scene):
 	def construct(self):
-		TimeWeb(5).generate_all(add_(4), bailsize=3)
+		W = TimeWeb(a*b|c)
+		import pyperclip
+		W.generate_algebra_maneuvers(bailsize=100)
+		uj = W.get_universal_json(skip_svg=True, skip_trigger=True)
+		pyperclip.copy(uj)
+		self.embed()
 
 # TimeWebTest().construct()
 

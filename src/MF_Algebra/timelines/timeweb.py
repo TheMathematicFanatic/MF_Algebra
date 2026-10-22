@@ -5,7 +5,7 @@ from ..utils import MF_Base, Smarten
 
 
 class TimeWeb(MF_Base):
-	def __init__(self, starting_expression, title=''):
+	def __init__(self, starting_expression, title='', **kwargs):
 		starting_expression = Smarten(starting_expression)
 		current_hash = hash(starting_expression)
 		self.web = {
@@ -14,6 +14,7 @@ class TimeWeb(MF_Base):
 		}
 		self.current_hash = current_hash
 		self.title = title
+		super().__init__(**kwargs)
 	
 	def __getitem__(self, key):
 		if isinstance(key, Expression):
@@ -158,7 +159,7 @@ class TimeWeb(MF_Base):
 			exp.reset_caches()
 		return self
 
-	def get_universal_json(self, skip_svg=False):
+	def get_universal_json(self, skip_svg=False, skip_trigger=False):
 		json = {
 			'title'       : self.title,
 			'expressions' : {},  # exp_hash : {'latex':texstr, 'xml':svgstr} 
@@ -177,7 +178,7 @@ class TimeWeb(MF_Base):
 				act_hash = int(str(hash((act, exp_hash, out_hash)))[:15])
 				uvg = act.get_universal_glyphmap(exp)
 				label = act.get_label()
-				trigger_glyphs = act.get_trigger_glyphs(exp)
+				trigger_glyphs = act.get_trigger_glyphs(exp) if not skip_trigger else []
 				json['actions'][act_hash] = {
 					'action'         : act.__class__.__name__,
 					'label'          : label,

@@ -613,6 +613,9 @@ class Expression(MF_Base):
 		else:
 			return self.get_subexpression_chain(address[:-1]) + [self.get_subex(address)]
 
+	def copy(self):
+		self.reset_caches()
+		return super().copy()
 
 
 class Address(str):
