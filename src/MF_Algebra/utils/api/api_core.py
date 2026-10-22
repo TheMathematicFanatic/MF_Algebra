@@ -40,6 +40,5 @@ def decide_api_mode_from_env():
 		return 'Blender'
 	import sys
 	if sys.platform == 'emscripten':
-		# return 'Web'
-		return 'None'
+		return 'Web'
 	return 'None'
