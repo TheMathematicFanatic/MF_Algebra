@@ -12,7 +12,8 @@ x,y,n = Variables('xyn')
 class DerivativeRule(AlgebraicAction):
 	var_condition_dict = {
 		d: lambda exp: isinstance(exp, DifferentialOperator),
-		n: lambda exp: isinstance(exp, Number)
+		n: lambda exp: isinstance(exp, Number),
+		f: lambda exp: isinstance(exp, Function)
 	}
 
 
@@ -55,13 +56,14 @@ class ExponentialRule_(DerivativeRule):
 	addressmap = [[[], '000']]
 
 # class ChainRule(DerivativeRule):
-	# template1 = d(f(g(a)))
-	# template2 = d(f)(g(a))*d(g(a)))
-# Idk I think this could be just always built in to all other rules
+# 	template1 = d(f(y))
+# 	template2 = d(f)(y)*d(y)
+# 	# idk what im doin here
 
 function_derivatives = [
 	( e**x, e**x ),
 	( ln(x), 1/x ),
+	( sqrt(x), 1/(2*sqrt(x))),
 	( sin(x), cos(x) ),
 	( cos(x), -sin(x) ),
 	( tan(x), (sec**2)(x) ),
