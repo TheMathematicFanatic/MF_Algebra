@@ -614,8 +614,12 @@ class Expression(MF_Base):
 			return self.get_subexpression_chain(address[:-1]) + [self.get_subex(address)]
 
 	def copy(self):
-		self.reset_caches()
-		return super().copy()
+		_mob = self._mob
+		self._mob = None
+		copy = super().copy()
+		self._mob = _mob
+		copy._mob = _mob
+		return copy
 
 
 class Address(str):
