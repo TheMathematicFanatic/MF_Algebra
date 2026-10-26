@@ -4,7 +4,7 @@ from ..expressions.variables import a,b,c
 from ..expressions.functions.radicals import Rad, sqrt
 from ..expressions.functions.logarithms import Log, ln
 from ..expressions.numbers.real import e
-from ..expressions.combiners.operations import PositiveNegative
+from ..expressions.combiners.operations import PositiveNegative, Div
 from copy import deepcopy
 
 
@@ -194,29 +194,64 @@ class alg_pow_L(EquationManeuver):
 		return self
 
 
-class alg_neg_R(EquationManeuver):
-	template1 = -a | b
-	template2 = a | -b
-	trigger_addresses = ['0-']
+# class alg_neg_R(EquationManeuver):
+# 	template1 = -a | b
+# 	template2 = a | -b
+# 	trigger_addresses = ['0-']
+# 	addressmap = (
+# 		['0-', '1-', {'path_arc':3}],
+# 	)
+# 	var_condition_dict = {b: lambda exp: not exp.is_negative()}
+
+
+# class alg_neg_both(EquationManeuver):
+# 	template1 = -a | -b
+# 	template2 = a | b
+# 	trigger_addresses = ['0-', '1-']
+# 	addressmap = (
+# 		['0-', []],
+# 		['1-', []],
+# 	)
+# 	var_condition_dict = {
+# 		a: lambda exp: not exp.is_negative(),
+# 		b: lambda exp: not exp.is_negative()
+# 	}
+
+
+
+# class alg_swap_sub_L(EquationManeuver):
+# 	template1 = a - b | c
+# 	template2 = b - a | -c
+# 	var_condition_dict = {c: lambda c: not c.is_negative()}
+# 	var_kwarg_dict = {a:{'path_arc':3}, b:{'path_arc':3}}
+# 	trigger_addresses = ['0-']
+
+
+class alg_sub_L(EquationManeuver):
+	template1 = a - b | c
+	template2 = -b | c - a
+	trigger_vars = [a]
 	addressmap = (
-		['0-', '1-', {'path_arc':3}],
+		['00', '11', {'path_arc':3}],
+		['0-', '0-'],
+		[[], '1-'],
 	)
+	var_condition_dict = {b: lambda exp: not exp.is_negative()}
 
 
-	# class alg_swap_sub_L(EquationManeuver):
-	# 	template1 = a - b | c
-	# 	template2 = b - a | -c
-	# 	var_condition_dict = {c: lambda c: not c.is_negative()}
-	# 	var_kwarg_dict = {a:{'path_arc':3}, b:{'path_arc':3}}
-	# 	trigger_addresses = ['0-']
+class alg_div_L(EquationManeuver):
+	template1 = a / b | c
+	template2 = 1 / b | c / a
+	trigger_vars = [a]
+	addressmap = (
+		['00', '11', {'path_arc':4}],
+		['0/', '0/'],
+		[[], '00'],
+		[[], '1/'],
+	)
+	var_condition_dict = {
+		b: lambda exp: not isinstance(exp, Div),
+		a: lambda exp: not exp == 1
+	}
 
 
-	# class alg_sub_L(EquationManeuver):
-	# 	template1 = a - b | c
-	# 	template2 = -b | c - a
-	# 	addressmap = (
-	# 		['0-', '0-'],
-	# 		[[], '1-', {'delay':0.5, 'run_time':0.5}],
-	# 		['00', '11', {'path_arc':-3}]
-	# 	)
-	# 	trigger_vars = [a]

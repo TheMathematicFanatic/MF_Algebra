@@ -2027,6 +2027,26 @@ class DistributeTest(Scene):
 		self.embed()
 
 
+class NewEquationManeuvers(TimelineScene):
+	def construct(self):
+		a = alg_add_L()
+		af = alg_add_L().flip()
+		ar = alg_add_L().reverse()
+		arf = alg_add_L().reverse_flip()
+
+		s = alg_sub_L()
+		sf = alg_sub_L().flip()
+		sr = alg_sub_L().reverse()
+		srf = alg_sub_L().reverse_flip()
+		
+
+		eqA = x + y | z
+		eqS = x - y | z
+
+		self.embed()
+
+
+
 class TimeWebTest(Scene):
 	def construct(self):
 		W = TimeWeb(a*b|c)
