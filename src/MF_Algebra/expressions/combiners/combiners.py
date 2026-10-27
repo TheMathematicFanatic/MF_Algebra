@@ -1,4 +1,5 @@
 from ..expression_core import *
+from ...utils import merge_dicts
 
 
 class Combiner(Expression):
@@ -22,18 +23,20 @@ class Combiner(Expression):
 		self.left_spacing = left_spacing
 		self.right_spacing = right_spacing
 
-	special_character_to_glyph_method_dict = {
-		**Expression.special_character_to_glyph_method_dict,
-		'+': 'get_op_glyphs',
-		'-': 'get_op_glyphs',
-		'*': 'get_op_glyphs',
-		'/': 'get_op_glyphs',
-		'^': 'get_op_glyphs',
-		'=': 'get_op_glyphs',
-		'<': 'get_op_glyphs',
-		'>': 'get_op_glyphs',
-		',': 'get_op_glyphs',
-	}
+	special_character_to_glyph_method_dict = merge_dicts(
+		Expression.special_character_to_glyph_method_dict,
+		{
+			'+': 'get_op_glyphs',
+			'-': 'get_op_glyphs',
+			'*': 'get_op_glyphs',
+			'/': 'get_op_glyphs',
+			'^': 'get_op_glyphs',
+			'=': 'get_op_glyphs',
+			'<': 'get_op_glyphs',
+			'>': 'get_op_glyphs',
+			',': 'get_op_glyphs',
+		}
+	)
 
 	@Expression.parenthesize_glyph_list
 	def get_glyphs_at_addigit(self, addigit:int):

@@ -1,5 +1,6 @@
 import re
 import asteval
+from . import merge_dicts
 
 
 
@@ -69,21 +70,23 @@ def text_to_MF_Algebra(text):
 		return ''.join(result)
 
 	from MF_Algebra import Integer, Real, Variable, Function, sqrt, cbrt, sin, cos, tan, csc, sec, cot
-	symtable = {
-		**{L: Variable(L, 1) for L in 'abcjklmnopqrstuvwxyz'},
-		**{F: Function(F, 1) for F in 'fgh'},
-		'Integer' : Integer,
-		'Real' : Real,
-		'Variable' : Variable,
-		'sqrt' : sqrt,
-		'cbrt' : cbrt,
-		'sin' : sin,
-		'cos' : cos,
-		'tan' : tan,
-		'csc' : csc,
-		'sec' : sec,
-		'cot' : cot,
-	}
+	symtable = merge_dicts(
+		{L: Variable(L, 1) for L in 'abcjklmnopqrstuvwxyz'},
+		{F: Function(F, 1) for F in 'fgh'},
+		{
+			'Integer' : Integer,
+			'Real' : Real,
+			'Variable' : Variable,
+			'sqrt' : sqrt,
+			'cbrt' : cbrt,
+			'sin' : sin,
+			'cos' : cos,
+			'tan' : tan,
+			'csc' : csc,
+			'sec' : sec,
+			'cot' : cot,
+		}
+	)
 	aeval = asteval.Interpreter(symtable=symtable)
 
 	return aeval(rewrite_expression(text))

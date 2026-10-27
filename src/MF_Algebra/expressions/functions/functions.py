@@ -2,6 +2,7 @@ from ..expression_core import *
 from ..combiners.sequences import Sequence
 from ..combiners.operations import BinaryOperation
 from ..variables import Variable
+from ...utils import merge_dicts, merge_lists
 from typing import Literal
 
 
@@ -92,12 +93,14 @@ class Function(Expression):
 				start += get_value_from_code_entry(self, gc, int)
 		return []
 
-	special_character_to_glyph_method_dict = {
-		**Expression.special_character_to_glyph_method_dict,
-		'f': 'get_main_func_glyphs',
-		'F': 'get_all_func_glyphs',
-		'c': 'get_all_child_glyphs',
-	}
+	special_character_to_glyph_method_dict = merge_dicts(
+		Expression.special_character_to_glyph_method_dict,
+		{
+			'f': 'get_main_func_glyphs',
+			'F': 'get_all_func_glyphs',
+			'c': 'get_all_child_glyphs',
+		}
+	)
 
 	def get_all_child_glyphs(self):
 		glyphs = []
@@ -191,7 +194,7 @@ class ApplyFunction(BinaryOperation):
 	@property
 	def args_list(self):
 		if isinstance(self.arg, Sequence):
-			return [*self.arg.children]
+			return self.arg.children
 		else:
 			return [self.arg]
 

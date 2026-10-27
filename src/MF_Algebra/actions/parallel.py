@@ -43,5 +43,5 @@ class ParallelAction(Action):
 			return NotImplemented
 
 	def hash_key(self):
-		return hash((self.__class__, *self.actions))
+		return hash((self.__class__,) + tuple(self.actions))
 

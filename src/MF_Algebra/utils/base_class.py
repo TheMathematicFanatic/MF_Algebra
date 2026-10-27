@@ -1,11 +1,8 @@
-from abc import ABC
-from dataclasses import dataclass
 from copy import deepcopy
 from .type_fixing import Smarten
 
 
-@dataclass
-class MF_Base(ABC):
+class MF_Base:
 	def copy(self):
 		return deepcopy(self)
 

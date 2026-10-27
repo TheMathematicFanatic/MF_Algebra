@@ -31,14 +31,22 @@ class AnimationHolderBase(ABC):
 
 
 def decide_api_mode_from_env():
-	from importlib.util import find_spec
-	if find_spec('manimlib'):
+	try:
+		import manimlib
 		return 'ManimGL'
-	if find_spec('manim'):
+	except ImportError:
+		pass
+	try:
+		import manim
 		return 'ManimCE'
-	if find_spec('bpy'):
+	except ImportError:
+		pass
+	try:
+		import bpy
 		return 'Blender'
+	except ImportError:
+		pass
 	import sys
-	if sys.platform == 'emscripten':
+	if sys.platform == 'webassembly':
 		return 'Web'
 	return 'None'

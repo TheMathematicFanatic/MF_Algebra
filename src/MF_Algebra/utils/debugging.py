@@ -1,4 +1,3 @@
-from tabulate import tabulate
 
 
 def print_info(expression, tablefmt='rst'):
@@ -31,6 +30,7 @@ def print_info(expression, tablefmt='rst'):
 
 	addresses = expression.get_all_addresses()
 	rows = [get_all_info(expression, address) for address in addresses]
+	from tabulate import tabulate
 	table = tabulate(
 		rows,
 		headers='keys',

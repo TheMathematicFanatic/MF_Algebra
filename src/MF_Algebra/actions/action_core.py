@@ -1,7 +1,7 @@
 from ..expressions.expression_core import Expression
 from ..expressions.combiners.operations import Mul
 from ..utils.api import Write, FadeOut, TransformByGlyphMap, AnimationGroup, TransformMatchingTex
-from ..utils import MF_Base, apply_addressmap, algebra_config
+from ..utils import MF_Base, apply_addressmap, algebra_config, merge_dicts
 from functools import wraps
 from copy import deepcopy
 from typing import Literal
@@ -84,7 +84,7 @@ class Action(MF_Base):
 
 	def get_animation(self, **base_kwargs):
 		def animation(input_exp, output_exp=None, **kwargs):
-			kwargs = {**base_kwargs, **kwargs}
+			kwargs = merge_dicts(base_kwargs, kwargs)
 			if output_exp is None:
 				output_exp = self.get_output_expression(input_exp)
 			addressmap = self.get_addressmap(input_exp)
@@ -339,6 +339,8 @@ class Action(MF_Base):
 	)
 
 	def __init_subclass__(cls):
+		# TODO Refactor this shit once and for all. Just use different method names instead of this silliness.
+		# Micropython does not support __init_subclass__ so it's gotta go
 		super().__init_subclass__()
 
 		func = cls.get_output_expression

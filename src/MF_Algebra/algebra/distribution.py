@@ -3,6 +3,7 @@ from ..expressions.expression_core import Address
 from ..expressions.combiners.operations import Add, Sub, Mul, Div, Pow
 from ..logic.operations import And, Or, Implies, Xor
 from ..sets.operations import Union, Intersection, Difference, CartesianProduct
+from ..utils import merge_dicts, merge_lists
 from typing import Literal
 
 
@@ -34,13 +35,13 @@ class distribute_(Action):
 	def determine_mode(self, input_expression):
 		input_expression = input_expression.get_subex(self.preaddress)
 		Outer = type(input_expression)
-		distribute_table = {**both_distribute_table, **left_distribute_table}
+		distribute_table = merge_dicts(both_distribute_table, left_distribute_table)
 		if Outer in distribute_table:
 			Inner = type(input_expression.children[1])
 			if Inner in distribute_table[Outer]:
 				self.mode = 'left'
 				return self.mode, Outer, Inner
-		distribute_table = {**both_distribute_table, **right_distribute_table}
+		distribute_table = merge_dicts(both_distribute_table, right_distribute_table)
 		if Outer in distribute_table:
 			Inner = type(input_expression.children[0])
 			if Inner in distribute_table[Outer]:
@@ -63,28 +64,26 @@ class distribute_(Action):
 		self.mode, Outer, Inner = self.determine_mode(input_expression)
 		if self.mode == 'left':
 			num_children = len(input_expression.children[1].children)
-			return [
-				*[['0', Address(i)+'0', {'path_arc':-3}] for i in range(num_children)],
-				['1+', '+'],
-				# ['*', []],
-				*[['*', Address(i)+'*'] for i in range(num_children)]
-			]
+			return merge_lists(
+				[['0', Address(i)+'0', {'path_arc':-3}] for i in range(num_children)],
+				[['1+', '+']],
+				[['*', Address(i)+'*'] for i in range(num_children)]
+			)
 		elif self.mode == 'right':
 			num_children = len(input_expression.children[0].children)
-			return [
-				*[['1', Address(i)+'1'] for i in range(num_children)],
-				['0+', '+'],
-				# ['*', []],
-				*[['*', Address(i)+'*', {'run_time':0.75}] for i in range(num_children)]
-			]
+			return merge_lists(
+				[['1', Address(i)+'1'] for i in range(num_children)],
+				[['0+', '+']],
+				[['*', Address(i)+'*', {'run_time':0.75}] for i in range(num_children)]
+			)
 		else:
 			raise ValueError(f"Invalid mode: {self.mode}")
 	
 	def get_trigger_addresses(self):
 		if self.mode == 'left':
-			return ['0']
+			return ['*0']
 		elif self.mode == 'right':
-			return ['1']
+			return ['*1']
 
 
 

@@ -1,5 +1,6 @@
 from ..expression_core import *
 from .combiners import Combiner
+from ...utils import merge_dicts
 from typing import Literal
 
 
@@ -203,12 +204,14 @@ class UnaryOperation(Expression, Operation):
 	def compute(self):
 		return self.eval_op(self.children[0].compute())
 
-	special_character_to_glyph_method_dict = {
-		**Expression.special_character_to_glyph_method_dict,
-		'~': 'get_unary_glyph',
-		'+': 'get_unary_glyph',
-		'-': 'get_unary_glyph',
-	}
+	special_character_to_glyph_method_dict = merge_dicts(
+		Expression.special_character_to_glyph_method_dict,
+		{
+			'~': 'get_unary_glyph',
+			'+': 'get_unary_glyph',
+			'-': 'get_unary_glyph',
+		}
+	)
 
 	@Expression.parenthesize_glyph_list
 	def get_unary_glyph(self):
