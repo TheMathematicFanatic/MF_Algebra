@@ -1,4 +1,10 @@
+import sys
 from .api_core import decide_api_mode_from_env
+
+
+if sys.implementation.name == 'micropython':
+	from .micropython_compatibility import *
+
 api_mode = decide_api_mode_from_env()
 
 

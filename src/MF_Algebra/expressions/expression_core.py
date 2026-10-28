@@ -31,7 +31,7 @@ class Expression(MF_Base):
 		return self._mob.mobject
 
 	def init_mob(self):
-		from ..utils.api import MobHolder
+		from ..api import MobHolder
 		self._mob = MobHolder(self)
 		self.init_mob_colors()
 
@@ -46,7 +46,7 @@ class Expression(MF_Base):
 	def __getitem__(self, key):
 		# Returns a VGroup of the glyphs at the given addresses
 		# Or if key is an Expression, returns the glyphs of that subexpression!
-		from ..utils.api import VGroup
+		from ..api import VGroup
 		result = VGroup()
 		if isinstance(key, int):
 			result.add(*self[Smarten(key)])

@@ -1,7 +1,7 @@
 from ..expressions import Expression
 from ..actions import Action
 from ..utils.base_class import MF_Base
-from ..utils.api import UP, Scene, VGroup, Write
+from ..api import UP, Scene, VGroup, Write
 import math
 
 class Timeline(MF_Base):
@@ -115,7 +115,7 @@ class Timeline(MF_Base):
 		if action:
 			Animation = action.get_animation()(expA, expB, **kwargs)
 		else:
-			from ..utils.api import TransformMatchingTex
+			from ..api import TransformMatchingTex
 			Animation = TransformMatchingTex(expA.mob, expB.mob, **kwargs)
 		return Animation
 	
@@ -234,7 +234,7 @@ class Timeline(MF_Base):
 			print(entry)
 		self.play_animation(scene, i)
 		self.reset()
-		from ..utils.api import TransformByGlyphMap
+		from ..api import TransformByGlyphMap
 		scene.play(TransformByGlyphMap(
 			exp.copy().mob.shift([-3,0,0]),
 			out_exp.copy().mob,

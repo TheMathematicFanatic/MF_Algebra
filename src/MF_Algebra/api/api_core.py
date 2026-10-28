@@ -1,7 +1,6 @@
-from abc import ABC, abstractmethod
 
 
-class MobHolderBase(ABC):
+class MobHolderBase:
 	def __init__(self, expression):
 		self.expression = expression
 		self.mobject = self.__class__.get_mob_from_expression(expression)
@@ -15,7 +14,6 @@ class MobHolderBase(ABC):
 		return getattr(mobject, name)
 	
 	@classmethod
-	@abstractmethod
 	def get_mob_from_expression(cls, latex):
 		pass
 
@@ -24,29 +22,22 @@ class MobHolderBase(ABC):
 
 
 
-class AnimationHolderBase(ABC):
+class AnimationHolderBase:
 	pass
 
 
 
 
+
 def decide_api_mode_from_env():
-	try:
-		import manimlib
-		return 'ManimGL'
-	except ImportError:
-		pass
-	try:
-		import manim
-		return 'ManimCE'
-	except ImportError:
-		pass
-	try:
-		import bpy
-		return 'Blender'
-	except ImportError:
-		pass
 	import sys
-	if sys.platform == 'webassembly':
+	if sys.platform in ('emscripten', 'webassembly'):
 		return 'Web'
+	from importlib.util import find_spec
+	if find_spec('manimlib'):
+		return 'ManimGL'
+	if find_spec('manim'):
+		return 'ManimCE'
+	if find_spec('bpy'):
+		return 'Blender'
 	return 'None'

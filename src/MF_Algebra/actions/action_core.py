@@ -1,6 +1,6 @@
 from ..expressions.expression_core import Expression
 from ..expressions.combiners.operations import Mul
-from ..utils.api import Write, FadeOut, TransformByGlyphMap, AnimationGroup, TransformMatchingTex
+from ..api import Write, FadeOut, TransformByGlyphMap, AnimationGroup, TransformMatchingTex
 from ..utils import MF_Base, apply_addressmap, algebra_config, merge_dicts
 from functools import wraps
 from copy import deepcopy

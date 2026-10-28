@@ -1,5 +1,5 @@
 from .api_core import MobHolderBase
-from ..tex_strings import add_spaces_around_brackets
+from ..utils.tex_strings import add_spaces_around_brackets
 import manim
 import MF_Tools
 

@@ -1,9 +1,15 @@
 import js
-from jsffi import to_js
 from .api_core import MobHolderBase
 import sys
-from types import ModuleType
+import math
 import asyncio
+
+if sys.implementation.name == 'micropython':
+	from jsffi import to_js
+elif sys.implementation.name == 'cpython' and sys.platform == 'emscripten':
+	from pyodide.ffi import to_js
+else:
+	raise ImportError('Something has gone wrong here, the web api should only activate in either pyodide or micropython.')
 
 
 
@@ -116,9 +122,6 @@ class Scene:
 
 
 
-
-
-
 def blank_class():
 	class blank:
 		def __init__(self, label=None, *args, **kwargs):
@@ -157,66 +160,6 @@ class TransformMatchingTex(Animation): pass
 
 
 
-
-class ModuleWrapper:
-	original_module = None
-	def __getattr__(self, name):
-		try:
-			if isinstance(self.original_module, ModuleType):
-				return getattr(self.original_module, name)
-			else:
-				return None
-		except (AttributeError, ImportError):
-			raise AttributeError(
-				f'The {str(self.original_module)} module has replaced with a stub because it is not fully available in this environment, and it has no attribute {name}.'
-				)
-
-
-def _two_item_gcd(a,b):
-	while b:
-		a,b = b, a%b
-	return abs(a)
-
-def _two_item_lcm(a,b):
-	return abs(a*b) // _two_item_gcd(a,b) if a and b else 0
-
-import math as _original_math
-class _math(ModuleWrapper):
-	original_module = _original_math
-
-	@staticmethod
-	def gcd(*values):
-		gcd = values[0]
-		for i in range(1,len(values)):
-			gcd = _two_item_gcd(gcd, values[i])
-		return gcd
-
-	@staticmethod
-	def lcm(*values):
-		lcm = values[0]
-		for i in range(1,len(values)):
-			lcm = _two_item_lcm(lcm, values[i])
-		return lcm
-
-sys.modules['math'] = _math()
-
-
-
-class _asteval(ModuleWrapper):
-	original_module = 'asteval'
-sys.modules['asteval'] = _asteval()
-
-class _tabulate(ModuleWrapper):
-	original_module = 'tabulate'
-sys.modules['tabulate'] = _tabulate()
-
-class _typing(ModuleWrapper):
-	original_module = 'typing'
-sys.modules['typing'] = _typing()
-
-
-
-
 class numpy_like_array(list):
 	def __mul__(self, other):
 		return numpy_like_array([element*other for element in self])
@@ -226,8 +169,8 @@ UP = numpy_like_array([0, 1, 0])
 DOWN = numpy_like_array([0, -1, 0])
 LEFT = numpy_like_array([-1, 0, 0])
 RIGHT = numpy_like_array([1, 0, 0])
-PI = _original_math.pi
-TAU = 2*_original_math.pi
+PI = math.pi
+TAU = 2*math.pi
 
 
 

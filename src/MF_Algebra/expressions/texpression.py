@@ -12,7 +12,7 @@ class Texpression(Expression):
 		super().__init__(**kwargs)
 	
 	def init_mob(self):
-		from ..utils.api import MobHolder
+		from ..api import MobHolder
 		self._mob = MobHolder(self)
 		# don't try to set colors
 

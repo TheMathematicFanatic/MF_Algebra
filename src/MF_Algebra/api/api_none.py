@@ -21,6 +21,18 @@ def blank_class():
 class numpy_like_array(list):
 	def __mul__(self, other):
 		return numpy_like_array([element*other for element in self])
+	def __rmul__(self, other):
+		return numpy_like_array([other*element for element in self])
+	def __truediv__(self, other):
+		return numpy_like_array([element/other for element in self])
+	def __add__(self, other):
+		return numpy_like_array([i+j for i,j in zip(self, other)])
+	def __sub__(self, other):
+		return numpy_like_array([i-j for i,j in zip(self, other)])
+	def __neg__(self):
+		return numpy_like_array([-i for i in self])
+
+	
 
 
 # Universal to blank objects mapping
